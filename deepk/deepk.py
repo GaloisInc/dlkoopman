@@ -8,8 +8,8 @@ import torch
 from torch import nn
 from tqdm import tqdm
 
-from config import *
-import utils
+from deepk import config as cfg
+from deepk import utils
 
 
 #NOTE:
@@ -136,9 +136,9 @@ class DeepKoopman:
         Xte = data.get('Xte')
 
         ## Convert X data to torch tensors on device
-        self.Xtr = torch.as_tensor(Xtr, dtype=RTYPE, device=DEVICE) if Xtr is not None else torch.tensor([])
-        self.Xva = torch.as_tensor(Xva, dtype=RTYPE, device=DEVICE) if Xva is not None else torch.tensor([])
-        self.Xte = torch.as_tensor(Xte, dtype=RTYPE, device=DEVICE) if Xte is not None else torch.tensor([])
+        self.Xtr = torch.as_tensor(Xtr, dtype=cfg.RTYPE, device=cfg.DEVICE) if Xtr is not None else torch.tensor([])
+        self.Xva = torch.as_tensor(Xva, dtype=cfg.RTYPE, device=cfg.DEVICE) if Xva is not None else torch.tensor([])
+        self.Xte = torch.as_tensor(Xte, dtype=cfg.RTYPE, device=cfg.DEVICE) if Xte is not None else torch.tensor([])
 
         ## Define Xscale, and normalize X data if applicable
         self.Xscale = torch.max(torch.abs(self.Xtr))
@@ -154,9 +154,9 @@ class DeepKoopman:
         tte = data.get('tte')
 
         ## Convert t data to torch tensors on device
-        self.ttr = torch.as_tensor(ttr, dtype=RTYPE, device=DEVICE) if ttr is not None else torch.tensor([])
-        self.tva = torch.as_tensor(tva, dtype=RTYPE, device=DEVICE) if tva is not None else torch.tensor([])
-        self.tte = torch.as_tensor(tte, dtype=RTYPE, device=DEVICE) if tte is not None else torch.tensor([])
+        self.ttr = torch.as_tensor(ttr, dtype=cfg.RTYPE, device=cfg.DEVICE) if ttr is not None else torch.tensor([])
+        self.tva = torch.as_tensor(tva, dtype=cfg.RTYPE, device=cfg.DEVICE) if tva is not None else torch.tensor([])
+        self.tte = torch.as_tensor(tte, dtype=cfg.RTYPE, device=cfg.DEVICE) if tte is not None else torch.tensor([])
 
         ## Shift t data to make ttr start from 0 if it doesn't
         self.tshift = self.ttr[0].item()
@@ -218,7 +218,7 @@ class DeepKoopman:
             encoder_hidden_layers=self.encoder_hidden_layers,
             batch_norm=self.batch_norm
         )
-        self.net.to(dtype=RTYPE, device=DEVICE) #for variables, we need `X = X.to()`. For net, only `net.to()` is sufficient
+        self.net.to(dtype=cfg.RTYPE, device=cfg.DEVICE) #for variables, we need `X = X.to()`. For net, only `net.to()` is sufficient
 
         ## Define training optimizer
         self.opt = torch.optim.Adam(self.net.parameters(), lr=self.lr, weight_decay=self.weight_decay) #papers either use SGD or Adam
@@ -300,7 +300,7 @@ class DeepKoopman:
         #NOTE: We can do a check if any pair (or more) of consecutive eigenvalues are so close that their difference is less than some threshold, since this will lead to very large / nan values during backprop. But doing this check requires looping over the Omega tensor (time complexity = O(len(Omega))) and is not worth it.
         
         # Eigenvectors
-        W = interm.to(CTYPE) @ Wtilde #shape = (p,r)
+        W = interm.to(cfg.CTYPE) @ Wtilde #shape = (p,r)
         S,s = torch.linalg.norm(W,2), torch.linalg.norm(W,-2)
         cond = S/s
         if cond > self.cond_threshold:
@@ -308,7 +308,7 @@ class DeepKoopman:
                 lf.write(f"Condition number = {cond} is greater than threshold = {self.cond_threshold}. This may lead to numerical instability in evaluating linearity loss. In an attempt to mitigate this, singular values smaller than 1/{self.cond_threshold} times the largest will be discarded from the pseudo-inverse computation.\n")
         
         # Coefficients
-        coeffs = torch.linalg.pinv(W, rtol=1./self.cond_threshold) @ y0.to(CTYPE) #shape = (r,)
+        coeffs = torch.linalg.pinv(W, rtol=1./self.cond_threshold) @ y0.to(cfg.CTYPE) #shape = (r,)
         
         return Omega, W, coeffs
 
@@ -585,7 +585,7 @@ class DeepKoopman:
         Returns:
             Xpred: Tensor with predictions for the new X values. Shape = (num_samples,n)
         """
-        t_processed = (torch.as_tensor(t, dtype=RTYPE, device=DEVICE) - self.tshift) / self.tscale
+        t_processed = (torch.as_tensor(t, dtype=cfg.RTYPE, device=cfg.DEVICE) - self.tshift) / self.tscale
         with torch.no_grad():
             Ypred = self.dmd_predict(t=t_processed, Omega=self.Omega, W=self.W, coeffs=self.coeffs)
             Xpred = self.net.decoder(Ypred)
