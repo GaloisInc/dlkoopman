@@ -1,0 +1,2161 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
+<meta name="generator" content="pdoc 0.10.0" />
+<title>main API documentation</title>
+<meta name="description" content="" />
+<link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/sanitize.min.css" integrity="sha256-PK9q560IAAa6WVRRh76LtCaI8pjTJ2z11v0miyNNjrs=" crossorigin>
+<link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/typography.min.css" integrity="sha256-7l/o7C8jubJiy74VsKTidCy1yBkRtiUGbVkYBylBqUg=" crossorigin>
+<link rel="stylesheet preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/styles/github.min.css" crossorigin>
+<style>:root{--highlight-color:#fe9}.flex{display:flex !important}body{line-height:1.5em}#content{padding:20px}#sidebar{padding:30px;overflow:hidden}#sidebar > *:last-child{margin-bottom:2cm}.http-server-breadcrumbs{font-size:130%;margin:0 0 15px 0}#footer{font-size:.75em;padding:5px 30px;border-top:1px solid #ddd;text-align:right}#footer p{margin:0 0 0 1em;display:inline-block}#footer p:last-child{margin-right:30px}h1,h2,h3,h4,h5{font-weight:300}h1{font-size:2.5em;line-height:1.1em}h2{font-size:1.75em;margin:1em 0 .50em 0}h3{font-size:1.4em;margin:25px 0 10px 0}h4{margin:0;font-size:105%}h1:target,h2:target,h3:target,h4:target,h5:target,h6:target{background:var(--highlight-color);padding:.2em 0}a{color:#058;text-decoration:none;transition:color .3s ease-in-out}a:hover{color:#e82}.title code{font-weight:bold}h2[id^="header-"]{margin-top:2em}.ident{color:#900}pre code{background:#f8f8f8;font-size:.8em;line-height:1.4em}code{background:#f2f2f1;padding:1px 4px;overflow-wrap:break-word}h1 code{background:transparent}pre{background:#f8f8f8;border:0;border-top:1px solid #ccc;border-bottom:1px solid #ccc;margin:1em 0;padding:1ex}#http-server-module-list{display:flex;flex-flow:column}#http-server-module-list div{display:flex}#http-server-module-list dt{min-width:10%}#http-server-module-list p{margin-top:0}.toc ul,#index{list-style-type:none;margin:0;padding:0}#index code{background:transparent}#index h3{border-bottom:1px solid #ddd}#index ul{padding:0}#index h4{margin-top:.6em;font-weight:bold}@media (min-width:200ex){#index .two-column{column-count:2}}@media (min-width:300ex){#index .two-column{column-count:3}}dl{margin-bottom:2em}dl dl:last-child{margin-bottom:4em}dd{margin:0 0 1em 3em}#header-classes + dl > dd{margin-bottom:3em}dd dd{margin-left:2em}dd p{margin:10px 0}.name{background:#eee;font-weight:bold;font-size:.85em;padding:5px 10px;display:inline-block;min-width:40%}.name:hover{background:#e0e0e0}dt:target .name{background:var(--highlight-color)}.name > span:first-child{white-space:nowrap}.name.class > span:nth-child(2){margin-left:.4em}.inherited{color:#999;border-left:5px solid #eee;padding-left:1em}.inheritance em{font-style:normal;font-weight:bold}.desc h2{font-weight:400;font-size:1.25em}.desc h3{font-size:1em}.desc dt code{background:inherit}.source summary,.git-link-div{color:#666;text-align:right;font-weight:400;font-size:.8em;text-transform:uppercase}.source summary > *{white-space:nowrap;cursor:pointer}.git-link{color:inherit;margin-left:1em}.source pre{max-height:500px;overflow:auto;margin:0}.source pre code{font-size:12px;overflow:visible}.hlist{list-style:none}.hlist li{display:inline}.hlist li:after{content:',\2002'}.hlist li:last-child:after{content:none}.hlist .hlist{display:inline;padding-left:1em}img{max-width:100%}td{padding:0 .5em}.admonition{padding:.1em .5em;margin-bottom:1em}.admonition-title{font-weight:bold}.admonition.note,.admonition.info,.admonition.important{background:#aef}.admonition.todo,.admonition.versionadded,.admonition.tip,.admonition.hint{background:#dfd}.admonition.warning,.admonition.versionchanged,.admonition.deprecated{background:#fd4}.admonition.error,.admonition.danger,.admonition.caution{background:lightpink}</style>
+<style media="screen and (min-width: 700px)">@media screen and (min-width:700px){#sidebar{width:30%;height:100vh;overflow:auto;position:sticky;top:0}#content{width:70%;max-width:100ch;padding:3em 4em;border-left:1px solid #ddd}pre code{font-size:1em}.item .name{font-size:1em}main{display:flex;flex-direction:row-reverse;justify-content:flex-end}.toc ul ul,#index ul{padding-left:1.5em}.toc > ul > li{margin-top:.5em}}</style>
+<style media="print">@media print{#sidebar h1{page-break-before:always}.source{display:none}}@media print{*{background:transparent !important;color:#000 !important;box-shadow:none !important;text-shadow:none !important}a[href]:after{content:" (" attr(href) ")";font-size:90%}a[href][title]:after{content:none}abbr[title]:after{content:" (" attr(title) ")"}.ir a:after,a[href^="javascript:"]:after,a[href^="#"]:after{content:""}pre,blockquote{border:1px solid #999;page-break-inside:avoid}thead{display:table-header-group}tr,img{page-break-inside:avoid}img{max-width:100% !important}@page{margin:0.5cm}p,h2,h3{orphans:3;widows:3}h1,h2,h3,h4,h5,h6{page-break-after:avoid}}</style>
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/highlight.min.js" integrity="sha256-Uv3H6lx7dJmRfRvH8TH6kJD1TSK1aFcwgx+mdg3epi8=" crossorigin></script>
+<script>window.addEventListener('DOMContentLoaded', () => hljs.initHighlighting())</script>
+</head>
+<body>
+<main>
+<article id="content">
+<header>
+<h1 class="title">Module <code>main</code></h1>
+</header>
+<section id="section-intro">
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">from collections import defaultdict
+import os
+
+import matplotlib.pyplot as plt
+import numpy as np
+import shortuuid
+import torch
+from torch import nn
+from tqdm import tqdm
+
+from deepk import config as cfg
+from deepk import utils
+
+
+#NOTE:
+## Uncomment the following line if there&#39;s weird behavior and a more detailed analysis is desired.
+## Uncommenting catches runtime errors such as exploding nan gradients and displays where they happened in the forward pass.
+## However, uncommenting slows down execution.
+# torch.autograd.set_detect_anomaly(True)
+
+
+class MLP(nn.Module):
+    &#34;&#34;&#34;
+    This can serve as the encoder and the decoder
+    &#34;&#34;&#34;
+    def __init__(self, input_size, output_size, hidden_sizes=[], batch_norm=False):
+        super().__init__()
+        self.net = nn.ModuleList([])
+        layers = [input_size] + hidden_sizes + [output_size]
+        for i in range(len(layers)-1):
+            self.net.append(nn.Linear(layers[i],layers[i+1]))
+            if i != len(layers)-2: #all layers except last
+                if batch_norm:
+                    self.net.append(nn.BatchNorm1d(layers[i+1]))
+                self.net.append(nn.ReLU())
+
+    def forward(self,X):
+        for layer in self.net:
+            X = layer(X)
+        return X
+
+
+class AutoEncoder(nn.Module):
+    def __init__(self, num_input_states, num_encoded_states, encoder_hidden_layers=[], decoder_hidden_layers=[], batch_norm=False):
+        &#34;&#34;&#34;
+        Inputs:
+            num_input_states: Number of dimensions in original data (X) and reconstructed data (Xr).
+                This is set automatically by the data.
+            num_encoded_states: Number of dimensions in encoded data (Y)
+            encoder_hidden_layers: Encoder has layers = [num_input_states, encoder_hidden_layers, num_encoded_states]
+                If not set, defaults to reverse of decoder_hidden_layers. If that is also not set, defaults to []
+            decoder_hidden_layers: Decoder has layers = [num_encoded_states, decoder_hidden_layers, num_input_states]
+                If not set, defaults to reverse of encoder_hidden_layers. If that is also not set, defaults to []
+            batch_norm: Whether to insert batch normalization layers
+        forward() method returns:
+            Y: Encoder output
+            Xr: Decoder output
+        &#34;&#34;&#34;
+        super().__init__()
+
+        if not decoder_hidden_layers and encoder_hidden_layers:
+            decoder_hidden_layers = encoder_hidden_layers[::-1]
+        elif not encoder_hidden_layers and decoder_hidden_layers:
+            encoder_hidden_layers = decoder_hidden_layers[::-1]
+
+        self.encoder = MLP(
+            input_size = num_input_states,
+            output_size = num_encoded_states,
+            hidden_sizes = encoder_hidden_layers,
+            batch_norm = batch_norm
+        )
+
+        self.decoder = MLP(
+            input_size = num_encoded_states,
+            output_size = num_input_states,
+            hidden_sizes = decoder_hidden_layers,
+            batch_norm = batch_norm
+        )
+
+    def forward(self,X):
+        Y = self.encoder(X) # encoder complete output
+        Xr = self.decoder(Y) # final reconstructed output
+        return Y,Xr
+
+
+class DeepKoopman:
+    
+    def __init__(self, data, hyps, misc):
+        &#34;&#34;&#34;
+        data: Input data. Can have:
+            - Xtr, Xva, Xte: 2d arrays for training, validation and test data. Each has shape = (num_samples_xx,num_dimensions), where xx = tr, va, te
+            - ttr, tva, tte: Lists / 1D arrays for training, validation and test independent variables. Each has length = num_samples_xx, where xx = tr, va, te
+        hyps: Training hyperparameters (all these have defaults, see the code):
+            - Dictionary of arguments as required by AutoEncoder().
+            - numepochs: Number of epochs for which to train neural net.
+            - early_stopping: (NOTE: uses prediction ANAE as the performance metric)
+                If False, no early stopping. The net will run for the complete `numepochs` epochs
+                If an integer, early stop if val perf doesn&#39;t improve for that many epochs
+                If a float, early stop if val perf doesn&#39;t improve for that fraction of epochs, rounded up
+            - lr: Learning rate for neural net optimizer, e.g. Adam.
+            - weight_decay: L2 coefficient for weights of the neural net.
+            - decoder_loss_weight: Weight of any losses that go through the decoder (i.e. reconstruction and prediction loss) w.r.t to those that don&#39;t (i.e. linearity loss). Papers use a mix from 1e-1 to 1e-3.
+            - K_reg: L1 penalty for the Ktilde matrix obtained from DMD.
+            - rank: Rank to which the data matrices are truncated, which is also the size of Ktilde. Use 0 for full rank.
+            - cond_threshold: Condition number of the eigenvector matrix W greater than this will be reported, and singular values smaller than this fraction of the largest will be ignored for the pinv.
+            - use_custom_stable_svd: If set, use the custom implementation from utils.stable_svd instead of torch.linalg.svd, which can blow up if multiple singular values are close to each other.
+            - clip_grad_norm: If not None, clip the norm of gradients to this.
+            - clip_grad_value: If not None, clip the values of gradients to [-clip_grad_value,clip_grad_value].
+            - normalize_Xdata: If True, Xtr, Xva, Xte are all divided by the max abs value in Xtr.
+               Theory:
+                    Normalizing data is a generally good technique for ML, and is normally done as X_col = (X_col-offset_col)/scale_col, where (offset_col,scale_col) = (mu_col,sigma_col) for Gaussian normalization, and (min_col,max_col-min_col) for Minmax normalization.
+                    However, this messes up the spectral techniques such as SVD and EVD. This is why we just use a single scale value for the whole data to get X = X/scale. This results in the spectra (i.e. the singular and eigen vectors) remaining the same, the only change is that the singular and eigen values get divided by scale.
+                    NOTE: Setting this to False may end the run by leading to a) NaNs in the gradient, or b) imaginary parts of tensors reaching values where the loss function depends on the phase (in torch &gt;= 1.11, this leads to &#34;RuntimeError: linalg_eig_backward: The eigenvectors in the complex case are specified up to multiplication by e^{i phi}. The specified loss function depends on this quantity, so it is ill-defined.&#34;) Thus, even though it makes more sense to report the final ANAE numbers on the un-normalized data values, don&#39;t try that.
+        misc: Other options (all these have defaults, see the code):
+            - results_folder: Folder where logs, output figs, etc will be stored. Will be created if it doesn&#39;t exist.
+            - sigma_threshold: Any singular value of the original SVD (prior to truncation to r values) lower than this will be reported.
+        &#34;&#34;&#34;
+        ## Define results folder
+        self.results_folder = misc.get(&#39;results_folder&#39;, &#39;./&#39;)
+        os.makedirs(self.results_folder, exist_ok=True)
+        
+        ## Define UUID for the run
+        self.uuid = shortuuid.uuid()
+
+        ## Define log file
+        self.log_file = os.path.join(self.results_folder, f&#39;{self.uuid}.log&#39;)
+        lf = open(self.log_file, &#39;a&#39;)
+        lf.write(f&#39;Log file for Deep Koopman object {self.uuid}\n\n&#39;)
+        
+        ## Define sigma_threshold
+        self.sigma_threshold = misc.get(&#39;sigma_threshold&#39;,1e-25)
+
+        ## Get X data
+        Xtr = data.get(&#39;Xtr&#39;)
+        Xva = data.get(&#39;Xva&#39;)
+        Xte = data.get(&#39;Xte&#39;)
+
+        ## Convert X data to torch tensors on device
+        self.Xtr = torch.as_tensor(Xtr, dtype=cfg.RTYPE, device=cfg.DEVICE) if Xtr is not None else torch.tensor([])
+        self.Xva = torch.as_tensor(Xva, dtype=cfg.RTYPE, device=cfg.DEVICE) if Xva is not None else torch.tensor([])
+        self.Xte = torch.as_tensor(Xte, dtype=cfg.RTYPE, device=cfg.DEVICE) if Xte is not None else torch.tensor([])
+
+        ## Define Xscale, and normalize X data if applicable
+        self.Xscale = torch.max(torch.abs(self.Xtr))
+        self.normalize_Xdata = hyps.get(&#39;normalize_Xdata&#39;,True)
+        if self.normalize_Xdata:
+            self.Xtr /= self.Xscale
+            self.Xva /= self.Xscale
+            self.Xte /= self.Xscale
+
+        ## Get t data
+        ttr = data.get(&#39;ttr&#39;)
+        tva = data.get(&#39;tva&#39;)
+        tte = data.get(&#39;tte&#39;)
+
+        ## Convert t data to torch tensors on device
+        self.ttr = torch.as_tensor(ttr, dtype=cfg.RTYPE, device=cfg.DEVICE) if ttr is not None else torch.tensor([])
+        self.tva = torch.as_tensor(tva, dtype=cfg.RTYPE, device=cfg.DEVICE) if tva is not None else torch.tensor([])
+        self.tte = torch.as_tensor(tte, dtype=cfg.RTYPE, device=cfg.DEVICE) if tte is not None else torch.tensor([])
+
+        ## Shift t data to make ttr start from 0 if it doesn&#39;t
+        self.tshift = self.ttr[0].item()
+        self.ttr -= self.tshift
+        self.tva -= self.tshift
+        self.tte -= self.tshift
+
+        ## Find differences between ttr values
+        dts = defaultdict(int)
+        for i in range(len(self.ttr)-1):
+            dts[self.ttr[i+1].item()-self.ttr[i].item()] += 1
+        lf.write(&#34;Timestamp difference | Frequency\n&#34;)
+        for dt,freq in dts.items():
+            lf.write(f&#34;{dt} | {freq}\n&#34;)
+        
+        ## Define t scale as most common difference between ttr values, and normalize t data by it
+        self.tscale = max(dts, key=dts.get)
+        lf.write(f&#34;Using timestamp difference = {self.tscale}. Training timestamp values not on this grid will be rounded.\n&#34;)
+        self.ttr /= self.tscale
+        self.tva /= self.tscale
+        self.tte /= self.tscale
+
+        ## Ensure that ttr now goes as [0,1,2,...], i.e. no gaps
+        self.ttr = torch.round(self.ttr)
+        dts = set(self.ttr[i+1].item()-self.ttr[i].item() for i in range(len(self.ttr)-1))
+        assert dts == {1}, &#39;Training timestamps are not equally spaced.&#39;
+
+        ## Get hyps of AutoEncoder
+        self.num_encoded_states = hyps.get(&#39;num_encoded_states&#39;,50)
+        self.encoder_hidden_layers = hyps.get(&#39;encoder_hidden_layers&#39;,[100])
+        self.batch_norm = hyps.get(&#39;batch_norm&#39;,False)
+        
+        ## Get other hyps used in training
+        self.numepochs = hyps.get(&#39;numepochs&#39;,500)
+        self.lr = hyps.get(&#39;lr&#39;,1e-3)
+        self.weight_decay = hyps.get(&#39;weight_decay&#39;,0.)
+        self.decoder_loss_weight = hyps.get(&#39;decoder_loss_weight&#39;,0.01)
+        self.K_reg = hyps.get(&#39;K_reg&#39;,0.01)
+        self.cond_threshold = hyps.get(&#39;cond_threshold&#39;,100)
+        self.use_custom_stable_svd = hyps.get(&#39;use_custom_stable_svd&#39;, True)
+        self.clip_grad_norm = hyps.get(&#39;clip_grad_norm&#39;, None)
+        self.clip_grad_value = hyps.get(&#39;clip_grad_value&#39;, None)
+
+        ## Get rank and ensure it&#39;s a valid value
+        self.rank = hyps.get(&#39;rank&#39;,4)
+        full_rank = min(self.num_encoded_states,len(self.ttr)-1) #this is basically min(Y.shape), where Y is defined in dmd_linearize() and has shape (p,m). p is num_encoded_states and length of ttr is m+1.
+        if self.rank==0 or self.rank&gt;=full_rank:
+            self.rank = full_rank
+
+        ## Early stopping logic
+        self.early_stopping = hyps.get(&#39;early_stopping&#39;, False)
+        if type(self.early_stopping)==float:
+            self.early_stopping = int(np.ceil(self.early_stopping * self.numepochs))
+
+        ## Define AutoEncoder
+        self.net = AutoEncoder(
+            num_input_states=self.Xtr.shape[1],
+            num_encoded_states=self.num_encoded_states,
+            encoder_hidden_layers=self.encoder_hidden_layers,
+            batch_norm=self.batch_norm
+        )
+        self.net.to(dtype=cfg.RTYPE, device=cfg.DEVICE) #for variables, we need `X = X.to()`. For net, only `net.to()` is sufficient
+
+        ## Define training optimizer
+        self.opt = torch.optim.Adam(self.net.parameters(), lr=self.lr, weight_decay=self.weight_decay) #papers either use SGD or Adam
+
+        ## Define other attributes to be used later
+        self.stats = defaultdict(lambda: [])
+        self.Omega = None
+        self.W = None
+        self.coeffs = None
+
+        ## Define error flag
+        self.error_flag = False
+
+        lf.close()
+
+
+    def dmd_linearize(self, Y, Yprime):
+        &#34;&#34;&#34;
+        Get the rank-reduced Koopman matrix Ktilde.
+
+        Inputs:
+            Y: Matrix of states as columns. Shape = (p,m), where p is the dimensionality of a state and m is the number of states.
+            Yprime: Matrix of states as columns, shifted forward by 1 from Y. Shape = (p,m).
+        
+        Returns:
+            Ktilde: Rank-reduced Koopman matrix. Shape = (r,r).
+            interm: Intermediate quantity Y&#39;VS^-1. Shape = (p,r).
+
+        Note that r is &lt;= min(m,p)
+        Also note that wherever we do `tensor.t()`, technically the Hermitian should be taken via `tensor.t().conj()`. But since we deal with real data, just the ordinary transpose is fine.
+        &#34;&#34;&#34;
+        if self.use_custom_stable_svd:
+            U, Sigma, V = utils.stable_svd(Y) #shapes: U = (p,min(m,p)), Sigma = (min(m,p),), V = (m,min(m,p))
+        else:
+            U, Sigma, Vt = torch.linalg.svd(Y) #shapes: U = (p,p), Sigma = (min(m,p),), Vt = (m,m)
+            V = Vt.t() #shape = (m,m)
+        
+        # Left singular vectors
+        U = U[:,:self.rank] #shape = (p,r)
+        Ut = U.t() #shape = (r,p)
+        
+        # Singular values
+        if Sigma[-1] &lt; self.sigma_threshold:
+            with open(self.log_file, &#39;a&#39;) as lf:
+                lf.write(f&#34;Smallest singular value prior to truncation = {Sigma[-1]} is smaller than threshold = {self.sigma_threshold}. This may lead to very large / nan values in backprop of SVD.\n&#34;)
+        #NOTE: We can also do a check if any pair (or more) of consecutive singular values are so close that the difference of their squares is less than some threshold, since this will also lead to very large / nan values during backprop. But doing this check requires looping over the Sigma tensor (time complexity = O(len(Sigma))) and is not worth it.
+        Sigma = torch.diag(Sigma[:self.rank]) #shape = (r,r)
+        
+        # Right singular vectors
+        V = V[:,:self.rank] #shape = (m,r)
+        
+        # Outputs
+        interm = Yprime @ V @ torch.linalg.inv(Sigma) #shape = (p,r)
+        Ktilde = Ut @ interm #shape = (r,r)
+        
+        return Ktilde, interm
+
+
+    def dmd_eigen(self, Ktilde, interm, y0):
+        &#34;&#34;&#34;
+        Get the eigendecomposition of the Koopman matrix.
+
+        Inputs:
+            Ktilde: From dmd_linearize(). Shape = (r,r).
+            interm: From dmd_linearize(). Shape = (p,r).
+            y0: Initial state of the system (should be part of training data). Shape = (p,).
+        
+        Returns:
+            Omega: Eigenvalues of **continuous time** Ktilde. Shape = (r,r).
+            W: First r exact eigenvectors of the full (i.e. not tilde) system. Shape = (p,r).
+            coeffs: Coefficients of the linear combination. Shape = (r,).
+        &#34;&#34;&#34;
+        Lambda, Wtilde = torch.linalg.eig(Ktilde) #Lambda is (r,), Wtilde is (r,r)
+        
+        # Eigenvalues
+        with open(self.log_file, &#39;a&#39;) as lf:
+            lf.write(f&#34;Largest magnitude among eigenvalues = {torch.max(torch.abs(Lambda))}\n&#34;)
+        Omega = torch.diag(torch.log(Lambda)) #shape = (r,r) #NOTE: No need to divide by self.tscale here because spacings are normalized to 1
+        #NOTE: We can do a check if any pair (or more) of consecutive eigenvalues are so close that their difference is less than some threshold, since this will lead to very large / nan values during backprop. But doing this check requires looping over the Omega tensor (time complexity = O(len(Omega))) and is not worth it.
+        
+        # Eigenvectors
+        W = interm.to(cfg.CTYPE) @ Wtilde #shape = (p,r)
+        S,s = torch.linalg.norm(W,2), torch.linalg.norm(W,-2)
+        cond = S/s
+        if cond &gt; self.cond_threshold:
+            with open(self.log_file, &#39;a&#39;) as lf:
+                lf.write(f&#34;Condition number = {cond} is greater than threshold = {self.cond_threshold}. This may lead to numerical instability in evaluating linearity loss. In an attempt to mitigate this, singular values smaller than 1/{self.cond_threshold} times the largest will be discarded from the pseudo-inverse computation.\n&#34;)
+        
+        # Coefficients
+        coeffs = torch.linalg.pinv(W, rtol=1./self.cond_threshold) @ y0.to(cfg.CTYPE) #shape = (r,)
+        
+        return Omega, W, coeffs
+
+
+    def dmd_predict(self, t, Omega,W,coeffs):
+        &#34;&#34;&#34;
+        Predict the dynamics of a system.
+        
+        Inputs:
+            t: Sequence of time steps for which dynamics are predicted. Shape = (num_samples,).
+            Omega: From dmd_eigen(). Shape = (r,r).
+            W: From dmd_eigen(). Shape = (p,r).
+            coeffs: From dmd_eigen(). Shape = (r,).
+        Note: Omega,W,coeffs can also be provided from outside for a new system.
+        
+        Returns:
+            Ypred: Predictions for all the timestamps in t. Shape (num_samples,p).
+                Predictions may be complex, however they are converted to real by taking absolute value. This is fine because, if things are okay, the imaginary parts should be negligible (several orders of magnitude less) than the real parts.
+        &#34;&#34;&#34;
+        Ypred = torch.tensor([])
+        for index,ti in enumerate(t):
+            ypred = W @ torch.linalg.matrix_exp(Omega*ti) @ coeffs #shape = (p,)
+            Ypred = ypred.view(1,-1) if index==0 else torch.vstack((Ypred,ypred)) #shape at end = (num_samples,p)
+        return torch.abs(Ypred)
+
+
+    def find_losses(self, X, Y, Xr, Ypred, Xpred):
+        &#34;&#34;&#34;
+        Inputs:
+            X: Some original input data, shape = (num_samples,n). It should not include the sample x0.
+            Y, Xr: Results of forward passing the original input data through self.net. Respective shapes = (num_samples,p), (num_samples,n).
+            Ypred: Results of dmd_predict() using t = timesteps covered by X, Y, Xr. Shape = (num_samples,p).
+            Xpred: Results of passing Ypred through the decoder. Shape = (num_samples,n).
+        
+        Returns:
+        (For the following discussion, note that the Lusch paper uses x_1 as the initial sample, while I use x_0. So, I&#39;ve replaced the 1 subscript in the Lusch paper with 0 in the explanation here).
+            recon_loss:
+                Lusch:
+                    In Lusch, this is given in the right column of Pg 4 as ||x - phi_inv(phi(x))||.
+                    In Lusch eq (12), x is assumed to be only the first sample x_0.
+                Here:
+                    Instead of using a single sample x_i, I compute recon loss for all samples in the input data X and then average out.
+                    So, `nn.MSELoss(reduction=&#39;mean&#39;)(Xr,X)` is the reconstruction loss.
+            lin_loss:
+                Lusch:
+                    In Lusch, this is given in the right column of Pg 4 as ||phi(x_(k+m)) - K^m*phi(x_k)||. (Btw do not confuse this `m` in Lusch with the `m` I&#39;m using for total number of timestamps).
+                    In Lusch eq (14), k is assumed to be 0 to get ||phi(x_m) - K^m*phi(x_0)||, where x_m is m steps advanced from x_0. This is repeated for different m from 1 to T-1, and then averaged out.
+                Here:
+                    Note that the X which is input to this method is already like a bunch of x_m since it contains samples advanced by different amounts of time from x_0. **Remember this for pred loss.**
+                    When we do `Y, Xr = self.net(X)`, Y_ideal becomes phi(x_m) for a bunch of m.
+                    Ypred is obtained from dmd_predict() as K^m*phi(x_0) for a bunch of m. **Remember this for pred loss.**
+                    So, `nn.MSELoss(reduction=&#39;mean&#39;)(Ypred,Y)` is the linearity loss. The difference from Lusch is that instead of considering samples from x_1 to x_T-1 (which is all samples in the experiment time horizon T), we consider samples in the input data X, which can be e.g. from x_11 to x_15.
+            pred_loss:
+                Lusch:
+                    In Lusch, this is given in the right column of Pg 4 as ||x_(k+m) - phi_inv(K^m*phi(x_k))||,.
+                    In Lusch eq (13), k is assumed to be 0 to get ||x_m - phi_inv(K^m*phi(x_0))||, where x_m is m steps advanced from x_0. This is repeated for different m from 1 to Sp, and then averaged out.
+                Here:
+                    When we do `Xpred = self.net.decoder(Ypred)`, we obtain `phi_inv(K^m*phi(X_0))` for a bunch of m.
+                    Then, `nn.MSELoss(reduction=&#39;mean&#39;)(Xpred,X)` is the prediction loss. The difference from Lusch is that instead of considering samples from x_1 to x_Sp (where Sp is a hyperparameter), we consider samples in the input data, which can be e.g. from x_11 to x_15.
+            loss: Linear combination of the above losses weighted by the hyperparameters.
+        
+        Note:
+            We don&#39;t use L_infinity loss as in Lusch because we do not want to specifically penalize outliers since we don&#39;t know the nature of our data beforehand.
+        &#34;&#34;&#34;
+        recon_loss = nn.MSELoss(reduction=&#39;mean&#39;)(Xr, X)
+        lin_loss = nn.MSELoss(reduction=&#39;mean&#39;)(Ypred, Y)
+        pred_loss = nn.MSELoss(reduction=&#39;mean&#39;)(Xpred, X)
+
+        loss = lin_loss + self.decoder_loss_weight*(recon_loss+pred_loss)
+
+        return recon_loss, lin_loss, pred_loss, loss
+
+
+    @staticmethod
+    def anae(ref,new):
+        &#34;&#34;&#34;
+        Average Normalized Absolute Error, returned as percentage.
+        ANAE first normalizes each absolute error by the corresponding absolute ground truth, then averages them.
+        E.g: ref = [[0.1,1],[100,200]], new = [[1.1,2],[99,199]]. So, all deviations are 1. Then, ANAE = Avg(1/0.1, 1/1, 1/100, 1/200) = 275%. Note that ANAE heavily penalizes deviations for small values of ground truth. 
+        &#34;&#34;&#34;
+        anae = torch.abs(ref-new)/torch.abs(ref)
+        return 100.*torch.mean(anae[anae!=torch.inf])
+
+    def find_anaes(self, X, Y, Xr, Ypred, Xpred):
+        &#34;&#34;&#34;
+        Find the corresponding ANAE for each of the losses.
+        NOTE: MSE loss is a useful thing to optimize, but it is basically the squares of the values. ANAE is a more useful thing to report since it tells us how much percentage deviation to expect for a new value. E.g. if prediction ANAE for a DeepK motor current problem is around 10%, then one can expect a newly predicted motor current to have an error of around 10% from the actual.
+        &#34;&#34;&#34;
+        recon_anae = self.anae(ref=X, new=Xr)
+        lin_anae = self.anae(ref=Y, new=Ypred)
+        pred_anae = self.anae(ref=X, new=Xpred)
+        return recon_anae, lin_anae, pred_anae
+    
+    @staticmethod
+    def naae(ref,new):
+        &#34;&#34;&#34;
+        Normalized Average Absolute Error, returned as percentage.
+        NAAE first averages the absolute error, then normalizes that using the average value of the absolute ground truth. This reduces the chance of a few small ground truth values having a huge impact, but loses details by taking the average over all absolute error values, and likewise over all ground truth values.
+        E.g.: ref = [[0.1,1],[-100,200]], new = [[1.1,2],[-99,199]]. So, all deviations are 1. Then, NAAE = Avg(1,1,1,1)/Avg(0.1,1,100,200) = 1.33%.
+        &#34;&#34;&#34;
+        return 100.*torch.mean(torch.abs(ref-new))/torch.mean(torch.abs(ref))
+    
+    def find_naaes(self, X, Y, Xr, Ypred, Xpred):
+        &#34;&#34;&#34; Find the corresponding NAAE for each of the losses &#34;&#34;&#34;
+        recon_naae = self.naae(ref=X, new=Xr)
+        lin_naae = self.naae(ref=Y, new=Ypred)
+        pred_naae = self.naae(ref=X, new=Xpred)
+        return recon_naae, lin_naae, pred_naae
+
+
+    def train(self):
+        &#34;&#34;&#34;
+        Train a Deep Koopman model.
+        This computes losses and the eigendecomposition.
+        If validation data exists in self, then the eigendecomposition at the end of training each epoch is used to do validation after every epoch and compute losses.
+        If test data exists in self, the final eigendecomposition is also used to do testing and compute losses.
+
+        Effects:
+            self.stats stores all the training (and val and test if those are done) stats.
+            self.Omega, self.W and self.coeffs contain the eigendecomposition at the end of training. These can be used for future evaluation.
+        
+        Inputs: None
+        Returns: None
+        &#34;&#34;&#34;
+        print(f&#39;UUID for this run = {self.uuid}&#39;)
+        with open(self.log_file, &#39;a&#39;) as lf:
+            lf.write(&#34;\nStarting training ...\n&#34;)
+        
+        no_improvement_epochs_count = 0
+        best_val_perf = np.inf
+        
+        for epoch in tqdm(range(self.numepochs)):
+            # NOTE: Do not do any kind of shuffling before/after epochs
+            # The num_input_states dimension cannot be shuffled because that would mess up the MLP weights
+            # The m dimension is typically shuffled for standard classification problems, here however, m captures time information, so order must be maintained
+            
+            with open(self.log_file, &#39;a&#39;) as lf:
+                lf.write(f&#34;\nEpoch {epoch+1}\n&#34;)
+            
+            ## Training ##
+            self.net.train()
+            self.opt.zero_grad()
+            
+            Ytr, Xrtr = self.net(self.Xtr)
+            
+            # Following 2 steps are unique to training
+            Ktilde, interm = self.dmd_linearize(Y = Ytr[:-1,:].t(), Yprime = Ytr[1:,:].t())
+            Omega, W, coeffs = self.dmd_eigen(Ktilde=Ktilde, interm=interm, y0=Ytr[0])
+
+            # Record DMD variables
+            self.Omega = Omega
+            self.W = W
+            self.coeffs = coeffs
+            
+            # Get predictions
+            Ypredtr = self.dmd_predict(t=self.ttr[1:], Omega=Omega, W=W, coeffs=coeffs)
+            Xpredtr = self.net.decoder(Ypredtr)
+
+            # ANAEs
+            with torch.no_grad():
+                recon_anae_tr, lin_anae_tr, pred_anae_tr = self.find_anaes(X=self.Xtr[1:], Y=Ytr[1:], Xr=Xrtr[1:], Ypred=Ypredtr, Xpred=Xpredtr)
+            self.stats[&#39;recon_anae_tr&#39;].append(recon_anae_tr.item())
+            self.stats[&#39;lin_anae_tr&#39;].append(lin_anae_tr.item())
+            self.stats[&#39;pred_anae_tr&#39;].append(pred_anae_tr.item())
+            
+            # Losses
+            recon_loss_tr, lin_loss_tr, pred_loss_tr, loss_tr = self.find_losses(X=self.Xtr[1:], Y=Ytr[1:], Xr=Xrtr[1:], Ypred=Ypredtr, Xpred=Xpredtr)
+            self.stats[&#39;recon_loss_tr&#39;].append(recon_loss_tr.item())
+            self.stats[&#39;lin_loss_tr&#39;].append(lin_loss_tr.item())
+            self.stats[&#39;pred_loss_tr&#39;].append(pred_loss_tr.item())
+            self.stats[&#39;loss_tr_before_K_reg&#39;].append(loss_tr.item())
+
+            ## Following steps – adding K regularization – are unique to training
+            K_reg_loss_tr = self.K_reg*torch.sum(torch.abs(Ktilde))/torch.numel(Ktilde)
+            loss_tr += K_reg_loss_tr
+            self.stats[&#39;loss_tr&#39;].append(loss_tr.item())
+
+            with open(self.log_file, &#39;a&#39;) as lf:
+                lf.write(f&#34;Training ANAEs: Reconstruction = {recon_anae_tr.item()}, Linearity = {lin_anae_tr.item()}, Prediction = {pred_anae_tr.item()}\nTraining losses: Reconstruction = {recon_loss_tr.item()}, Linearity = {lin_loss_tr.item()}, Prediction = {pred_loss_tr.item()}, Due to K_reg = {K_reg_loss_tr.item()}, Total = {loss_tr.item()}\n&#34;)
+            
+            # Backprop
+            try:
+                loss_tr.backward()
+            except RuntimeError as e:
+                self.error_flag = True
+                message = f&#34;Encountered RuntimeError: {e}\nStopping training!\n&#34;
+                with open(self.log_file, &#39;a&#39;) as lf:
+                    lf.write(message)
+                print(message)
+                break
+            
+            try:
+                utils.paramgrads_check_nan(self.net.parameters())
+            except ValueError:
+                self.error_flag = True
+                message = &#34;Encountered NaN in gradients\nStopping training!\n&#34;
+                with open(self.log_file, &#39;a&#39;) as lf:
+                    lf.write(message)
+                print(message)
+                break
+            
+            if self.clip_grad_norm:
+                nn.utils.clip_grad_norm_(self.net.parameters(), self.clip_grad_norm)
+            if self.clip_grad_value:
+                nn.utils.clip_grad_value_(self.net.parameters(), self.clip_grad_value)
+            
+            # Update
+            self.opt.step()
+    
+            ## Validation ##
+            if len(self.Xva):
+                self.net.eval()
+                with torch.no_grad():
+                    Yva, Xrva = self.net(self.Xva)
+                    Ypredva = self.dmd_predict(t=self.tva, Omega=Omega, W=W, coeffs=coeffs)
+                    Xpredva = self.net.decoder(Ypredva)
+                    recon_anae_va, lin_anae_va, pred_anae_va = self.find_anaes(X=self.Xva, Y=Yva, Xr=Xrva, Ypred=Ypredva, Xpred=Xpredva)
+                    recon_loss_va, lin_loss_va, pred_loss_va, loss_va = self.find_losses(X=self.Xva, Y=Yva, Xr=Xrva, Ypred=Ypredva, Xpred=Xpredva)
+                    #Note that for evaluation, there is no K_reg. This is because K_reg is only used for training.
+                    
+                self.stats[&#39;recon_anae_va&#39;].append(recon_anae_va.item())
+                self.stats[&#39;lin_anae_va&#39;].append(lin_anae_va.item())
+                self.stats[&#39;pred_anae_va&#39;].append(pred_anae_va.item())
+                self.stats[&#39;recon_loss_va&#39;].append(recon_loss_va.item())
+                self.stats[&#39;lin_loss_va&#39;].append(lin_loss_va.item())
+                self.stats[&#39;pred_loss_va&#39;].append(pred_loss_va.item())
+                self.stats[&#39;loss_va&#39;].append(loss_va.item())
+
+                with open(self.log_file, &#39;a&#39;) as lf:
+                    lf.write(f&#34;Validation ANAEs: Reconstruction = {recon_anae_va.item()}, Linearity = {lin_anae_va.item()}, Prediction = {pred_anae_va.item()}\nValidation losses: Reconstruction = {recon_loss_va.item()}, Linearity = {lin_loss_va.item()}, Prediction = {pred_loss_va.item()}, Total = {loss_va.item()}\n&#34;)
+
+                ## Early stopping logic
+                if self.early_stopping:
+                    if pred_anae_va.item() &lt; best_val_perf:
+                        no_improvement_epochs_count = 0
+                        best_val_perf = pred_anae_va.item()
+                    else:
+                        no_improvement_epochs_count += 1
+                    if no_improvement_epochs_count == self.early_stopping:
+                        with open(self.log_file, &#39;a&#39;) as lf:
+                            lf.write(f&#34;\nEarly stopped due to no improvement for {self.early_stopping} epochs.&#34;)
+                        break
+
+
+    def test(self):
+        self.net.eval()
+        with torch.no_grad():
+            Yte, Xrte = self.net(self.Xte)
+            Ypredte = self.dmd_predict(t=self.tte, Omega=self.Omega, W=self.W, coeffs=self.coeffs)
+            Xpredte = self.net.decoder(Ypredte)
+            recon_anae_te, lin_anae_te, pred_anae_te = self.find_anaes(X=self.Xte, Y=Yte, Xr=Xrte, Ypred=Ypredte, Xpred=Xpredte)
+            recon_loss_te, lin_loss_te, pred_loss_te, loss_te = self.find_losses(X=self.Xte, Y=Yte, Xr=Xrte, Ypred=Ypredte, Xpred=Xpredte)
+            
+        self.stats[&#39;recon_anae_te&#39;] = recon_anae_te.item()
+        self.stats[&#39;lin_anae_te&#39;] = lin_anae_te.item()
+        self.stats[&#39;pred_anae_te&#39;] = pred_anae_te.item()
+        self.stats[&#39;recon_loss_te&#39;] = recon_loss_te.item()
+        self.stats[&#39;lin_loss_te&#39;] = lin_loss_te.item()
+        self.stats[&#39;pred_loss_te&#39;] = pred_loss_te.item()
+        self.stats[&#39;loss_te&#39;] = loss_te.item()
+
+        with open(self.log_file, &#39;a&#39;) as lf:
+            lf.write(f&#34;\nTest ANAEs: Reconstruction = {recon_anae_te.item()}, Linearity = {lin_anae_te.item()}, Prediction = {pred_anae_te.item()}\nTest losses: Reconstruction = {recon_loss_te.item()}, Linearity = {lin_loss_te.item()}, Prediction = {pred_loss_te.item()}, Total = {loss_te.item()}\n&#34;)
+
+
+    def predict_new(self, t):
+        &#34;&#34;&#34;
+        Use the trained Deep Koopman model to predict the X values for new t.
+            This is different from testing because there we have the ground truth Xte values and we use those to find loss. Here, we do not know the X values because the t values are new (e.g. they can be extrapolated in either direction (forward / backward) or interpolated between the existing t values used for training / val / test).
+
+        Inputs:
+            t: List / 1D array containing new timestamps. Shape = (num_samples,).
+        
+        Returns:
+            Xpred: Tensor with predictions for the new X values. Shape = (num_samples,n)
+        &#34;&#34;&#34;
+        t_processed = (torch.as_tensor(t, dtype=cfg.RTYPE, device=cfg.DEVICE) - self.tshift) / self.tscale
+        with torch.no_grad():
+            Ypred = self.dmd_predict(t=t_processed, Omega=self.Omega, W=self.W, coeffs=self.coeffs)
+            Xpred = self.net.decoder(Ypred)
+            if self.normalize_Xdata:
+                Xpred *= self.Xscale
+        with open(self.log_file, &#39;a&#39;) as lf:
+            lf.write(&#34;\nNew predictions:\n&#34;)
+            for i in range(len(t)):
+                lf.write(f&#39;Independent variable = {t[i]}, Dependent variable =\n&#39;)
+                lf.write(f&#39;{Xpred[i]}\n&#39;)
+        return Xpred
+
+
+    def plot_stats(self, perfs = [&#39;pred_anae&#39;], start_epoch=1, fontsize=12):
+        &#34;&#34;&#34;
+        Plot stats for a run
+        
+        Inputs
+            perfs: Which variables to plot. For each, tr and va are plotted vs epochs, and the title of the plot is the te value.
+            start_epoch: If not 1, start plotting from that epoch. This is useful when the first few epochs have weird values that skew the y axis scale.
+
+        Returns:
+            None
+        Saves png file(s) to disk.
+        &#34;&#34;&#34;
+        for perf in perfs:
+            is_anae = &#39;anae&#39; in perf
+
+            tr_data = self.stats[perf+&#39;_tr&#39;][start_epoch-1:]
+            if self.stats[perf+&#39;_va&#39;]:
+                va_data = self.stats[perf+&#39;_va&#39;][start_epoch-1:]
+                tr_data = tr_data[:len(va_data)] # va_data should normally have size equal to tr_data, but will have lesser size if some error occurred during training. This slicing ensures that only that portion of tr_data is considered which corresponds to va_data.
+            epoch_range = range(start_epoch,start_epoch+len(tr_data))
+            
+            plt.figure()
+            if self.stats[perf+&#39;_te&#39;]:
+                plt.suptitle(f&#34;Test performance = {self.stats[perf+&#39;_te&#39;]}&#34; + (&#39; %&#39; if is_anae else &#39;&#39;), fontsize=fontsize)
+            
+            if perf == &#39;loss&#39;:
+                plt.plot(epoch_range,self.stats[&#39;loss_tr_before_K_reg&#39;][start_epoch-1:], c=&#39;DarkSlateBlue&#39;, label=&#39;Training, before K_reg&#39;)
+            plt.plot(epoch_range,self.stats[perf+&#39;_tr&#39;][start_epoch-1:], c=&#39;MediumBlue&#39;, label=&#39;Training&#39;)
+            if self.stats[perf+&#39;_va&#39;]:
+                plt.plot(epoch_range,self.stats[perf+&#39;_va&#39;][start_epoch-1:], c=&#39;DeepPink&#39;, label=&#39;Validation&#39;)
+            
+            if is_anae:
+                ylim_anae = plt.gca().get_ylim()
+                plt.ylim(max(0,ylim_anae[0]), min(100,ylim_anae[1])) # keep ANAE limits between [0,100]
+            plt.xlabel(&#39;Epochs&#39;, fontsize=fontsize)
+            plt.ylabel(perf + (&#39; (%)&#39; if is_anae else &#39;&#39;), fontsize=fontsize)
+            plt.xticks(fontsize=fontsize-2)
+            plt.yticks(fontsize=fontsize-2)
+            
+            plt.grid()
+            plt.legend(fontsize=fontsize)
+
+            plt.savefig(os.path.join(self.results_folder, f&#39;{self.uuid}_{perf}.png&#39;), dpi=600, bbox_inches=&#39;tight&#39;, pad_inches=0.1)</code></pre>
+</details>
+</section>
+<section>
+</section>
+<section>
+</section>
+<section>
+</section>
+<section>
+<h2 class="section-title" id="header-classes">Classes</h2>
+<dl>
+<dt id="main.AutoEncoder"><code class="flex name class">
+<span>class <span class="ident">AutoEncoder</span></span>
+<span>(</span><span>num_input_states, num_encoded_states, encoder_hidden_layers=[], decoder_hidden_layers=[], batch_norm=False)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Base class for all neural network modules.</p>
+<p>Your models should also subclass this class.</p>
+<p>Modules can also contain other Modules, allowing to nest them in
+a tree structure. You can assign the submodules as regular attributes::</p>
+<pre><code>import torch.nn as nn
+import torch.nn.functional as F
+
+class Model(nn.Module):
+    def __init__(self):
+        super().__init__()
+        self.conv1 = nn.Conv2d(1, 20, 5)
+        self.conv2 = nn.Conv2d(20, 20, 5)
+
+    def forward(self, x):
+        x = F.relu(self.conv1(x))
+        return F.relu(self.conv2(x))
+</code></pre>
+<p>Submodules assigned in this way will be registered, and will have their
+parameters converted too when you call :meth:<code>to</code>, etc.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>As per the example above, an <code>__init__()</code> call to the parent class
+must be made before assignment on the child.</p>
+</div>
+<p>:ivar training: Boolean represents whether this module is in training or
+evaluation mode.
+:vartype training: bool</p>
+<h2 id="inputs">Inputs</h2>
+<p>num_input_states: Number of dimensions in original data (X) and reconstructed data (Xr).
+This is set automatically by the data.
+num_encoded_states: Number of dimensions in encoded data (Y)
+encoder_hidden_layers: Encoder has layers = [num_input_states, encoder_hidden_layers, num_encoded_states]
+If not set, defaults to reverse of decoder_hidden_layers. If that is also not set, defaults to []
+decoder_hidden_layers: Decoder has layers = [num_encoded_states, decoder_hidden_layers, num_input_states]
+If not set, defaults to reverse of encoder_hidden_layers. If that is also not set, defaults to []
+batch_norm: Whether to insert batch normalization layers
+forward() method returns:
+Y: Encoder output
+Xr: Decoder output</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class AutoEncoder(nn.Module):
+    def __init__(self, num_input_states, num_encoded_states, encoder_hidden_layers=[], decoder_hidden_layers=[], batch_norm=False):
+        &#34;&#34;&#34;
+        Inputs:
+            num_input_states: Number of dimensions in original data (X) and reconstructed data (Xr).
+                This is set automatically by the data.
+            num_encoded_states: Number of dimensions in encoded data (Y)
+            encoder_hidden_layers: Encoder has layers = [num_input_states, encoder_hidden_layers, num_encoded_states]
+                If not set, defaults to reverse of decoder_hidden_layers. If that is also not set, defaults to []
+            decoder_hidden_layers: Decoder has layers = [num_encoded_states, decoder_hidden_layers, num_input_states]
+                If not set, defaults to reverse of encoder_hidden_layers. If that is also not set, defaults to []
+            batch_norm: Whether to insert batch normalization layers
+        forward() method returns:
+            Y: Encoder output
+            Xr: Decoder output
+        &#34;&#34;&#34;
+        super().__init__()
+
+        if not decoder_hidden_layers and encoder_hidden_layers:
+            decoder_hidden_layers = encoder_hidden_layers[::-1]
+        elif not encoder_hidden_layers and decoder_hidden_layers:
+            encoder_hidden_layers = decoder_hidden_layers[::-1]
+
+        self.encoder = MLP(
+            input_size = num_input_states,
+            output_size = num_encoded_states,
+            hidden_sizes = encoder_hidden_layers,
+            batch_norm = batch_norm
+        )
+
+        self.decoder = MLP(
+            input_size = num_encoded_states,
+            output_size = num_input_states,
+            hidden_sizes = decoder_hidden_layers,
+            batch_norm = batch_norm
+        )
+
+    def forward(self,X):
+        Y = self.encoder(X) # encoder complete output
+        Xr = self.decoder(Y) # final reconstructed output
+        return Y,Xr</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li>torch.nn.modules.module.Module</li>
+</ul>
+<h3>Class variables</h3>
+<dl>
+<dt id="main.AutoEncoder.dump_patches"><code class="name">var <span class="ident">dump_patches</span> : bool</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="main.AutoEncoder.training"><code class="name">var <span class="ident">training</span> : bool</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+</dl>
+<h3>Methods</h3>
+<dl>
+<dt id="main.AutoEncoder.forward"><code class="name flex">
+<span>def <span class="ident">forward</span></span>(<span>self, X) ‑> Callable[..., Any]</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Defines the computation performed at every call.</p>
+<p>Should be overridden by all subclasses.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Although the recipe for forward pass needs to be defined within
+this function, one should call the :class:<code>Module</code> instance afterwards
+instead of this since the former takes care of running the
+registered hooks while the latter silently ignores them.</p>
+</div></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def forward(self,X):
+    Y = self.encoder(X) # encoder complete output
+    Xr = self.decoder(Y) # final reconstructed output
+    return Y,Xr</code></pre>
+</details>
+</dd>
+</dl>
+</dd>
+<dt id="main.DeepKoopman"><code class="flex name class">
+<span>class <span class="ident">DeepKoopman</span></span>
+<span>(</span><span>data, hyps, misc)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>data: Input data. Can have:
+- Xtr, Xva, Xte: 2d arrays for training, validation and test data. Each has shape = (num_samples_xx,num_dimensions), where xx = tr, va, te
+- ttr, tva, tte: Lists / 1D arrays for training, validation and test independent variables. Each has length = num_samples_xx, where xx = tr, va, te
+hyps: Training hyperparameters (all these have defaults, see the code):
+- Dictionary of arguments as required by AutoEncoder().
+- numepochs: Number of epochs for which to train neural net.
+- early_stopping: (NOTE: uses prediction ANAE as the performance metric)
+If False, no early stopping. The net will run for the complete <code>numepochs</code> epochs
+If an integer, early stop if val perf doesn't improve for that many epochs
+If a float, early stop if val perf doesn't improve for that fraction of epochs, rounded up
+- lr: Learning rate for neural net optimizer, e.g. Adam.
+- weight_decay: L2 coefficient for weights of the neural net.
+- decoder_loss_weight: Weight of any losses that go through the decoder (i.e. reconstruction and prediction loss) w.r.t to those that don't (i.e. linearity loss). Papers use a mix from 1e-1 to 1e-3.
+- K_reg: L1 penalty for the Ktilde matrix obtained from DMD.
+- rank: Rank to which the data matrices are truncated, which is also the size of Ktilde. Use 0 for full rank.
+- cond_threshold: Condition number of the eigenvector matrix W greater than this will be reported, and singular values smaller than this fraction of the largest will be ignored for the pinv.
+- use_custom_stable_svd: If set, use the custom implementation from utils.stable_svd instead of torch.linalg.svd, which can blow up if multiple singular values are close to each other.
+- clip_grad_norm: If not None, clip the norm of gradients to this.
+- clip_grad_value: If not None, clip the values of gradients to [-clip_grad_value,clip_grad_value].
+- normalize_Xdata: If True, Xtr, Xva, Xte are all divided by the max abs value in Xtr.
+Theory:
+Normalizing data is a generally good technique for ML, and is normally done as X_col = (X_col-offset_col)/scale_col, where (offset_col,scale_col) = (mu_col,sigma_col) for Gaussian normalization, and (min_col,max_col-min_col) for Minmax normalization.
+However, this messes up the spectral techniques such as SVD and EVD. This is why we just use a single scale value for the whole data to get X = X/scale. This results in the spectra (i.e. the singular and eigen vectors) remaining the same, the only change is that the singular and eigen values get divided by scale.
+NOTE: Setting this to False may end the run by leading to a) NaNs in the gradient, or b) imaginary parts of tensors reaching values where the loss function depends on the phase (in torch &gt;= 1.11, this leads to "RuntimeError: linalg_eig_backward: The eigenvectors in the complex case are specified up to multiplication by e^{i phi}. The specified loss function depends on this quantity, so it is ill-defined.") Thus, even though it makes more sense to report the final ANAE numbers on the un-normalized data values, don't try that.
+misc: Other options (all these have defaults, see the code):
+- results_folder: Folder where logs, output figs, etc will be stored. Will be created if it doesn't exist.
+- sigma_threshold: Any singular value of the original SVD (prior to truncation to r values) lower than this will be reported.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class DeepKoopman:
+    
+    def __init__(self, data, hyps, misc):
+        &#34;&#34;&#34;
+        data: Input data. Can have:
+            - Xtr, Xva, Xte: 2d arrays for training, validation and test data. Each has shape = (num_samples_xx,num_dimensions), where xx = tr, va, te
+            - ttr, tva, tte: Lists / 1D arrays for training, validation and test independent variables. Each has length = num_samples_xx, where xx = tr, va, te
+        hyps: Training hyperparameters (all these have defaults, see the code):
+            - Dictionary of arguments as required by AutoEncoder().
+            - numepochs: Number of epochs for which to train neural net.
+            - early_stopping: (NOTE: uses prediction ANAE as the performance metric)
+                If False, no early stopping. The net will run for the complete `numepochs` epochs
+                If an integer, early stop if val perf doesn&#39;t improve for that many epochs
+                If a float, early stop if val perf doesn&#39;t improve for that fraction of epochs, rounded up
+            - lr: Learning rate for neural net optimizer, e.g. Adam.
+            - weight_decay: L2 coefficient for weights of the neural net.
+            - decoder_loss_weight: Weight of any losses that go through the decoder (i.e. reconstruction and prediction loss) w.r.t to those that don&#39;t (i.e. linearity loss). Papers use a mix from 1e-1 to 1e-3.
+            - K_reg: L1 penalty for the Ktilde matrix obtained from DMD.
+            - rank: Rank to which the data matrices are truncated, which is also the size of Ktilde. Use 0 for full rank.
+            - cond_threshold: Condition number of the eigenvector matrix W greater than this will be reported, and singular values smaller than this fraction of the largest will be ignored for the pinv.
+            - use_custom_stable_svd: If set, use the custom implementation from utils.stable_svd instead of torch.linalg.svd, which can blow up if multiple singular values are close to each other.
+            - clip_grad_norm: If not None, clip the norm of gradients to this.
+            - clip_grad_value: If not None, clip the values of gradients to [-clip_grad_value,clip_grad_value].
+            - normalize_Xdata: If True, Xtr, Xva, Xte are all divided by the max abs value in Xtr.
+               Theory:
+                    Normalizing data is a generally good technique for ML, and is normally done as X_col = (X_col-offset_col)/scale_col, where (offset_col,scale_col) = (mu_col,sigma_col) for Gaussian normalization, and (min_col,max_col-min_col) for Minmax normalization.
+                    However, this messes up the spectral techniques such as SVD and EVD. This is why we just use a single scale value for the whole data to get X = X/scale. This results in the spectra (i.e. the singular and eigen vectors) remaining the same, the only change is that the singular and eigen values get divided by scale.
+                    NOTE: Setting this to False may end the run by leading to a) NaNs in the gradient, or b) imaginary parts of tensors reaching values where the loss function depends on the phase (in torch &gt;= 1.11, this leads to &#34;RuntimeError: linalg_eig_backward: The eigenvectors in the complex case are specified up to multiplication by e^{i phi}. The specified loss function depends on this quantity, so it is ill-defined.&#34;) Thus, even though it makes more sense to report the final ANAE numbers on the un-normalized data values, don&#39;t try that.
+        misc: Other options (all these have defaults, see the code):
+            - results_folder: Folder where logs, output figs, etc will be stored. Will be created if it doesn&#39;t exist.
+            - sigma_threshold: Any singular value of the original SVD (prior to truncation to r values) lower than this will be reported.
+        &#34;&#34;&#34;
+        ## Define results folder
+        self.results_folder = misc.get(&#39;results_folder&#39;, &#39;./&#39;)
+        os.makedirs(self.results_folder, exist_ok=True)
+        
+        ## Define UUID for the run
+        self.uuid = shortuuid.uuid()
+
+        ## Define log file
+        self.log_file = os.path.join(self.results_folder, f&#39;{self.uuid}.log&#39;)
+        lf = open(self.log_file, &#39;a&#39;)
+        lf.write(f&#39;Log file for Deep Koopman object {self.uuid}\n\n&#39;)
+        
+        ## Define sigma_threshold
+        self.sigma_threshold = misc.get(&#39;sigma_threshold&#39;,1e-25)
+
+        ## Get X data
+        Xtr = data.get(&#39;Xtr&#39;)
+        Xva = data.get(&#39;Xva&#39;)
+        Xte = data.get(&#39;Xte&#39;)
+
+        ## Convert X data to torch tensors on device
+        self.Xtr = torch.as_tensor(Xtr, dtype=cfg.RTYPE, device=cfg.DEVICE) if Xtr is not None else torch.tensor([])
+        self.Xva = torch.as_tensor(Xva, dtype=cfg.RTYPE, device=cfg.DEVICE) if Xva is not None else torch.tensor([])
+        self.Xte = torch.as_tensor(Xte, dtype=cfg.RTYPE, device=cfg.DEVICE) if Xte is not None else torch.tensor([])
+
+        ## Define Xscale, and normalize X data if applicable
+        self.Xscale = torch.max(torch.abs(self.Xtr))
+        self.normalize_Xdata = hyps.get(&#39;normalize_Xdata&#39;,True)
+        if self.normalize_Xdata:
+            self.Xtr /= self.Xscale
+            self.Xva /= self.Xscale
+            self.Xte /= self.Xscale
+
+        ## Get t data
+        ttr = data.get(&#39;ttr&#39;)
+        tva = data.get(&#39;tva&#39;)
+        tte = data.get(&#39;tte&#39;)
+
+        ## Convert t data to torch tensors on device
+        self.ttr = torch.as_tensor(ttr, dtype=cfg.RTYPE, device=cfg.DEVICE) if ttr is not None else torch.tensor([])
+        self.tva = torch.as_tensor(tva, dtype=cfg.RTYPE, device=cfg.DEVICE) if tva is not None else torch.tensor([])
+        self.tte = torch.as_tensor(tte, dtype=cfg.RTYPE, device=cfg.DEVICE) if tte is not None else torch.tensor([])
+
+        ## Shift t data to make ttr start from 0 if it doesn&#39;t
+        self.tshift = self.ttr[0].item()
+        self.ttr -= self.tshift
+        self.tva -= self.tshift
+        self.tte -= self.tshift
+
+        ## Find differences between ttr values
+        dts = defaultdict(int)
+        for i in range(len(self.ttr)-1):
+            dts[self.ttr[i+1].item()-self.ttr[i].item()] += 1
+        lf.write(&#34;Timestamp difference | Frequency\n&#34;)
+        for dt,freq in dts.items():
+            lf.write(f&#34;{dt} | {freq}\n&#34;)
+        
+        ## Define t scale as most common difference between ttr values, and normalize t data by it
+        self.tscale = max(dts, key=dts.get)
+        lf.write(f&#34;Using timestamp difference = {self.tscale}. Training timestamp values not on this grid will be rounded.\n&#34;)
+        self.ttr /= self.tscale
+        self.tva /= self.tscale
+        self.tte /= self.tscale
+
+        ## Ensure that ttr now goes as [0,1,2,...], i.e. no gaps
+        self.ttr = torch.round(self.ttr)
+        dts = set(self.ttr[i+1].item()-self.ttr[i].item() for i in range(len(self.ttr)-1))
+        assert dts == {1}, &#39;Training timestamps are not equally spaced.&#39;
+
+        ## Get hyps of AutoEncoder
+        self.num_encoded_states = hyps.get(&#39;num_encoded_states&#39;,50)
+        self.encoder_hidden_layers = hyps.get(&#39;encoder_hidden_layers&#39;,[100])
+        self.batch_norm = hyps.get(&#39;batch_norm&#39;,False)
+        
+        ## Get other hyps used in training
+        self.numepochs = hyps.get(&#39;numepochs&#39;,500)
+        self.lr = hyps.get(&#39;lr&#39;,1e-3)
+        self.weight_decay = hyps.get(&#39;weight_decay&#39;,0.)
+        self.decoder_loss_weight = hyps.get(&#39;decoder_loss_weight&#39;,0.01)
+        self.K_reg = hyps.get(&#39;K_reg&#39;,0.01)
+        self.cond_threshold = hyps.get(&#39;cond_threshold&#39;,100)
+        self.use_custom_stable_svd = hyps.get(&#39;use_custom_stable_svd&#39;, True)
+        self.clip_grad_norm = hyps.get(&#39;clip_grad_norm&#39;, None)
+        self.clip_grad_value = hyps.get(&#39;clip_grad_value&#39;, None)
+
+        ## Get rank and ensure it&#39;s a valid value
+        self.rank = hyps.get(&#39;rank&#39;,4)
+        full_rank = min(self.num_encoded_states,len(self.ttr)-1) #this is basically min(Y.shape), where Y is defined in dmd_linearize() and has shape (p,m). p is num_encoded_states and length of ttr is m+1.
+        if self.rank==0 or self.rank&gt;=full_rank:
+            self.rank = full_rank
+
+        ## Early stopping logic
+        self.early_stopping = hyps.get(&#39;early_stopping&#39;, False)
+        if type(self.early_stopping)==float:
+            self.early_stopping = int(np.ceil(self.early_stopping * self.numepochs))
+
+        ## Define AutoEncoder
+        self.net = AutoEncoder(
+            num_input_states=self.Xtr.shape[1],
+            num_encoded_states=self.num_encoded_states,
+            encoder_hidden_layers=self.encoder_hidden_layers,
+            batch_norm=self.batch_norm
+        )
+        self.net.to(dtype=cfg.RTYPE, device=cfg.DEVICE) #for variables, we need `X = X.to()`. For net, only `net.to()` is sufficient
+
+        ## Define training optimizer
+        self.opt = torch.optim.Adam(self.net.parameters(), lr=self.lr, weight_decay=self.weight_decay) #papers either use SGD or Adam
+
+        ## Define other attributes to be used later
+        self.stats = defaultdict(lambda: [])
+        self.Omega = None
+        self.W = None
+        self.coeffs = None
+
+        ## Define error flag
+        self.error_flag = False
+
+        lf.close()
+
+
+    def dmd_linearize(self, Y, Yprime):
+        &#34;&#34;&#34;
+        Get the rank-reduced Koopman matrix Ktilde.
+
+        Inputs:
+            Y: Matrix of states as columns. Shape = (p,m), where p is the dimensionality of a state and m is the number of states.
+            Yprime: Matrix of states as columns, shifted forward by 1 from Y. Shape = (p,m).
+        
+        Returns:
+            Ktilde: Rank-reduced Koopman matrix. Shape = (r,r).
+            interm: Intermediate quantity Y&#39;VS^-1. Shape = (p,r).
+
+        Note that r is &lt;= min(m,p)
+        Also note that wherever we do `tensor.t()`, technically the Hermitian should be taken via `tensor.t().conj()`. But since we deal with real data, just the ordinary transpose is fine.
+        &#34;&#34;&#34;
+        if self.use_custom_stable_svd:
+            U, Sigma, V = utils.stable_svd(Y) #shapes: U = (p,min(m,p)), Sigma = (min(m,p),), V = (m,min(m,p))
+        else:
+            U, Sigma, Vt = torch.linalg.svd(Y) #shapes: U = (p,p), Sigma = (min(m,p),), Vt = (m,m)
+            V = Vt.t() #shape = (m,m)
+        
+        # Left singular vectors
+        U = U[:,:self.rank] #shape = (p,r)
+        Ut = U.t() #shape = (r,p)
+        
+        # Singular values
+        if Sigma[-1] &lt; self.sigma_threshold:
+            with open(self.log_file, &#39;a&#39;) as lf:
+                lf.write(f&#34;Smallest singular value prior to truncation = {Sigma[-1]} is smaller than threshold = {self.sigma_threshold}. This may lead to very large / nan values in backprop of SVD.\n&#34;)
+        #NOTE: We can also do a check if any pair (or more) of consecutive singular values are so close that the difference of their squares is less than some threshold, since this will also lead to very large / nan values during backprop. But doing this check requires looping over the Sigma tensor (time complexity = O(len(Sigma))) and is not worth it.
+        Sigma = torch.diag(Sigma[:self.rank]) #shape = (r,r)
+        
+        # Right singular vectors
+        V = V[:,:self.rank] #shape = (m,r)
+        
+        # Outputs
+        interm = Yprime @ V @ torch.linalg.inv(Sigma) #shape = (p,r)
+        Ktilde = Ut @ interm #shape = (r,r)
+        
+        return Ktilde, interm
+
+
+    def dmd_eigen(self, Ktilde, interm, y0):
+        &#34;&#34;&#34;
+        Get the eigendecomposition of the Koopman matrix.
+
+        Inputs:
+            Ktilde: From dmd_linearize(). Shape = (r,r).
+            interm: From dmd_linearize(). Shape = (p,r).
+            y0: Initial state of the system (should be part of training data). Shape = (p,).
+        
+        Returns:
+            Omega: Eigenvalues of **continuous time** Ktilde. Shape = (r,r).
+            W: First r exact eigenvectors of the full (i.e. not tilde) system. Shape = (p,r).
+            coeffs: Coefficients of the linear combination. Shape = (r,).
+        &#34;&#34;&#34;
+        Lambda, Wtilde = torch.linalg.eig(Ktilde) #Lambda is (r,), Wtilde is (r,r)
+        
+        # Eigenvalues
+        with open(self.log_file, &#39;a&#39;) as lf:
+            lf.write(f&#34;Largest magnitude among eigenvalues = {torch.max(torch.abs(Lambda))}\n&#34;)
+        Omega = torch.diag(torch.log(Lambda)) #shape = (r,r) #NOTE: No need to divide by self.tscale here because spacings are normalized to 1
+        #NOTE: We can do a check if any pair (or more) of consecutive eigenvalues are so close that their difference is less than some threshold, since this will lead to very large / nan values during backprop. But doing this check requires looping over the Omega tensor (time complexity = O(len(Omega))) and is not worth it.
+        
+        # Eigenvectors
+        W = interm.to(cfg.CTYPE) @ Wtilde #shape = (p,r)
+        S,s = torch.linalg.norm(W,2), torch.linalg.norm(W,-2)
+        cond = S/s
+        if cond &gt; self.cond_threshold:
+            with open(self.log_file, &#39;a&#39;) as lf:
+                lf.write(f&#34;Condition number = {cond} is greater than threshold = {self.cond_threshold}. This may lead to numerical instability in evaluating linearity loss. In an attempt to mitigate this, singular values smaller than 1/{self.cond_threshold} times the largest will be discarded from the pseudo-inverse computation.\n&#34;)
+        
+        # Coefficients
+        coeffs = torch.linalg.pinv(W, rtol=1./self.cond_threshold) @ y0.to(cfg.CTYPE) #shape = (r,)
+        
+        return Omega, W, coeffs
+
+
+    def dmd_predict(self, t, Omega,W,coeffs):
+        &#34;&#34;&#34;
+        Predict the dynamics of a system.
+        
+        Inputs:
+            t: Sequence of time steps for which dynamics are predicted. Shape = (num_samples,).
+            Omega: From dmd_eigen(). Shape = (r,r).
+            W: From dmd_eigen(). Shape = (p,r).
+            coeffs: From dmd_eigen(). Shape = (r,).
+        Note: Omega,W,coeffs can also be provided from outside for a new system.
+        
+        Returns:
+            Ypred: Predictions for all the timestamps in t. Shape (num_samples,p).
+                Predictions may be complex, however they are converted to real by taking absolute value. This is fine because, if things are okay, the imaginary parts should be negligible (several orders of magnitude less) than the real parts.
+        &#34;&#34;&#34;
+        Ypred = torch.tensor([])
+        for index,ti in enumerate(t):
+            ypred = W @ torch.linalg.matrix_exp(Omega*ti) @ coeffs #shape = (p,)
+            Ypred = ypred.view(1,-1) if index==0 else torch.vstack((Ypred,ypred)) #shape at end = (num_samples,p)
+        return torch.abs(Ypred)
+
+
+    def find_losses(self, X, Y, Xr, Ypred, Xpred):
+        &#34;&#34;&#34;
+        Inputs:
+            X: Some original input data, shape = (num_samples,n). It should not include the sample x0.
+            Y, Xr: Results of forward passing the original input data through self.net. Respective shapes = (num_samples,p), (num_samples,n).
+            Ypred: Results of dmd_predict() using t = timesteps covered by X, Y, Xr. Shape = (num_samples,p).
+            Xpred: Results of passing Ypred through the decoder. Shape = (num_samples,n).
+        
+        Returns:
+        (For the following discussion, note that the Lusch paper uses x_1 as the initial sample, while I use x_0. So, I&#39;ve replaced the 1 subscript in the Lusch paper with 0 in the explanation here).
+            recon_loss:
+                Lusch:
+                    In Lusch, this is given in the right column of Pg 4 as ||x - phi_inv(phi(x))||.
+                    In Lusch eq (12), x is assumed to be only the first sample x_0.
+                Here:
+                    Instead of using a single sample x_i, I compute recon loss for all samples in the input data X and then average out.
+                    So, `nn.MSELoss(reduction=&#39;mean&#39;)(Xr,X)` is the reconstruction loss.
+            lin_loss:
+                Lusch:
+                    In Lusch, this is given in the right column of Pg 4 as ||phi(x_(k+m)) - K^m*phi(x_k)||. (Btw do not confuse this `m` in Lusch with the `m` I&#39;m using for total number of timestamps).
+                    In Lusch eq (14), k is assumed to be 0 to get ||phi(x_m) - K^m*phi(x_0)||, where x_m is m steps advanced from x_0. This is repeated for different m from 1 to T-1, and then averaged out.
+                Here:
+                    Note that the X which is input to this method is already like a bunch of x_m since it contains samples advanced by different amounts of time from x_0. **Remember this for pred loss.**
+                    When we do `Y, Xr = self.net(X)`, Y_ideal becomes phi(x_m) for a bunch of m.
+                    Ypred is obtained from dmd_predict() as K^m*phi(x_0) for a bunch of m. **Remember this for pred loss.**
+                    So, `nn.MSELoss(reduction=&#39;mean&#39;)(Ypred,Y)` is the linearity loss. The difference from Lusch is that instead of considering samples from x_1 to x_T-1 (which is all samples in the experiment time horizon T), we consider samples in the input data X, which can be e.g. from x_11 to x_15.
+            pred_loss:
+                Lusch:
+                    In Lusch, this is given in the right column of Pg 4 as ||x_(k+m) - phi_inv(K^m*phi(x_k))||,.
+                    In Lusch eq (13), k is assumed to be 0 to get ||x_m - phi_inv(K^m*phi(x_0))||, where x_m is m steps advanced from x_0. This is repeated for different m from 1 to Sp, and then averaged out.
+                Here:
+                    When we do `Xpred = self.net.decoder(Ypred)`, we obtain `phi_inv(K^m*phi(X_0))` for a bunch of m.
+                    Then, `nn.MSELoss(reduction=&#39;mean&#39;)(Xpred,X)` is the prediction loss. The difference from Lusch is that instead of considering samples from x_1 to x_Sp (where Sp is a hyperparameter), we consider samples in the input data, which can be e.g. from x_11 to x_15.
+            loss: Linear combination of the above losses weighted by the hyperparameters.
+        
+        Note:
+            We don&#39;t use L_infinity loss as in Lusch because we do not want to specifically penalize outliers since we don&#39;t know the nature of our data beforehand.
+        &#34;&#34;&#34;
+        recon_loss = nn.MSELoss(reduction=&#39;mean&#39;)(Xr, X)
+        lin_loss = nn.MSELoss(reduction=&#39;mean&#39;)(Ypred, Y)
+        pred_loss = nn.MSELoss(reduction=&#39;mean&#39;)(Xpred, X)
+
+        loss = lin_loss + self.decoder_loss_weight*(recon_loss+pred_loss)
+
+        return recon_loss, lin_loss, pred_loss, loss
+
+
+    @staticmethod
+    def anae(ref,new):
+        &#34;&#34;&#34;
+        Average Normalized Absolute Error, returned as percentage.
+        ANAE first normalizes each absolute error by the corresponding absolute ground truth, then averages them.
+        E.g: ref = [[0.1,1],[100,200]], new = [[1.1,2],[99,199]]. So, all deviations are 1. Then, ANAE = Avg(1/0.1, 1/1, 1/100, 1/200) = 275%. Note that ANAE heavily penalizes deviations for small values of ground truth. 
+        &#34;&#34;&#34;
+        anae = torch.abs(ref-new)/torch.abs(ref)
+        return 100.*torch.mean(anae[anae!=torch.inf])
+
+    def find_anaes(self, X, Y, Xr, Ypred, Xpred):
+        &#34;&#34;&#34;
+        Find the corresponding ANAE for each of the losses.
+        NOTE: MSE loss is a useful thing to optimize, but it is basically the squares of the values. ANAE is a more useful thing to report since it tells us how much percentage deviation to expect for a new value. E.g. if prediction ANAE for a DeepK motor current problem is around 10%, then one can expect a newly predicted motor current to have an error of around 10% from the actual.
+        &#34;&#34;&#34;
+        recon_anae = self.anae(ref=X, new=Xr)
+        lin_anae = self.anae(ref=Y, new=Ypred)
+        pred_anae = self.anae(ref=X, new=Xpred)
+        return recon_anae, lin_anae, pred_anae
+    
+    @staticmethod
+    def naae(ref,new):
+        &#34;&#34;&#34;
+        Normalized Average Absolute Error, returned as percentage.
+        NAAE first averages the absolute error, then normalizes that using the average value of the absolute ground truth. This reduces the chance of a few small ground truth values having a huge impact, but loses details by taking the average over all absolute error values, and likewise over all ground truth values.
+        E.g.: ref = [[0.1,1],[-100,200]], new = [[1.1,2],[-99,199]]. So, all deviations are 1. Then, NAAE = Avg(1,1,1,1)/Avg(0.1,1,100,200) = 1.33%.
+        &#34;&#34;&#34;
+        return 100.*torch.mean(torch.abs(ref-new))/torch.mean(torch.abs(ref))
+    
+    def find_naaes(self, X, Y, Xr, Ypred, Xpred):
+        &#34;&#34;&#34; Find the corresponding NAAE for each of the losses &#34;&#34;&#34;
+        recon_naae = self.naae(ref=X, new=Xr)
+        lin_naae = self.naae(ref=Y, new=Ypred)
+        pred_naae = self.naae(ref=X, new=Xpred)
+        return recon_naae, lin_naae, pred_naae
+
+
+    def train(self):
+        &#34;&#34;&#34;
+        Train a Deep Koopman model.
+        This computes losses and the eigendecomposition.
+        If validation data exists in self, then the eigendecomposition at the end of training each epoch is used to do validation after every epoch and compute losses.
+        If test data exists in self, the final eigendecomposition is also used to do testing and compute losses.
+
+        Effects:
+            self.stats stores all the training (and val and test if those are done) stats.
+            self.Omega, self.W and self.coeffs contain the eigendecomposition at the end of training. These can be used for future evaluation.
+        
+        Inputs: None
+        Returns: None
+        &#34;&#34;&#34;
+        print(f&#39;UUID for this run = {self.uuid}&#39;)
+        with open(self.log_file, &#39;a&#39;) as lf:
+            lf.write(&#34;\nStarting training ...\n&#34;)
+        
+        no_improvement_epochs_count = 0
+        best_val_perf = np.inf
+        
+        for epoch in tqdm(range(self.numepochs)):
+            # NOTE: Do not do any kind of shuffling before/after epochs
+            # The num_input_states dimension cannot be shuffled because that would mess up the MLP weights
+            # The m dimension is typically shuffled for standard classification problems, here however, m captures time information, so order must be maintained
+            
+            with open(self.log_file, &#39;a&#39;) as lf:
+                lf.write(f&#34;\nEpoch {epoch+1}\n&#34;)
+            
+            ## Training ##
+            self.net.train()
+            self.opt.zero_grad()
+            
+            Ytr, Xrtr = self.net(self.Xtr)
+            
+            # Following 2 steps are unique to training
+            Ktilde, interm = self.dmd_linearize(Y = Ytr[:-1,:].t(), Yprime = Ytr[1:,:].t())
+            Omega, W, coeffs = self.dmd_eigen(Ktilde=Ktilde, interm=interm, y0=Ytr[0])
+
+            # Record DMD variables
+            self.Omega = Omega
+            self.W = W
+            self.coeffs = coeffs
+            
+            # Get predictions
+            Ypredtr = self.dmd_predict(t=self.ttr[1:], Omega=Omega, W=W, coeffs=coeffs)
+            Xpredtr = self.net.decoder(Ypredtr)
+
+            # ANAEs
+            with torch.no_grad():
+                recon_anae_tr, lin_anae_tr, pred_anae_tr = self.find_anaes(X=self.Xtr[1:], Y=Ytr[1:], Xr=Xrtr[1:], Ypred=Ypredtr, Xpred=Xpredtr)
+            self.stats[&#39;recon_anae_tr&#39;].append(recon_anae_tr.item())
+            self.stats[&#39;lin_anae_tr&#39;].append(lin_anae_tr.item())
+            self.stats[&#39;pred_anae_tr&#39;].append(pred_anae_tr.item())
+            
+            # Losses
+            recon_loss_tr, lin_loss_tr, pred_loss_tr, loss_tr = self.find_losses(X=self.Xtr[1:], Y=Ytr[1:], Xr=Xrtr[1:], Ypred=Ypredtr, Xpred=Xpredtr)
+            self.stats[&#39;recon_loss_tr&#39;].append(recon_loss_tr.item())
+            self.stats[&#39;lin_loss_tr&#39;].append(lin_loss_tr.item())
+            self.stats[&#39;pred_loss_tr&#39;].append(pred_loss_tr.item())
+            self.stats[&#39;loss_tr_before_K_reg&#39;].append(loss_tr.item())
+
+            ## Following steps – adding K regularization – are unique to training
+            K_reg_loss_tr = self.K_reg*torch.sum(torch.abs(Ktilde))/torch.numel(Ktilde)
+            loss_tr += K_reg_loss_tr
+            self.stats[&#39;loss_tr&#39;].append(loss_tr.item())
+
+            with open(self.log_file, &#39;a&#39;) as lf:
+                lf.write(f&#34;Training ANAEs: Reconstruction = {recon_anae_tr.item()}, Linearity = {lin_anae_tr.item()}, Prediction = {pred_anae_tr.item()}\nTraining losses: Reconstruction = {recon_loss_tr.item()}, Linearity = {lin_loss_tr.item()}, Prediction = {pred_loss_tr.item()}, Due to K_reg = {K_reg_loss_tr.item()}, Total = {loss_tr.item()}\n&#34;)
+            
+            # Backprop
+            try:
+                loss_tr.backward()
+            except RuntimeError as e:
+                self.error_flag = True
+                message = f&#34;Encountered RuntimeError: {e}\nStopping training!\n&#34;
+                with open(self.log_file, &#39;a&#39;) as lf:
+                    lf.write(message)
+                print(message)
+                break
+            
+            try:
+                utils.paramgrads_check_nan(self.net.parameters())
+            except ValueError:
+                self.error_flag = True
+                message = &#34;Encountered NaN in gradients\nStopping training!\n&#34;
+                with open(self.log_file, &#39;a&#39;) as lf:
+                    lf.write(message)
+                print(message)
+                break
+            
+            if self.clip_grad_norm:
+                nn.utils.clip_grad_norm_(self.net.parameters(), self.clip_grad_norm)
+            if self.clip_grad_value:
+                nn.utils.clip_grad_value_(self.net.parameters(), self.clip_grad_value)
+            
+            # Update
+            self.opt.step()
+    
+            ## Validation ##
+            if len(self.Xva):
+                self.net.eval()
+                with torch.no_grad():
+                    Yva, Xrva = self.net(self.Xva)
+                    Ypredva = self.dmd_predict(t=self.tva, Omega=Omega, W=W, coeffs=coeffs)
+                    Xpredva = self.net.decoder(Ypredva)
+                    recon_anae_va, lin_anae_va, pred_anae_va = self.find_anaes(X=self.Xva, Y=Yva, Xr=Xrva, Ypred=Ypredva, Xpred=Xpredva)
+                    recon_loss_va, lin_loss_va, pred_loss_va, loss_va = self.find_losses(X=self.Xva, Y=Yva, Xr=Xrva, Ypred=Ypredva, Xpred=Xpredva)
+                    #Note that for evaluation, there is no K_reg. This is because K_reg is only used for training.
+                    
+                self.stats[&#39;recon_anae_va&#39;].append(recon_anae_va.item())
+                self.stats[&#39;lin_anae_va&#39;].append(lin_anae_va.item())
+                self.stats[&#39;pred_anae_va&#39;].append(pred_anae_va.item())
+                self.stats[&#39;recon_loss_va&#39;].append(recon_loss_va.item())
+                self.stats[&#39;lin_loss_va&#39;].append(lin_loss_va.item())
+                self.stats[&#39;pred_loss_va&#39;].append(pred_loss_va.item())
+                self.stats[&#39;loss_va&#39;].append(loss_va.item())
+
+                with open(self.log_file, &#39;a&#39;) as lf:
+                    lf.write(f&#34;Validation ANAEs: Reconstruction = {recon_anae_va.item()}, Linearity = {lin_anae_va.item()}, Prediction = {pred_anae_va.item()}\nValidation losses: Reconstruction = {recon_loss_va.item()}, Linearity = {lin_loss_va.item()}, Prediction = {pred_loss_va.item()}, Total = {loss_va.item()}\n&#34;)
+
+                ## Early stopping logic
+                if self.early_stopping:
+                    if pred_anae_va.item() &lt; best_val_perf:
+                        no_improvement_epochs_count = 0
+                        best_val_perf = pred_anae_va.item()
+                    else:
+                        no_improvement_epochs_count += 1
+                    if no_improvement_epochs_count == self.early_stopping:
+                        with open(self.log_file, &#39;a&#39;) as lf:
+                            lf.write(f&#34;\nEarly stopped due to no improvement for {self.early_stopping} epochs.&#34;)
+                        break
+
+
+    def test(self):
+        self.net.eval()
+        with torch.no_grad():
+            Yte, Xrte = self.net(self.Xte)
+            Ypredte = self.dmd_predict(t=self.tte, Omega=self.Omega, W=self.W, coeffs=self.coeffs)
+            Xpredte = self.net.decoder(Ypredte)
+            recon_anae_te, lin_anae_te, pred_anae_te = self.find_anaes(X=self.Xte, Y=Yte, Xr=Xrte, Ypred=Ypredte, Xpred=Xpredte)
+            recon_loss_te, lin_loss_te, pred_loss_te, loss_te = self.find_losses(X=self.Xte, Y=Yte, Xr=Xrte, Ypred=Ypredte, Xpred=Xpredte)
+            
+        self.stats[&#39;recon_anae_te&#39;] = recon_anae_te.item()
+        self.stats[&#39;lin_anae_te&#39;] = lin_anae_te.item()
+        self.stats[&#39;pred_anae_te&#39;] = pred_anae_te.item()
+        self.stats[&#39;recon_loss_te&#39;] = recon_loss_te.item()
+        self.stats[&#39;lin_loss_te&#39;] = lin_loss_te.item()
+        self.stats[&#39;pred_loss_te&#39;] = pred_loss_te.item()
+        self.stats[&#39;loss_te&#39;] = loss_te.item()
+
+        with open(self.log_file, &#39;a&#39;) as lf:
+            lf.write(f&#34;\nTest ANAEs: Reconstruction = {recon_anae_te.item()}, Linearity = {lin_anae_te.item()}, Prediction = {pred_anae_te.item()}\nTest losses: Reconstruction = {recon_loss_te.item()}, Linearity = {lin_loss_te.item()}, Prediction = {pred_loss_te.item()}, Total = {loss_te.item()}\n&#34;)
+
+
+    def predict_new(self, t):
+        &#34;&#34;&#34;
+        Use the trained Deep Koopman model to predict the X values for new t.
+            This is different from testing because there we have the ground truth Xte values and we use those to find loss. Here, we do not know the X values because the t values are new (e.g. they can be extrapolated in either direction (forward / backward) or interpolated between the existing t values used for training / val / test).
+
+        Inputs:
+            t: List / 1D array containing new timestamps. Shape = (num_samples,).
+        
+        Returns:
+            Xpred: Tensor with predictions for the new X values. Shape = (num_samples,n)
+        &#34;&#34;&#34;
+        t_processed = (torch.as_tensor(t, dtype=cfg.RTYPE, device=cfg.DEVICE) - self.tshift) / self.tscale
+        with torch.no_grad():
+            Ypred = self.dmd_predict(t=t_processed, Omega=self.Omega, W=self.W, coeffs=self.coeffs)
+            Xpred = self.net.decoder(Ypred)
+            if self.normalize_Xdata:
+                Xpred *= self.Xscale
+        with open(self.log_file, &#39;a&#39;) as lf:
+            lf.write(&#34;\nNew predictions:\n&#34;)
+            for i in range(len(t)):
+                lf.write(f&#39;Independent variable = {t[i]}, Dependent variable =\n&#39;)
+                lf.write(f&#39;{Xpred[i]}\n&#39;)
+        return Xpred
+
+
+    def plot_stats(self, perfs = [&#39;pred_anae&#39;], start_epoch=1, fontsize=12):
+        &#34;&#34;&#34;
+        Plot stats for a run
+        
+        Inputs
+            perfs: Which variables to plot. For each, tr and va are plotted vs epochs, and the title of the plot is the te value.
+            start_epoch: If not 1, start plotting from that epoch. This is useful when the first few epochs have weird values that skew the y axis scale.
+
+        Returns:
+            None
+        Saves png file(s) to disk.
+        &#34;&#34;&#34;
+        for perf in perfs:
+            is_anae = &#39;anae&#39; in perf
+
+            tr_data = self.stats[perf+&#39;_tr&#39;][start_epoch-1:]
+            if self.stats[perf+&#39;_va&#39;]:
+                va_data = self.stats[perf+&#39;_va&#39;][start_epoch-1:]
+                tr_data = tr_data[:len(va_data)] # va_data should normally have size equal to tr_data, but will have lesser size if some error occurred during training. This slicing ensures that only that portion of tr_data is considered which corresponds to va_data.
+            epoch_range = range(start_epoch,start_epoch+len(tr_data))
+            
+            plt.figure()
+            if self.stats[perf+&#39;_te&#39;]:
+                plt.suptitle(f&#34;Test performance = {self.stats[perf+&#39;_te&#39;]}&#34; + (&#39; %&#39; if is_anae else &#39;&#39;), fontsize=fontsize)
+            
+            if perf == &#39;loss&#39;:
+                plt.plot(epoch_range,self.stats[&#39;loss_tr_before_K_reg&#39;][start_epoch-1:], c=&#39;DarkSlateBlue&#39;, label=&#39;Training, before K_reg&#39;)
+            plt.plot(epoch_range,self.stats[perf+&#39;_tr&#39;][start_epoch-1:], c=&#39;MediumBlue&#39;, label=&#39;Training&#39;)
+            if self.stats[perf+&#39;_va&#39;]:
+                plt.plot(epoch_range,self.stats[perf+&#39;_va&#39;][start_epoch-1:], c=&#39;DeepPink&#39;, label=&#39;Validation&#39;)
+            
+            if is_anae:
+                ylim_anae = plt.gca().get_ylim()
+                plt.ylim(max(0,ylim_anae[0]), min(100,ylim_anae[1])) # keep ANAE limits between [0,100]
+            plt.xlabel(&#39;Epochs&#39;, fontsize=fontsize)
+            plt.ylabel(perf + (&#39; (%)&#39; if is_anae else &#39;&#39;), fontsize=fontsize)
+            plt.xticks(fontsize=fontsize-2)
+            plt.yticks(fontsize=fontsize-2)
+            
+            plt.grid()
+            plt.legend(fontsize=fontsize)
+
+            plt.savefig(os.path.join(self.results_folder, f&#39;{self.uuid}_{perf}.png&#39;), dpi=600, bbox_inches=&#39;tight&#39;, pad_inches=0.1)</code></pre>
+</details>
+<h3>Static methods</h3>
+<dl>
+<dt id="main.DeepKoopman.anae"><code class="name flex">
+<span>def <span class="ident">anae</span></span>(<span>ref, new)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Average Normalized Absolute Error, returned as percentage.
+ANAE first normalizes each absolute error by the corresponding absolute ground truth, then averages them.
+E.g: ref = [[0.1,1],[100,200]], new = [[1.1,2],[99,199]]. So, all deviations are 1. Then, ANAE = Avg(1/0.1, 1/1, 1/100, 1/200) = 275%. Note that ANAE heavily penalizes deviations for small values of ground truth.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@staticmethod
+def anae(ref,new):
+    &#34;&#34;&#34;
+    Average Normalized Absolute Error, returned as percentage.
+    ANAE first normalizes each absolute error by the corresponding absolute ground truth, then averages them.
+    E.g: ref = [[0.1,1],[100,200]], new = [[1.1,2],[99,199]]. So, all deviations are 1. Then, ANAE = Avg(1/0.1, 1/1, 1/100, 1/200) = 275%. Note that ANAE heavily penalizes deviations for small values of ground truth. 
+    &#34;&#34;&#34;
+    anae = torch.abs(ref-new)/torch.abs(ref)
+    return 100.*torch.mean(anae[anae!=torch.inf])</code></pre>
+</details>
+</dd>
+<dt id="main.DeepKoopman.naae"><code class="name flex">
+<span>def <span class="ident">naae</span></span>(<span>ref, new)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Normalized Average Absolute Error, returned as percentage.
+NAAE first averages the absolute error, then normalizes that using the average value of the absolute ground truth. This reduces the chance of a few small ground truth values having a huge impact, but loses details by taking the average over all absolute error values, and likewise over all ground truth values.
+E.g.: ref = [[0.1,1],[-100,200]], new = [[1.1,2],[-99,199]]. So, all deviations are 1. Then, NAAE = Avg(1,1,1,1)/Avg(0.1,1,100,200) = 1.33%.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@staticmethod
+def naae(ref,new):
+    &#34;&#34;&#34;
+    Normalized Average Absolute Error, returned as percentage.
+    NAAE first averages the absolute error, then normalizes that using the average value of the absolute ground truth. This reduces the chance of a few small ground truth values having a huge impact, but loses details by taking the average over all absolute error values, and likewise over all ground truth values.
+    E.g.: ref = [[0.1,1],[-100,200]], new = [[1.1,2],[-99,199]]. So, all deviations are 1. Then, NAAE = Avg(1,1,1,1)/Avg(0.1,1,100,200) = 1.33%.
+    &#34;&#34;&#34;
+    return 100.*torch.mean(torch.abs(ref-new))/torch.mean(torch.abs(ref))</code></pre>
+</details>
+</dd>
+</dl>
+<h3>Methods</h3>
+<dl>
+<dt id="main.DeepKoopman.dmd_eigen"><code class="name flex">
+<span>def <span class="ident">dmd_eigen</span></span>(<span>self, Ktilde, interm, y0)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Get the eigendecomposition of the Koopman matrix.</p>
+<h2 id="inputs">Inputs</h2>
+<p>Ktilde: From dmd_linearize(). Shape = (r,r).
+interm: From dmd_linearize(). Shape = (p,r).
+y0: Initial state of the system (should be part of training data). Shape = (p,).</p>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><code>Omega</code></dt>
+<dd>Eigenvalues of <strong>continuous time</strong> Ktilde. Shape = (r,r).</dd>
+<dt><code>W</code></dt>
+<dd>First r exact eigenvectors of the full (i.e. not tilde) system. Shape = (p,r).</dd>
+<dt><code>coeffs</code></dt>
+<dd>Coefficients of the linear combination. Shape = (r,).</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def dmd_eigen(self, Ktilde, interm, y0):
+    &#34;&#34;&#34;
+    Get the eigendecomposition of the Koopman matrix.
+
+    Inputs:
+        Ktilde: From dmd_linearize(). Shape = (r,r).
+        interm: From dmd_linearize(). Shape = (p,r).
+        y0: Initial state of the system (should be part of training data). Shape = (p,).
+    
+    Returns:
+        Omega: Eigenvalues of **continuous time** Ktilde. Shape = (r,r).
+        W: First r exact eigenvectors of the full (i.e. not tilde) system. Shape = (p,r).
+        coeffs: Coefficients of the linear combination. Shape = (r,).
+    &#34;&#34;&#34;
+    Lambda, Wtilde = torch.linalg.eig(Ktilde) #Lambda is (r,), Wtilde is (r,r)
+    
+    # Eigenvalues
+    with open(self.log_file, &#39;a&#39;) as lf:
+        lf.write(f&#34;Largest magnitude among eigenvalues = {torch.max(torch.abs(Lambda))}\n&#34;)
+    Omega = torch.diag(torch.log(Lambda)) #shape = (r,r) #NOTE: No need to divide by self.tscale here because spacings are normalized to 1
+    #NOTE: We can do a check if any pair (or more) of consecutive eigenvalues are so close that their difference is less than some threshold, since this will lead to very large / nan values during backprop. But doing this check requires looping over the Omega tensor (time complexity = O(len(Omega))) and is not worth it.
+    
+    # Eigenvectors
+    W = interm.to(cfg.CTYPE) @ Wtilde #shape = (p,r)
+    S,s = torch.linalg.norm(W,2), torch.linalg.norm(W,-2)
+    cond = S/s
+    if cond &gt; self.cond_threshold:
+        with open(self.log_file, &#39;a&#39;) as lf:
+            lf.write(f&#34;Condition number = {cond} is greater than threshold = {self.cond_threshold}. This may lead to numerical instability in evaluating linearity loss. In an attempt to mitigate this, singular values smaller than 1/{self.cond_threshold} times the largest will be discarded from the pseudo-inverse computation.\n&#34;)
+    
+    # Coefficients
+    coeffs = torch.linalg.pinv(W, rtol=1./self.cond_threshold) @ y0.to(cfg.CTYPE) #shape = (r,)
+    
+    return Omega, W, coeffs</code></pre>
+</details>
+</dd>
+<dt id="main.DeepKoopman.dmd_linearize"><code class="name flex">
+<span>def <span class="ident">dmd_linearize</span></span>(<span>self, Y, Yprime)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Get the rank-reduced Koopman matrix Ktilde.</p>
+<h2 id="inputs">Inputs</h2>
+<p>Y: Matrix of states as columns. Shape = (p,m), where p is the dimensionality of a state and m is the number of states.
+Yprime: Matrix of states as columns, shifted forward by 1 from Y. Shape = (p,m).</p>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><code>Ktilde</code></dt>
+<dd>Rank-reduced Koopman matrix. Shape = (r,r).</dd>
+<dt><code>interm</code></dt>
+<dd>Intermediate quantity Y'VS^-1. Shape = (p,r).</dd>
+</dl>
+<p>Note that r is &lt;= min(m,p)
+Also note that wherever we do <code>tensor.t()</code>, technically the Hermitian should be taken via <code>tensor.t().conj()</code>. But since we deal with real data, just the ordinary transpose is fine.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def dmd_linearize(self, Y, Yprime):
+    &#34;&#34;&#34;
+    Get the rank-reduced Koopman matrix Ktilde.
+
+    Inputs:
+        Y: Matrix of states as columns. Shape = (p,m), where p is the dimensionality of a state and m is the number of states.
+        Yprime: Matrix of states as columns, shifted forward by 1 from Y. Shape = (p,m).
+    
+    Returns:
+        Ktilde: Rank-reduced Koopman matrix. Shape = (r,r).
+        interm: Intermediate quantity Y&#39;VS^-1. Shape = (p,r).
+
+    Note that r is &lt;= min(m,p)
+    Also note that wherever we do `tensor.t()`, technically the Hermitian should be taken via `tensor.t().conj()`. But since we deal with real data, just the ordinary transpose is fine.
+    &#34;&#34;&#34;
+    if self.use_custom_stable_svd:
+        U, Sigma, V = utils.stable_svd(Y) #shapes: U = (p,min(m,p)), Sigma = (min(m,p),), V = (m,min(m,p))
+    else:
+        U, Sigma, Vt = torch.linalg.svd(Y) #shapes: U = (p,p), Sigma = (min(m,p),), Vt = (m,m)
+        V = Vt.t() #shape = (m,m)
+    
+    # Left singular vectors
+    U = U[:,:self.rank] #shape = (p,r)
+    Ut = U.t() #shape = (r,p)
+    
+    # Singular values
+    if Sigma[-1] &lt; self.sigma_threshold:
+        with open(self.log_file, &#39;a&#39;) as lf:
+            lf.write(f&#34;Smallest singular value prior to truncation = {Sigma[-1]} is smaller than threshold = {self.sigma_threshold}. This may lead to very large / nan values in backprop of SVD.\n&#34;)
+    #NOTE: We can also do a check if any pair (or more) of consecutive singular values are so close that the difference of their squares is less than some threshold, since this will also lead to very large / nan values during backprop. But doing this check requires looping over the Sigma tensor (time complexity = O(len(Sigma))) and is not worth it.
+    Sigma = torch.diag(Sigma[:self.rank]) #shape = (r,r)
+    
+    # Right singular vectors
+    V = V[:,:self.rank] #shape = (m,r)
+    
+    # Outputs
+    interm = Yprime @ V @ torch.linalg.inv(Sigma) #shape = (p,r)
+    Ktilde = Ut @ interm #shape = (r,r)
+    
+    return Ktilde, interm</code></pre>
+</details>
+</dd>
+<dt id="main.DeepKoopman.dmd_predict"><code class="name flex">
+<span>def <span class="ident">dmd_predict</span></span>(<span>self, t, Omega, W, coeffs)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Predict the dynamics of a system.</p>
+<h2 id="inputs">Inputs</h2>
+<p>t: Sequence of time steps for which dynamics are predicted. Shape = (num_samples,).
+Omega: From dmd_eigen(). Shape = (r,r).
+W: From dmd_eigen(). Shape = (p,r).
+coeffs: From dmd_eigen(). Shape = (r,).
+Note: Omega,W,coeffs can also be provided from outside for a new system.</p>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><code>Ypred</code></dt>
+<dd>Predictions for all the timestamps in t. Shape (num_samples,p).
+Predictions may be complex, however they are converted to real by taking absolute value. This is fine because, if things are okay, the imaginary parts should be negligible (several orders of magnitude less) than the real parts.</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def dmd_predict(self, t, Omega,W,coeffs):
+    &#34;&#34;&#34;
+    Predict the dynamics of a system.
+    
+    Inputs:
+        t: Sequence of time steps for which dynamics are predicted. Shape = (num_samples,).
+        Omega: From dmd_eigen(). Shape = (r,r).
+        W: From dmd_eigen(). Shape = (p,r).
+        coeffs: From dmd_eigen(). Shape = (r,).
+    Note: Omega,W,coeffs can also be provided from outside for a new system.
+    
+    Returns:
+        Ypred: Predictions for all the timestamps in t. Shape (num_samples,p).
+            Predictions may be complex, however they are converted to real by taking absolute value. This is fine because, if things are okay, the imaginary parts should be negligible (several orders of magnitude less) than the real parts.
+    &#34;&#34;&#34;
+    Ypred = torch.tensor([])
+    for index,ti in enumerate(t):
+        ypred = W @ torch.linalg.matrix_exp(Omega*ti) @ coeffs #shape = (p,)
+        Ypred = ypred.view(1,-1) if index==0 else torch.vstack((Ypred,ypred)) #shape at end = (num_samples,p)
+    return torch.abs(Ypred)</code></pre>
+</details>
+</dd>
+<dt id="main.DeepKoopman.find_anaes"><code class="name flex">
+<span>def <span class="ident">find_anaes</span></span>(<span>self, X, Y, Xr, Ypred, Xpred)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Find the corresponding ANAE for each of the losses.
+NOTE: MSE loss is a useful thing to optimize, but it is basically the squares of the values. ANAE is a more useful thing to report since it tells us how much percentage deviation to expect for a new value. E.g. if prediction ANAE for a DeepK motor current problem is around 10%, then one can expect a newly predicted motor current to have an error of around 10% from the actual.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def find_anaes(self, X, Y, Xr, Ypred, Xpred):
+    &#34;&#34;&#34;
+    Find the corresponding ANAE for each of the losses.
+    NOTE: MSE loss is a useful thing to optimize, but it is basically the squares of the values. ANAE is a more useful thing to report since it tells us how much percentage deviation to expect for a new value. E.g. if prediction ANAE for a DeepK motor current problem is around 10%, then one can expect a newly predicted motor current to have an error of around 10% from the actual.
+    &#34;&#34;&#34;
+    recon_anae = self.anae(ref=X, new=Xr)
+    lin_anae = self.anae(ref=Y, new=Ypred)
+    pred_anae = self.anae(ref=X, new=Xpred)
+    return recon_anae, lin_anae, pred_anae</code></pre>
+</details>
+</dd>
+<dt id="main.DeepKoopman.find_losses"><code class="name flex">
+<span>def <span class="ident">find_losses</span></span>(<span>self, X, Y, Xr, Ypred, Xpred)</span>
+</code></dt>
+<dd>
+<div class="desc"><h2 id="inputs">Inputs</h2>
+<p>X: Some original input data, shape = (num_samples,n). It should not include the sample x0.
+Y, Xr: Results of forward passing the original input data through self.net. Respective shapes = (num_samples,p), (num_samples,n).
+Ypred: Results of dmd_predict() using t = timesteps covered by X, Y, Xr. Shape = (num_samples,p).
+Xpred: Results of passing Ypred through the decoder. Shape = (num_samples,n).</p>
+<p>Returns:
+(For the following discussion, note that the Lusch paper uses x_1 as the initial sample, while I use x_0. So, I've replaced the 1 subscript in the Lusch paper with 0 in the explanation here).
+recon_loss:
+Lusch:
+In Lusch, this is given in the right column of Pg 4 as ||x - phi_inv(phi(x))||.
+In Lusch eq (12), x is assumed to be only the first sample x_0.
+Here:
+Instead of using a single sample x_i, I compute recon loss for all samples in the input data X and then average out.
+So, <code>nn.MSELoss(reduction='mean')(Xr,X)</code> is the reconstruction loss.
+lin_loss:
+Lusch:
+In Lusch, this is given in the right column of Pg 4 as ||phi(x_(k+m)) - K^m<em>phi(x_k)||. (Btw do not confuse this <code>m</code> in Lusch with the <code>m</code> I'm using for total number of timestamps).
+In Lusch eq (14), k is assumed to be 0 to get ||phi(x_m) - K^m</em>phi(x_0)||, where x_m is m steps advanced from x_0. This is repeated for different m from 1 to T-1, and then averaged out.
+Here:
+Note that the X which is input to this method is already like a bunch of x_m since it contains samples advanced by different amounts of time from x_0. <strong>Remember this for pred loss.</strong>
+When we do <code>Y, Xr = self.net(X)</code>, Y_ideal becomes phi(x_m) for a bunch of m.
+Ypred is obtained from dmd_predict() as K^m<em>phi(x_0) for a bunch of m. </em><em>Remember this for pred loss.</em><em>
+So, <code>nn.MSELoss(reduction='mean')(Ypred,Y)</code> is the linearity loss. The difference from Lusch is that instead of considering samples from x_1 to x_T-1 (which is all samples in the experiment time horizon T), we consider samples in the input data X, which can be e.g. from x_11 to x_15.
+pred_loss:
+Lusch:
+In Lusch, this is given in the right column of Pg 4 as ||x_(k+m) - phi_inv(K^m</em>phi(x_k))||,.
+In Lusch eq (13), k is assumed to be 0 to get ||x_m - phi_inv(K^m*phi(x_0))||, where x_m is m steps advanced from x_0. This is repeated for different m from 1 to Sp, and then averaged out.
+Here:
+When we do <code>Xpred = self.net.decoder(Ypred)</code>, we obtain <code>phi_inv(K^m*phi(X_0))</code> for a bunch of m.
+Then, <code>nn.MSELoss(reduction='mean')(Xpred,X)</code> is the prediction loss. The difference from Lusch is that instead of considering samples from x_1 to x_Sp (where Sp is a hyperparameter), we consider samples in the input data, which can be e.g. from x_11 to x_15.
+loss: Linear combination of the above losses weighted by the hyperparameters.</p>
+<h2 id="note">Note</h2>
+<p>We don't use L_infinity loss as in Lusch because we do not want to specifically penalize outliers since we don't know the nature of our data beforehand.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def find_losses(self, X, Y, Xr, Ypred, Xpred):
+    &#34;&#34;&#34;
+    Inputs:
+        X: Some original input data, shape = (num_samples,n). It should not include the sample x0.
+        Y, Xr: Results of forward passing the original input data through self.net. Respective shapes = (num_samples,p), (num_samples,n).
+        Ypred: Results of dmd_predict() using t = timesteps covered by X, Y, Xr. Shape = (num_samples,p).
+        Xpred: Results of passing Ypred through the decoder. Shape = (num_samples,n).
+    
+    Returns:
+    (For the following discussion, note that the Lusch paper uses x_1 as the initial sample, while I use x_0. So, I&#39;ve replaced the 1 subscript in the Lusch paper with 0 in the explanation here).
+        recon_loss:
+            Lusch:
+                In Lusch, this is given in the right column of Pg 4 as ||x - phi_inv(phi(x))||.
+                In Lusch eq (12), x is assumed to be only the first sample x_0.
+            Here:
+                Instead of using a single sample x_i, I compute recon loss for all samples in the input data X and then average out.
+                So, `nn.MSELoss(reduction=&#39;mean&#39;)(Xr,X)` is the reconstruction loss.
+        lin_loss:
+            Lusch:
+                In Lusch, this is given in the right column of Pg 4 as ||phi(x_(k+m)) - K^m*phi(x_k)||. (Btw do not confuse this `m` in Lusch with the `m` I&#39;m using for total number of timestamps).
+                In Lusch eq (14), k is assumed to be 0 to get ||phi(x_m) - K^m*phi(x_0)||, where x_m is m steps advanced from x_0. This is repeated for different m from 1 to T-1, and then averaged out.
+            Here:
+                Note that the X which is input to this method is already like a bunch of x_m since it contains samples advanced by different amounts of time from x_0. **Remember this for pred loss.**
+                When we do `Y, Xr = self.net(X)`, Y_ideal becomes phi(x_m) for a bunch of m.
+                Ypred is obtained from dmd_predict() as K^m*phi(x_0) for a bunch of m. **Remember this for pred loss.**
+                So, `nn.MSELoss(reduction=&#39;mean&#39;)(Ypred,Y)` is the linearity loss. The difference from Lusch is that instead of considering samples from x_1 to x_T-1 (which is all samples in the experiment time horizon T), we consider samples in the input data X, which can be e.g. from x_11 to x_15.
+        pred_loss:
+            Lusch:
+                In Lusch, this is given in the right column of Pg 4 as ||x_(k+m) - phi_inv(K^m*phi(x_k))||,.
+                In Lusch eq (13), k is assumed to be 0 to get ||x_m - phi_inv(K^m*phi(x_0))||, where x_m is m steps advanced from x_0. This is repeated for different m from 1 to Sp, and then averaged out.
+            Here:
+                When we do `Xpred = self.net.decoder(Ypred)`, we obtain `phi_inv(K^m*phi(X_0))` for a bunch of m.
+                Then, `nn.MSELoss(reduction=&#39;mean&#39;)(Xpred,X)` is the prediction loss. The difference from Lusch is that instead of considering samples from x_1 to x_Sp (where Sp is a hyperparameter), we consider samples in the input data, which can be e.g. from x_11 to x_15.
+        loss: Linear combination of the above losses weighted by the hyperparameters.
+    
+    Note:
+        We don&#39;t use L_infinity loss as in Lusch because we do not want to specifically penalize outliers since we don&#39;t know the nature of our data beforehand.
+    &#34;&#34;&#34;
+    recon_loss = nn.MSELoss(reduction=&#39;mean&#39;)(Xr, X)
+    lin_loss = nn.MSELoss(reduction=&#39;mean&#39;)(Ypred, Y)
+    pred_loss = nn.MSELoss(reduction=&#39;mean&#39;)(Xpred, X)
+
+    loss = lin_loss + self.decoder_loss_weight*(recon_loss+pred_loss)
+
+    return recon_loss, lin_loss, pred_loss, loss</code></pre>
+</details>
+</dd>
+<dt id="main.DeepKoopman.find_naaes"><code class="name flex">
+<span>def <span class="ident">find_naaes</span></span>(<span>self, X, Y, Xr, Ypred, Xpred)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Find the corresponding NAAE for each of the losses</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def find_naaes(self, X, Y, Xr, Ypred, Xpred):
+    &#34;&#34;&#34; Find the corresponding NAAE for each of the losses &#34;&#34;&#34;
+    recon_naae = self.naae(ref=X, new=Xr)
+    lin_naae = self.naae(ref=Y, new=Ypred)
+    pred_naae = self.naae(ref=X, new=Xpred)
+    return recon_naae, lin_naae, pred_naae</code></pre>
+</details>
+</dd>
+<dt id="main.DeepKoopman.plot_stats"><code class="name flex">
+<span>def <span class="ident">plot_stats</span></span>(<span>self, perfs=['pred_anae'], start_epoch=1, fontsize=12)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Plot stats for a run</p>
+<p>Inputs
+perfs: Which variables to plot. For each, tr and va are plotted vs epochs, and the title of the plot is the te value.
+start_epoch: If not 1, start plotting from that epoch. This is useful when the first few epochs have weird values that skew the y axis scale.</p>
+<h2 id="returns">Returns</h2>
+<p>None
+Saves png file(s) to disk.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def plot_stats(self, perfs = [&#39;pred_anae&#39;], start_epoch=1, fontsize=12):
+    &#34;&#34;&#34;
+    Plot stats for a run
+    
+    Inputs
+        perfs: Which variables to plot. For each, tr and va are plotted vs epochs, and the title of the plot is the te value.
+        start_epoch: If not 1, start plotting from that epoch. This is useful when the first few epochs have weird values that skew the y axis scale.
+
+    Returns:
+        None
+    Saves png file(s) to disk.
+    &#34;&#34;&#34;
+    for perf in perfs:
+        is_anae = &#39;anae&#39; in perf
+
+        tr_data = self.stats[perf+&#39;_tr&#39;][start_epoch-1:]
+        if self.stats[perf+&#39;_va&#39;]:
+            va_data = self.stats[perf+&#39;_va&#39;][start_epoch-1:]
+            tr_data = tr_data[:len(va_data)] # va_data should normally have size equal to tr_data, but will have lesser size if some error occurred during training. This slicing ensures that only that portion of tr_data is considered which corresponds to va_data.
+        epoch_range = range(start_epoch,start_epoch+len(tr_data))
+        
+        plt.figure()
+        if self.stats[perf+&#39;_te&#39;]:
+            plt.suptitle(f&#34;Test performance = {self.stats[perf+&#39;_te&#39;]}&#34; + (&#39; %&#39; if is_anae else &#39;&#39;), fontsize=fontsize)
+        
+        if perf == &#39;loss&#39;:
+            plt.plot(epoch_range,self.stats[&#39;loss_tr_before_K_reg&#39;][start_epoch-1:], c=&#39;DarkSlateBlue&#39;, label=&#39;Training, before K_reg&#39;)
+        plt.plot(epoch_range,self.stats[perf+&#39;_tr&#39;][start_epoch-1:], c=&#39;MediumBlue&#39;, label=&#39;Training&#39;)
+        if self.stats[perf+&#39;_va&#39;]:
+            plt.plot(epoch_range,self.stats[perf+&#39;_va&#39;][start_epoch-1:], c=&#39;DeepPink&#39;, label=&#39;Validation&#39;)
+        
+        if is_anae:
+            ylim_anae = plt.gca().get_ylim()
+            plt.ylim(max(0,ylim_anae[0]), min(100,ylim_anae[1])) # keep ANAE limits between [0,100]
+        plt.xlabel(&#39;Epochs&#39;, fontsize=fontsize)
+        plt.ylabel(perf + (&#39; (%)&#39; if is_anae else &#39;&#39;), fontsize=fontsize)
+        plt.xticks(fontsize=fontsize-2)
+        plt.yticks(fontsize=fontsize-2)
+        
+        plt.grid()
+        plt.legend(fontsize=fontsize)
+
+        plt.savefig(os.path.join(self.results_folder, f&#39;{self.uuid}_{perf}.png&#39;), dpi=600, bbox_inches=&#39;tight&#39;, pad_inches=0.1)</code></pre>
+</details>
+</dd>
+<dt id="main.DeepKoopman.predict_new"><code class="name flex">
+<span>def <span class="ident">predict_new</span></span>(<span>self, t)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Use the trained Deep Koopman model to predict the X values for new t.
+This is different from testing because there we have the ground truth Xte values and we use those to find loss. Here, we do not know the X values because the t values are new (e.g. they can be extrapolated in either direction (forward / backward) or interpolated between the existing t values used for training / val / test).</p>
+<h2 id="inputs">Inputs</h2>
+<p>t: List / 1D array containing new timestamps. Shape = (num_samples,).</p>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><code>Xpred</code></dt>
+<dd>Tensor with predictions for the new X values. Shape = (num_samples,n)</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def predict_new(self, t):
+    &#34;&#34;&#34;
+    Use the trained Deep Koopman model to predict the X values for new t.
+        This is different from testing because there we have the ground truth Xte values and we use those to find loss. Here, we do not know the X values because the t values are new (e.g. they can be extrapolated in either direction (forward / backward) or interpolated between the existing t values used for training / val / test).
+
+    Inputs:
+        t: List / 1D array containing new timestamps. Shape = (num_samples,).
+    
+    Returns:
+        Xpred: Tensor with predictions for the new X values. Shape = (num_samples,n)
+    &#34;&#34;&#34;
+    t_processed = (torch.as_tensor(t, dtype=cfg.RTYPE, device=cfg.DEVICE) - self.tshift) / self.tscale
+    with torch.no_grad():
+        Ypred = self.dmd_predict(t=t_processed, Omega=self.Omega, W=self.W, coeffs=self.coeffs)
+        Xpred = self.net.decoder(Ypred)
+        if self.normalize_Xdata:
+            Xpred *= self.Xscale
+    with open(self.log_file, &#39;a&#39;) as lf:
+        lf.write(&#34;\nNew predictions:\n&#34;)
+        for i in range(len(t)):
+            lf.write(f&#39;Independent variable = {t[i]}, Dependent variable =\n&#39;)
+            lf.write(f&#39;{Xpred[i]}\n&#39;)
+    return Xpred</code></pre>
+</details>
+</dd>
+<dt id="main.DeepKoopman.test"><code class="name flex">
+<span>def <span class="ident">test</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def test(self):
+    self.net.eval()
+    with torch.no_grad():
+        Yte, Xrte = self.net(self.Xte)
+        Ypredte = self.dmd_predict(t=self.tte, Omega=self.Omega, W=self.W, coeffs=self.coeffs)
+        Xpredte = self.net.decoder(Ypredte)
+        recon_anae_te, lin_anae_te, pred_anae_te = self.find_anaes(X=self.Xte, Y=Yte, Xr=Xrte, Ypred=Ypredte, Xpred=Xpredte)
+        recon_loss_te, lin_loss_te, pred_loss_te, loss_te = self.find_losses(X=self.Xte, Y=Yte, Xr=Xrte, Ypred=Ypredte, Xpred=Xpredte)
+        
+    self.stats[&#39;recon_anae_te&#39;] = recon_anae_te.item()
+    self.stats[&#39;lin_anae_te&#39;] = lin_anae_te.item()
+    self.stats[&#39;pred_anae_te&#39;] = pred_anae_te.item()
+    self.stats[&#39;recon_loss_te&#39;] = recon_loss_te.item()
+    self.stats[&#39;lin_loss_te&#39;] = lin_loss_te.item()
+    self.stats[&#39;pred_loss_te&#39;] = pred_loss_te.item()
+    self.stats[&#39;loss_te&#39;] = loss_te.item()
+
+    with open(self.log_file, &#39;a&#39;) as lf:
+        lf.write(f&#34;\nTest ANAEs: Reconstruction = {recon_anae_te.item()}, Linearity = {lin_anae_te.item()}, Prediction = {pred_anae_te.item()}\nTest losses: Reconstruction = {recon_loss_te.item()}, Linearity = {lin_loss_te.item()}, Prediction = {pred_loss_te.item()}, Total = {loss_te.item()}\n&#34;)</code></pre>
+</details>
+</dd>
+<dt id="main.DeepKoopman.train"><code class="name flex">
+<span>def <span class="ident">train</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Train a Deep Koopman model.
+This computes losses and the eigendecomposition.
+If validation data exists in self, then the eigendecomposition at the end of training each epoch is used to do validation after every epoch and compute losses.
+If test data exists in self, the final eigendecomposition is also used to do testing and compute losses.</p>
+<h2 id="effects">Effects</h2>
+<p>self.stats stores all the training (and val and test if those are done) stats.
+self.Omega, self.W and self.coeffs contain the eigendecomposition at the end of training. These can be used for future evaluation.</p>
+<p>Inputs: None
+Returns: None</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def train(self):
+    &#34;&#34;&#34;
+    Train a Deep Koopman model.
+    This computes losses and the eigendecomposition.
+    If validation data exists in self, then the eigendecomposition at the end of training each epoch is used to do validation after every epoch and compute losses.
+    If test data exists in self, the final eigendecomposition is also used to do testing and compute losses.
+
+    Effects:
+        self.stats stores all the training (and val and test if those are done) stats.
+        self.Omega, self.W and self.coeffs contain the eigendecomposition at the end of training. These can be used for future evaluation.
+    
+    Inputs: None
+    Returns: None
+    &#34;&#34;&#34;
+    print(f&#39;UUID for this run = {self.uuid}&#39;)
+    with open(self.log_file, &#39;a&#39;) as lf:
+        lf.write(&#34;\nStarting training ...\n&#34;)
+    
+    no_improvement_epochs_count = 0
+    best_val_perf = np.inf
+    
+    for epoch in tqdm(range(self.numepochs)):
+        # NOTE: Do not do any kind of shuffling before/after epochs
+        # The num_input_states dimension cannot be shuffled because that would mess up the MLP weights
+        # The m dimension is typically shuffled for standard classification problems, here however, m captures time information, so order must be maintained
+        
+        with open(self.log_file, &#39;a&#39;) as lf:
+            lf.write(f&#34;\nEpoch {epoch+1}\n&#34;)
+        
+        ## Training ##
+        self.net.train()
+        self.opt.zero_grad()
+        
+        Ytr, Xrtr = self.net(self.Xtr)
+        
+        # Following 2 steps are unique to training
+        Ktilde, interm = self.dmd_linearize(Y = Ytr[:-1,:].t(), Yprime = Ytr[1:,:].t())
+        Omega, W, coeffs = self.dmd_eigen(Ktilde=Ktilde, interm=interm, y0=Ytr[0])
+
+        # Record DMD variables
+        self.Omega = Omega
+        self.W = W
+        self.coeffs = coeffs
+        
+        # Get predictions
+        Ypredtr = self.dmd_predict(t=self.ttr[1:], Omega=Omega, W=W, coeffs=coeffs)
+        Xpredtr = self.net.decoder(Ypredtr)
+
+        # ANAEs
+        with torch.no_grad():
+            recon_anae_tr, lin_anae_tr, pred_anae_tr = self.find_anaes(X=self.Xtr[1:], Y=Ytr[1:], Xr=Xrtr[1:], Ypred=Ypredtr, Xpred=Xpredtr)
+        self.stats[&#39;recon_anae_tr&#39;].append(recon_anae_tr.item())
+        self.stats[&#39;lin_anae_tr&#39;].append(lin_anae_tr.item())
+        self.stats[&#39;pred_anae_tr&#39;].append(pred_anae_tr.item())
+        
+        # Losses
+        recon_loss_tr, lin_loss_tr, pred_loss_tr, loss_tr = self.find_losses(X=self.Xtr[1:], Y=Ytr[1:], Xr=Xrtr[1:], Ypred=Ypredtr, Xpred=Xpredtr)
+        self.stats[&#39;recon_loss_tr&#39;].append(recon_loss_tr.item())
+        self.stats[&#39;lin_loss_tr&#39;].append(lin_loss_tr.item())
+        self.stats[&#39;pred_loss_tr&#39;].append(pred_loss_tr.item())
+        self.stats[&#39;loss_tr_before_K_reg&#39;].append(loss_tr.item())
+
+        ## Following steps – adding K regularization – are unique to training
+        K_reg_loss_tr = self.K_reg*torch.sum(torch.abs(Ktilde))/torch.numel(Ktilde)
+        loss_tr += K_reg_loss_tr
+        self.stats[&#39;loss_tr&#39;].append(loss_tr.item())
+
+        with open(self.log_file, &#39;a&#39;) as lf:
+            lf.write(f&#34;Training ANAEs: Reconstruction = {recon_anae_tr.item()}, Linearity = {lin_anae_tr.item()}, Prediction = {pred_anae_tr.item()}\nTraining losses: Reconstruction = {recon_loss_tr.item()}, Linearity = {lin_loss_tr.item()}, Prediction = {pred_loss_tr.item()}, Due to K_reg = {K_reg_loss_tr.item()}, Total = {loss_tr.item()}\n&#34;)
+        
+        # Backprop
+        try:
+            loss_tr.backward()
+        except RuntimeError as e:
+            self.error_flag = True
+            message = f&#34;Encountered RuntimeError: {e}\nStopping training!\n&#34;
+            with open(self.log_file, &#39;a&#39;) as lf:
+                lf.write(message)
+            print(message)
+            break
+        
+        try:
+            utils.paramgrads_check_nan(self.net.parameters())
+        except ValueError:
+            self.error_flag = True
+            message = &#34;Encountered NaN in gradients\nStopping training!\n&#34;
+            with open(self.log_file, &#39;a&#39;) as lf:
+                lf.write(message)
+            print(message)
+            break
+        
+        if self.clip_grad_norm:
+            nn.utils.clip_grad_norm_(self.net.parameters(), self.clip_grad_norm)
+        if self.clip_grad_value:
+            nn.utils.clip_grad_value_(self.net.parameters(), self.clip_grad_value)
+        
+        # Update
+        self.opt.step()
+
+        ## Validation ##
+        if len(self.Xva):
+            self.net.eval()
+            with torch.no_grad():
+                Yva, Xrva = self.net(self.Xva)
+                Ypredva = self.dmd_predict(t=self.tva, Omega=Omega, W=W, coeffs=coeffs)
+                Xpredva = self.net.decoder(Ypredva)
+                recon_anae_va, lin_anae_va, pred_anae_va = self.find_anaes(X=self.Xva, Y=Yva, Xr=Xrva, Ypred=Ypredva, Xpred=Xpredva)
+                recon_loss_va, lin_loss_va, pred_loss_va, loss_va = self.find_losses(X=self.Xva, Y=Yva, Xr=Xrva, Ypred=Ypredva, Xpred=Xpredva)
+                #Note that for evaluation, there is no K_reg. This is because K_reg is only used for training.
+                
+            self.stats[&#39;recon_anae_va&#39;].append(recon_anae_va.item())
+            self.stats[&#39;lin_anae_va&#39;].append(lin_anae_va.item())
+            self.stats[&#39;pred_anae_va&#39;].append(pred_anae_va.item())
+            self.stats[&#39;recon_loss_va&#39;].append(recon_loss_va.item())
+            self.stats[&#39;lin_loss_va&#39;].append(lin_loss_va.item())
+            self.stats[&#39;pred_loss_va&#39;].append(pred_loss_va.item())
+            self.stats[&#39;loss_va&#39;].append(loss_va.item())
+
+            with open(self.log_file, &#39;a&#39;) as lf:
+                lf.write(f&#34;Validation ANAEs: Reconstruction = {recon_anae_va.item()}, Linearity = {lin_anae_va.item()}, Prediction = {pred_anae_va.item()}\nValidation losses: Reconstruction = {recon_loss_va.item()}, Linearity = {lin_loss_va.item()}, Prediction = {pred_loss_va.item()}, Total = {loss_va.item()}\n&#34;)
+
+            ## Early stopping logic
+            if self.early_stopping:
+                if pred_anae_va.item() &lt; best_val_perf:
+                    no_improvement_epochs_count = 0
+                    best_val_perf = pred_anae_va.item()
+                else:
+                    no_improvement_epochs_count += 1
+                if no_improvement_epochs_count == self.early_stopping:
+                    with open(self.log_file, &#39;a&#39;) as lf:
+                        lf.write(f&#34;\nEarly stopped due to no improvement for {self.early_stopping} epochs.&#34;)
+                    break</code></pre>
+</details>
+</dd>
+</dl>
+</dd>
+<dt id="main.MLP"><code class="flex name class">
+<span>class <span class="ident">MLP</span></span>
+<span>(</span><span>input_size, output_size, hidden_sizes=[], batch_norm=False)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>This can serve as the encoder and the decoder</p>
+<p>Initializes internal Module state, shared by both nn.Module and ScriptModule.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class MLP(nn.Module):
+    &#34;&#34;&#34;
+    This can serve as the encoder and the decoder
+    &#34;&#34;&#34;
+    def __init__(self, input_size, output_size, hidden_sizes=[], batch_norm=False):
+        super().__init__()
+        self.net = nn.ModuleList([])
+        layers = [input_size] + hidden_sizes + [output_size]
+        for i in range(len(layers)-1):
+            self.net.append(nn.Linear(layers[i],layers[i+1]))
+            if i != len(layers)-2: #all layers except last
+                if batch_norm:
+                    self.net.append(nn.BatchNorm1d(layers[i+1]))
+                self.net.append(nn.ReLU())
+
+    def forward(self,X):
+        for layer in self.net:
+            X = layer(X)
+        return X</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li>torch.nn.modules.module.Module</li>
+</ul>
+<h3>Class variables</h3>
+<dl>
+<dt id="main.MLP.dump_patches"><code class="name">var <span class="ident">dump_patches</span> : bool</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="main.MLP.training"><code class="name">var <span class="ident">training</span> : bool</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+</dl>
+<h3>Methods</h3>
+<dl>
+<dt id="main.MLP.forward"><code class="name flex">
+<span>def <span class="ident">forward</span></span>(<span>self, X) ‑> Callable[..., Any]</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Defines the computation performed at every call.</p>
+<p>Should be overridden by all subclasses.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Although the recipe for forward pass needs to be defined within
+this function, one should call the :class:<code>Module</code> instance afterwards
+instead of this since the former takes care of running the
+registered hooks while the latter silently ignores them.</p>
+</div></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def forward(self,X):
+    for layer in self.net:
+        X = layer(X)
+    return X</code></pre>
+</details>
+</dd>
+</dl>
+</dd>
+</dl>
+</section>
+</article>
+<nav id="sidebar">
+<h1>Index</h1>
+<div class="toc">
+<ul></ul>
+</div>
+<ul id="index">
+<li><h3><a href="#header-classes">Classes</a></h3>
+<ul>
+<li>
+<h4><code><a title="main.AutoEncoder" href="#main.AutoEncoder">AutoEncoder</a></code></h4>
+<ul class="">
+<li><code><a title="main.AutoEncoder.dump_patches" href="#main.AutoEncoder.dump_patches">dump_patches</a></code></li>
+<li><code><a title="main.AutoEncoder.forward" href="#main.AutoEncoder.forward">forward</a></code></li>
+<li><code><a title="main.AutoEncoder.training" href="#main.AutoEncoder.training">training</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="main.DeepKoopman" href="#main.DeepKoopman">DeepKoopman</a></code></h4>
+<ul class="two-column">
+<li><code><a title="main.DeepKoopman.anae" href="#main.DeepKoopman.anae">anae</a></code></li>
+<li><code><a title="main.DeepKoopman.dmd_eigen" href="#main.DeepKoopman.dmd_eigen">dmd_eigen</a></code></li>
+<li><code><a title="main.DeepKoopman.dmd_linearize" href="#main.DeepKoopman.dmd_linearize">dmd_linearize</a></code></li>
+<li><code><a title="main.DeepKoopman.dmd_predict" href="#main.DeepKoopman.dmd_predict">dmd_predict</a></code></li>
+<li><code><a title="main.DeepKoopman.find_anaes" href="#main.DeepKoopman.find_anaes">find_anaes</a></code></li>
+<li><code><a title="main.DeepKoopman.find_losses" href="#main.DeepKoopman.find_losses">find_losses</a></code></li>
+<li><code><a title="main.DeepKoopman.find_naaes" href="#main.DeepKoopman.find_naaes">find_naaes</a></code></li>
+<li><code><a title="main.DeepKoopman.naae" href="#main.DeepKoopman.naae">naae</a></code></li>
+<li><code><a title="main.DeepKoopman.plot_stats" href="#main.DeepKoopman.plot_stats">plot_stats</a></code></li>
+<li><code><a title="main.DeepKoopman.predict_new" href="#main.DeepKoopman.predict_new">predict_new</a></code></li>
+<li><code><a title="main.DeepKoopman.test" href="#main.DeepKoopman.test">test</a></code></li>
+<li><code><a title="main.DeepKoopman.train" href="#main.DeepKoopman.train">train</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="main.MLP" href="#main.MLP">MLP</a></code></h4>
+<ul class="">
+<li><code><a title="main.MLP.dump_patches" href="#main.MLP.dump_patches">dump_patches</a></code></li>
+<li><code><a title="main.MLP.forward" href="#main.MLP.forward">forward</a></code></li>
+<li><code><a title="main.MLP.training" href="#main.MLP.training">training</a></code></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</nav>
+</main>
+<footer id="footer">
+<p>Generated by <a href="https://pdoc3.github.io/pdoc" title="pdoc: Python API documentation generator"><cite>pdoc</cite> 0.10.0</a>.</p>
+</footer>
+</body>
+</html>
