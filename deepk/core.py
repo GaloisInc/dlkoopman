@@ -1,15 +1,14 @@
 from collections import defaultdict
 import os
 
-import matplotlib.pyplot as plt
 import numpy as np
 import shortuuid
 import torch
-from torch import nn
 from tqdm import tqdm
 
 from deepk import config as cfg
-from deepk import utils
+from deepk.subnets import AutoEncoder
+from deepk import utils, losses, errors
 
 
 #NOTE:
@@ -17,70 +16,6 @@ from deepk import utils
 ## Uncommenting catches runtime errors such as exploding nan gradients and displays where they happened in the forward pass.
 ## However, uncommenting slows down execution.
 # torch.autograd.set_detect_anomaly(True)
-
-
-class MLP(nn.Module):
-    """
-    This can serve as the encoder and the decoder
-    """
-    def __init__(self, input_size, output_size, hidden_sizes=[], batch_norm=False):
-        super().__init__()
-        self.net = nn.ModuleList([])
-        layers = [input_size] + hidden_sizes + [output_size]
-        for i in range(len(layers)-1):
-            self.net.append(nn.Linear(layers[i],layers[i+1]))
-            if i != len(layers)-2: #all layers except last
-                if batch_norm:
-                    self.net.append(nn.BatchNorm1d(layers[i+1]))
-                self.net.append(nn.ReLU())
-
-    def forward(self,X):
-        for layer in self.net:
-            X = layer(X)
-        return X
-
-
-class AutoEncoder(nn.Module):
-    def __init__(self, num_input_states, num_encoded_states, encoder_hidden_layers=[], decoder_hidden_layers=[], batch_norm=False):
-        """
-        Inputs:
-            num_input_states: Number of dimensions in original data (X) and reconstructed data (Xr).
-                This is set automatically by the data.
-            num_encoded_states: Number of dimensions in encoded data (Y)
-            encoder_hidden_layers: Encoder has layers = [num_input_states, encoder_hidden_layers, num_encoded_states]
-                If not set, defaults to reverse of decoder_hidden_layers. If that is also not set, defaults to []
-            decoder_hidden_layers: Decoder has layers = [num_encoded_states, decoder_hidden_layers, num_input_states]
-                If not set, defaults to reverse of encoder_hidden_layers. If that is also not set, defaults to []
-            batch_norm: Whether to insert batch normalization layers
-        forward() method returns:
-            Y: Encoder output
-            Xr: Decoder output
-        """
-        super().__init__()
-
-        if not decoder_hidden_layers and encoder_hidden_layers:
-            decoder_hidden_layers = encoder_hidden_layers[::-1]
-        elif not encoder_hidden_layers and decoder_hidden_layers:
-            encoder_hidden_layers = decoder_hidden_layers[::-1]
-
-        self.encoder = MLP(
-            input_size = num_input_states,
-            output_size = num_encoded_states,
-            hidden_sizes = encoder_hidden_layers,
-            batch_norm = batch_norm
-        )
-
-        self.decoder = MLP(
-            input_size = num_encoded_states,
-            output_size = num_input_states,
-            hidden_sizes = decoder_hidden_layers,
-            batch_norm = batch_norm
-        )
-
-    def forward(self,X):
-        Y = self.encoder(X) # encoder complete output
-        Xr = self.decoder(Y) # final reconstructed output
-        return Y,Xr
 
 
 class DeepKoopman:
@@ -335,91 +270,7 @@ class DeepKoopman:
         return torch.abs(Ypred)
 
 
-    def find_losses(self, X, Y, Xr, Ypred, Xpred):
-        """
-        Inputs:
-            X: Some original input data, shape = (num_samples,n). It should not include the sample x0.
-            Y, Xr: Results of forward passing the original input data through self.net. Respective shapes = (num_samples,p), (num_samples,n).
-            Ypred: Results of dmd_predict() using t = timesteps covered by X, Y, Xr. Shape = (num_samples,p).
-            Xpred: Results of passing Ypred through the decoder. Shape = (num_samples,n).
-        
-        Returns:
-        (For the following discussion, note that the Lusch paper uses x_1 as the initial sample, while I use x_0. So, I've replaced the 1 subscript in the Lusch paper with 0 in the explanation here).
-            recon_loss:
-                Lusch:
-                    In Lusch, this is given in the right column of Pg 4 as ||x - phi_inv(phi(x))||.
-                    In Lusch eq (12), x is assumed to be only the first sample x_0.
-                Here:
-                    Instead of using a single sample x_i, I compute recon loss for all samples in the input data X and then average out.
-                    So, `nn.MSELoss(reduction='mean')(Xr,X)` is the reconstruction loss.
-            lin_loss:
-                Lusch:
-                    In Lusch, this is given in the right column of Pg 4 as ||phi(x_(k+m)) - K^m*phi(x_k)||. (Btw do not confuse this `m` in Lusch with the `m` I'm using for total number of timestamps).
-                    In Lusch eq (14), k is assumed to be 0 to get ||phi(x_m) - K^m*phi(x_0)||, where x_m is m steps advanced from x_0. This is repeated for different m from 1 to T-1, and then averaged out.
-                Here:
-                    Note that the X which is input to this method is already like a bunch of x_m since it contains samples advanced by different amounts of time from x_0. **Remember this for pred loss.**
-                    When we do `Y, Xr = self.net(X)`, Y_ideal becomes phi(x_m) for a bunch of m.
-                    Ypred is obtained from dmd_predict() as K^m*phi(x_0) for a bunch of m. **Remember this for pred loss.**
-                    So, `nn.MSELoss(reduction='mean')(Ypred,Y)` is the linearity loss. The difference from Lusch is that instead of considering samples from x_1 to x_T-1 (which is all samples in the experiment time horizon T), we consider samples in the input data X, which can be e.g. from x_11 to x_15.
-            pred_loss:
-                Lusch:
-                    In Lusch, this is given in the right column of Pg 4 as ||x_(k+m) - phi_inv(K^m*phi(x_k))||,.
-                    In Lusch eq (13), k is assumed to be 0 to get ||x_m - phi_inv(K^m*phi(x_0))||, where x_m is m steps advanced from x_0. This is repeated for different m from 1 to Sp, and then averaged out.
-                Here:
-                    When we do `Xpred = self.net.decoder(Ypred)`, we obtain `phi_inv(K^m*phi(X_0))` for a bunch of m.
-                    Then, `nn.MSELoss(reduction='mean')(Xpred,X)` is the prediction loss. The difference from Lusch is that instead of considering samples from x_1 to x_Sp (where Sp is a hyperparameter), we consider samples in the input data, which can be e.g. from x_11 to x_15.
-            loss: Linear combination of the above losses weighted by the hyperparameters.
-        
-        Note:
-            We don't use L_infinity loss as in Lusch because we do not want to specifically penalize outliers since we don't know the nature of our data beforehand.
-        """
-        recon_loss = nn.MSELoss(reduction='mean')(Xr, X)
-        lin_loss = nn.MSELoss(reduction='mean')(Ypred, Y)
-        pred_loss = nn.MSELoss(reduction='mean')(Xpred, X)
-
-        loss = lin_loss + self.decoder_loss_weight*(recon_loss+pred_loss)
-
-        return recon_loss, lin_loss, pred_loss, loss
-
-
-    @staticmethod
-    def anae(ref,new):
-        """
-        Average Normalized Absolute Error, returned as percentage.
-        ANAE first normalizes each absolute error by the corresponding absolute ground truth, then averages them.
-        E.g: ref = [[0.1,1],[100,200]], new = [[1.1,2],[99,199]]. So, all deviations are 1. Then, ANAE = Avg(1/0.1, 1/1, 1/100, 1/200) = 275%. Note that ANAE heavily penalizes deviations for small values of ground truth. 
-        """
-        anae = torch.abs(ref-new)/torch.abs(ref)
-        return 100.*torch.mean(anae[anae!=torch.inf])
-
-    def find_anaes(self, X, Y, Xr, Ypred, Xpred):
-        """
-        Find the corresponding ANAE for each of the losses.
-        NOTE: MSE loss is a useful thing to optimize, but it is basically the squares of the values. ANAE is a more useful thing to report since it tells us how much percentage deviation to expect for a new value. E.g. if prediction ANAE for a DeepK motor current problem is around 10%, then one can expect a newly predicted motor current to have an error of around 10% from the actual.
-        """
-        recon_anae = self.anae(ref=X, new=Xr)
-        lin_anae = self.anae(ref=Y, new=Ypred)
-        pred_anae = self.anae(ref=X, new=Xpred)
-        return recon_anae, lin_anae, pred_anae
-    
-    @staticmethod
-    def naae(ref,new):
-        """
-        Normalized Average Absolute Error, returned as percentage.
-        NAAE first averages the absolute error, then normalizes that using the average value of the absolute ground truth. This reduces the chance of a few small ground truth values having a huge impact, but loses details by taking the average over all absolute error values, and likewise over all ground truth values.
-        E.g.: ref = [[0.1,1],[-100,200]], new = [[1.1,2],[-99,199]]. So, all deviations are 1. Then, NAAE = Avg(1,1,1,1)/Avg(0.1,1,100,200) = 1.33%.
-        """
-        return 100.*torch.mean(torch.abs(ref-new))/torch.mean(torch.abs(ref))
-    
-    def find_naaes(self, X, Y, Xr, Ypred, Xpred):
-        """ Find the corresponding NAAE for each of the losses """
-        recon_naae = self.naae(ref=X, new=Xr)
-        lin_naae = self.naae(ref=Y, new=Ypred)
-        pred_naae = self.naae(ref=X, new=Xpred)
-        return recon_naae, lin_naae, pred_naae
-
-
-    def train(self):
+    def train_net(self):
         """
         Train a Deep Koopman model.
         This computes losses and the eigendecomposition.
@@ -469,13 +320,13 @@ class DeepKoopman:
 
             # ANAEs
             with torch.no_grad():
-                recon_anae_tr, lin_anae_tr, pred_anae_tr = self.find_anaes(X=self.Xtr[1:], Y=Ytr[1:], Xr=Xrtr[1:], Ypred=Ypredtr, Xpred=Xpredtr)
+                recon_anae_tr, lin_anae_tr, pred_anae_tr = errors.overall(X=self.Xtr[1:], Y=Ytr[1:], Xr=Xrtr[1:], Ypred=Ypredtr, Xpred=Xpredtr)
             self.stats['recon_anae_tr'].append(recon_anae_tr.item())
             self.stats['lin_anae_tr'].append(lin_anae_tr.item())
             self.stats['pred_anae_tr'].append(pred_anae_tr.item())
             
             # Losses
-            recon_loss_tr, lin_loss_tr, pred_loss_tr, loss_tr = self.find_losses(X=self.Xtr[1:], Y=Ytr[1:], Xr=Xrtr[1:], Ypred=Ypredtr, Xpred=Xpredtr)
+            recon_loss_tr, lin_loss_tr, pred_loss_tr, loss_tr = losses.overall(X=self.Xtr[1:], Y=Ytr[1:], Xr=Xrtr[1:], Ypred=Ypredtr, Xpred=Xpredtr, decoder_loss_weight=self.decoder_loss_weight)
             self.stats['recon_loss_tr'].append(recon_loss_tr.item())
             self.stats['lin_loss_tr'].append(lin_loss_tr.item())
             self.stats['pred_loss_tr'].append(pred_loss_tr.item())
@@ -511,9 +362,9 @@ class DeepKoopman:
                 break
             
             if self.clip_grad_norm:
-                nn.utils.clip_grad_norm_(self.net.parameters(), self.clip_grad_norm)
+                torch.nn.utils.clip_grad_norm_(self.net.parameters(), self.clip_grad_norm)
             if self.clip_grad_value:
-                nn.utils.clip_grad_value_(self.net.parameters(), self.clip_grad_value)
+                torch.nn.utils.clip_grad_value_(self.net.parameters(), self.clip_grad_value)
             
             # Update
             self.opt.step()
@@ -525,8 +376,8 @@ class DeepKoopman:
                     Yva, Xrva = self.net(self.Xva)
                     Ypredva = self.dmd_predict(t=self.tva, Omega=Omega, W=W, coeffs=coeffs)
                     Xpredva = self.net.decoder(Ypredva)
-                    recon_anae_va, lin_anae_va, pred_anae_va = self.find_anaes(X=self.Xva, Y=Yva, Xr=Xrva, Ypred=Ypredva, Xpred=Xpredva)
-                    recon_loss_va, lin_loss_va, pred_loss_va, loss_va = self.find_losses(X=self.Xva, Y=Yva, Xr=Xrva, Ypred=Ypredva, Xpred=Xpredva)
+                    recon_anae_va, lin_anae_va, pred_anae_va = errors.overall(X=self.Xva, Y=Yva, Xr=Xrva, Ypred=Ypredva, Xpred=Xpredva)
+                    recon_loss_va, lin_loss_va, pred_loss_va, loss_va = losses.overall(X=self.Xva, Y=Yva, Xr=Xrva, Ypred=Ypredva, Xpred=Xpredva, decoder_loss_weight=self.decoder_loss_weight)
                     #Note that for evaluation, there is no K_reg. This is because K_reg is only used for training.
                     
                 self.stats['recon_anae_va'].append(recon_anae_va.item())
@@ -553,14 +404,14 @@ class DeepKoopman:
                         break
 
 
-    def test(self):
+    def test_net(self):
         self.net.eval()
         with torch.no_grad():
             Yte, Xrte = self.net(self.Xte)
             Ypredte = self.dmd_predict(t=self.tte, Omega=self.Omega, W=self.W, coeffs=self.coeffs)
             Xpredte = self.net.decoder(Ypredte)
-            recon_anae_te, lin_anae_te, pred_anae_te = self.find_anaes(X=self.Xte, Y=Yte, Xr=Xrte, Ypred=Ypredte, Xpred=Xpredte)
-            recon_loss_te, lin_loss_te, pred_loss_te, loss_te = self.find_losses(X=self.Xte, Y=Yte, Xr=Xrte, Ypred=Ypredte, Xpred=Xpredte)
+            recon_anae_te, lin_anae_te, pred_anae_te = errors.overall(X=self.Xte, Y=Yte, Xr=Xrte, Ypred=Ypredte, Xpred=Xpredte)
+            recon_loss_te, lin_loss_te, pred_loss_te, loss_te = losses.overall(X=self.Xte, Y=Yte, Xr=Xrte, Ypred=Ypredte, Xpred=Xpredte, decoder_loss_weight=self.decoder_loss_weight)
             
         self.stats['recon_anae_te'] = recon_anae_te.item()
         self.stats['lin_anae_te'] = lin_anae_te.item()
@@ -597,48 +448,3 @@ class DeepKoopman:
                 lf.write(f'Independent variable = {t[i]}, Dependent variable =\n')
                 lf.write(f'{Xpred[i]}\n')
         return Xpred
-
-
-    def plot_stats(self, perfs = ['pred_anae'], start_epoch=1, fontsize=12):
-        """
-        Plot stats for a run
-        
-        Inputs
-            perfs: Which variables to plot. For each, tr and va are plotted vs epochs, and the title of the plot is the te value.
-            start_epoch: If not 1, start plotting from that epoch. This is useful when the first few epochs have weird values that skew the y axis scale.
-
-        Returns:
-            None
-        Saves png file(s) to disk.
-        """
-        for perf in perfs:
-            is_anae = 'anae' in perf
-
-            tr_data = self.stats[perf+'_tr'][start_epoch-1:]
-            if self.stats[perf+'_va']:
-                va_data = self.stats[perf+'_va'][start_epoch-1:]
-                tr_data = tr_data[:len(va_data)] # va_data should normally have size equal to tr_data, but will have lesser size if some error occurred during training. This slicing ensures that only that portion of tr_data is considered which corresponds to va_data.
-            epoch_range = range(start_epoch,start_epoch+len(tr_data))
-            
-            plt.figure()
-            if self.stats[perf+'_te']:
-                plt.suptitle(f"Test performance = {self.stats[perf+'_te']}" + (' %' if is_anae else ''), fontsize=fontsize)
-            
-            if perf == 'loss':
-                plt.plot(epoch_range,self.stats['loss_tr_before_K_reg'][start_epoch-1:], c='DarkSlateBlue', label='Training, before K_reg')
-            plt.plot(epoch_range,self.stats[perf+'_tr'][start_epoch-1:], c='MediumBlue', label='Training')
-            if self.stats[perf+'_va']:
-                plt.plot(epoch_range,self.stats[perf+'_va'][start_epoch-1:], c='DeepPink', label='Validation')
-            
-            if is_anae:
-                ylim_anae = plt.gca().get_ylim()
-                plt.ylim(max(0,ylim_anae[0]), min(100,ylim_anae[1])) # keep ANAE limits between [0,100]
-            plt.xlabel('Epochs', fontsize=fontsize)
-            plt.ylabel(perf + (' (%)' if is_anae else ''), fontsize=fontsize)
-            plt.xticks(fontsize=fontsize-2)
-            plt.yticks(fontsize=fontsize-2)
-            
-            plt.grid()
-            plt.legend(fontsize=fontsize)
-
-            plt.savefig(os.path.join(self.results_folder, f'{self.uuid}_{perf}.png'), dpi=600, bbox_inches='tight', pad_inches=0.1)
