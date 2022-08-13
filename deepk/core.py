@@ -27,7 +27,7 @@ class DeepKoopman:
     
     - **rank** (*int*) - Rank of DeepK operation. Use 0 for full rank. Good values are 4-10.
     
-    - Parameters required by [utils.AutoEncoder](TODO):
+    - Parameters required by [utils.AutoEncoder](https://galoisinc.github.io/deep-koopman/utils.html#deepk.utils.AutoEncoder):
         - **num_encoded_states** (*int*)
         - **encoder_hidden_layers** (*list[int], optional*)
         - **decoder_hidden_layers** (*list[int], optional*)

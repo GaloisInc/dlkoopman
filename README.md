@@ -14,9 +14,9 @@ Write key differences from `pydmd` and `pykoopman`.
 
 ## Brief Theory
 Given a dynamical system:
-$$\bm{x}_{t+1} = f(\bm{x}_t)$$
-- $\bm{x}$ is the state of the system described by a collection of dependent variables
-- $t$ is the independent indexing variable
+$$x_{t+1} = f(x_t)$$
+- $x$ is the state of the system described by a collection of dependent variables.
+- $t$ is the independent indexing variable.
 - $f$ is the evolution rule describing the dynamics of the system, which Koopman theory attempts to model.
 
 TODO brief theory, and link to Overleaf for complete theory
