@@ -1,0 +1,210 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
+<meta name="generator" content="pdoc 0.10.0" />
+<title>deepk.core API documentation</title>
+<meta name="description" content="**The core DeepKoopman class**" />
+<link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/sanitize.min.css" integrity="sha256-PK9q560IAAa6WVRRh76LtCaI8pjTJ2z11v0miyNNjrs=" crossorigin>
+<link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/typography.min.css" integrity="sha256-7l/o7C8jubJiy74VsKTidCy1yBkRtiUGbVkYBylBqUg=" crossorigin>
+<link rel="stylesheet preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/styles/github.min.css" crossorigin>
+<style>:root{--highlight-color:#fe9}.flex{display:flex !important}body{line-height:1.5em}#content{padding:20px}#sidebar{padding:30px;overflow:hidden}#sidebar > *:last-child{margin-bottom:2cm}.http-server-breadcrumbs{font-size:130%;margin:0 0 15px 0}#footer{font-size:.75em;padding:5px 30px;border-top:1px solid #ddd;text-align:right}#footer p{margin:0 0 0 1em;display:inline-block}#footer p:last-child{margin-right:30px}h1,h2,h3,h4,h5{font-weight:300}h1{font-size:2.5em;line-height:1.1em}h2{font-size:1.75em;margin:1em 0 .50em 0}h3{font-size:1.4em;margin:25px 0 10px 0}h4{margin:0;font-size:105%}h1:target,h2:target,h3:target,h4:target,h5:target,h6:target{background:var(--highlight-color);padding:.2em 0}a{color:#058;text-decoration:none;transition:color .3s ease-in-out}a:hover{color:#e82}.title code{font-weight:bold}h2[id^="header-"]{margin-top:2em}.ident{color:#900}pre code{background:#f8f8f8;font-size:.8em;line-height:1.4em}code{background:#f2f2f1;padding:1px 4px;overflow-wrap:break-word}h1 code{background:transparent}pre{background:#f8f8f8;border:0;border-top:1px solid #ccc;border-bottom:1px solid #ccc;margin:1em 0;padding:1ex}#http-server-module-list{display:flex;flex-flow:column}#http-server-module-list div{display:flex}#http-server-module-list dt{min-width:10%}#http-server-module-list p{margin-top:0}.toc ul,#index{list-style-type:none;margin:0;padding:0}#index code{background:transparent}#index h3{border-bottom:1px solid #ddd}#index ul{padding:0}#index h4{margin-top:.6em;font-weight:bold}@media (min-width:200ex){#index .two-column{column-count:2}}@media (min-width:300ex){#index .two-column{column-count:3}}dl{margin-bottom:2em}dl dl:last-child{margin-bottom:4em}dd{margin:0 0 1em 3em}#header-classes + dl > dd{margin-bottom:3em}dd dd{margin-left:2em}dd p{margin:10px 0}.name{background:#eee;font-weight:bold;font-size:.85em;padding:5px 10px;display:inline-block;min-width:40%}.name:hover{background:#e0e0e0}dt:target .name{background:var(--highlight-color)}.name > span:first-child{white-space:nowrap}.name.class > span:nth-child(2){margin-left:.4em}.inherited{color:#999;border-left:5px solid #eee;padding-left:1em}.inheritance em{font-style:normal;font-weight:bold}.desc h2{font-weight:400;font-size:1.25em}.desc h3{font-size:1em}.desc dt code{background:inherit}.source summary,.git-link-div{color:#666;text-align:right;font-weight:400;font-size:.8em;text-transform:uppercase}.source summary > *{white-space:nowrap;cursor:pointer}.git-link{color:inherit;margin-left:1em}.source pre{max-height:500px;overflow:auto;margin:0}.source pre code{font-size:12px;overflow:visible}.hlist{list-style:none}.hlist li{display:inline}.hlist li:after{content:',\2002'}.hlist li:last-child:after{content:none}.hlist .hlist{display:inline;padding-left:1em}img{max-width:100%}td{padding:0 .5em}.admonition{padding:.1em .5em;margin-bottom:1em}.admonition-title{font-weight:bold}.admonition.note,.admonition.info,.admonition.important{background:#aef}.admonition.todo,.admonition.versionadded,.admonition.tip,.admonition.hint{background:#dfd}.admonition.warning,.admonition.versionchanged,.admonition.deprecated{background:#fd4}.admonition.error,.admonition.danger,.admonition.caution{background:lightpink}</style>
+<style media="screen and (min-width: 700px)">@media screen and (min-width:700px){#sidebar{width:30%;height:100vh;overflow:auto;position:sticky;top:0}#content{width:70%;max-width:100ch;padding:3em 4em;border-left:1px solid #ddd}pre code{font-size:1em}.item .name{font-size:1em}main{display:flex;flex-direction:row-reverse;justify-content:flex-end}.toc ul ul,#index ul{padding-left:1.5em}.toc > ul > li{margin-top:.5em}}</style>
+<style media="print">@media print{#sidebar h1{page-break-before:always}.source{display:none}}@media print{*{background:transparent !important;color:#000 !important;box-shadow:none !important;text-shadow:none !important}a[href]:after{content:" (" attr(href) ")";font-size:90%}a[href][title]:after{content:none}abbr[title]:after{content:" (" attr(title) ")"}.ir a:after,a[href^="javascript:"]:after,a[href^="#"]:after{content:""}pre,blockquote{border:1px solid #999;page-break-inside:avoid}thead{display:table-header-group}tr,img{page-break-inside:avoid}img{max-width:100% !important}@page{margin:0.5cm}p,h2,h3{orphans:3;widows:3}h1,h2,h3,h4,h5,h6{page-break-after:avoid}}</style>
+<script async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS_CHTML" integrity="sha256-kZafAc6mZvK3W3v1pHOcUix30OHQN6pU/NO2oFkqZVw=" crossorigin></script>
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/highlight.min.js" integrity="sha256-Uv3H6lx7dJmRfRvH8TH6kJD1TSK1aFcwgx+mdg3epi8=" crossorigin></script>
+<script>window.addEventListener('DOMContentLoaded', () => hljs.initHighlighting())</script>
+</head>
+<body>
+<main>
+<article id="content">
+<header>
+<h1 class="title">Module <code>deepk.core</code></h1>
+</header>
+<section id="section-intro">
+<p><strong>The core DeepKoopman class</strong></p>
+</section>
+<section>
+</section>
+<section>
+</section>
+<section>
+</section>
+<section>
+<h2 class="section-title" id="header-classes">Classes</h2>
+<dl>
+<dt id="deepk.core.DeepKoopman"><code class="flex name class">
+<span>class <span class="ident">DeepKoopman</span></span>
+<span>(</span><span>data, rank, num_encoded_states, encoder_hidden_layers=[], decoder_hidden_layers=[], batch_norm=False, numepochs=500, early_stopping=False, early_stopping_metric='pred_anae', lr=0.001, weight_decay=0.0, decoder_loss_weight=0.01, K_reg=0.001, cond_threshold=100.0, clip_grad_norm=None, clip_grad_value=None, results_folder='./', verbose=True)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Main DeepKoopman class.</p>
+<h2 id="parameters">Parameters</h2>
+<ul>
+<li>
+<p><strong>data</strong> (<em>dict[str,torch.Tensor]</em>)</p>
+<ul>
+<li>Key <strong>'Xtr'</strong>: Training data (<em>torch.Tensor, shape=(num_training_samples, num_input_states)</em>).</li>
+<li>Key <strong>'Xva'</strong> (<em>optional</em>): Validation data (<em>torch.Tensor, shape=(num_validation_samples, num_input_states)</em>).</li>
+<li>Key <strong>'Xte'</strong> (<em>optional</em>): Test data (<em>torch.Tensor, shape=(num_test_samples, num_input_states)</em>).</li>
+<li>Key <strong>'ttr'</strong>: Training indices (<em>torch.Tensor, shape=(num_training_samples,)</em>). <strong>Must be in ascending order.</strong></li>
+<li>Key <strong>'tva'</strong> (<em>optional</em>): Validation indices (<em>torch.Tensor, shape=(num_validation_samples,)</em>).</li>
+<li>Key <strong>'tte'</strong> (<em>optional</em>): Test indices (<em>torch.Tensor, shape=(num_test_samples,)</em>).</li>
+</ul>
+</li>
+<li>
+<p><strong>rank</strong> (<em>int</em>) - Rank of DeepK operation. Use 0 for full rank. Good values are 4-10.</p>
+</li>
+<li>
+<p>Parameters required by <a href="TODO">utils.AutoEncoder</a>:</p>
+<ul>
+<li><strong>num_encoded_states</strong> (<em>int</em>)</li>
+<li><strong>encoder_hidden_layers</strong> (<em>list[int], optional</em>)</li>
+<li><strong>decoder_hidden_layers</strong> (<em>list[int], optional</em>)</li>
+<li><strong>batch_norm</strong> (<em>bool, optional</em>)</li>
+</ul>
+</li>
+<li>
+<p><strong>numepochs</strong> (<em>int, optional</em>) - Number of epochs for which to train neural net.</p>
+</li>
+<li>
+<p><strong>early_stopping</strong> (<em>bool/int/float, optional</em>) - Whether to terminate training early due to no improvement in validation metric.</p>
+<ul>
+<li>If <code>False</code>, no early stopping. The net will run for the complete <code>numepochs</code> epochs.</li>
+<li>If an integer, early stop if validation metric doesn't improve for that many epochs.</li>
+<li>If a float, early stop if validation performance doesn't improve for that fraction of epochs, rounded up.</li>
+</ul>
+</li>
+<li>
+<p><strong>early_stopping_metric</strong> (<em>str, optional</em>) - Which metric to use for early stopping (metrics are given below in the documentation for <code>stats</code>). Irrelevant if <code>early_stopping=False</code>.</p>
+</li>
+<li>
+<p><strong>lr</strong> (<em>float, optional</em>) - Learning rate for neural net optimizer.</p>
+</li>
+<li>
+<p><strong>weight_decay</strong> (<em>float, optional</em>) - L2 coefficient for weights of the neural net.</p>
+</li>
+<li>
+<p><strong>decoder_loss_weight</strong> (<em>float, optional</em>) - Weight the losses between decoder outputs (<code>recon</code> and <code>pred</code>) by this number. This is to account for the scaling effect of the decoder.</p>
+</li>
+<li>
+<p><strong>K_reg</strong> (<em>float, optional</em>) - L1 penalty for the Ktilde matrix.</p>
+</li>
+<li>
+<p><strong>cond_threshold</strong> (<em>float, optional</em>) - Condition number of the eigenvector matrix greater than this will be reported, and singular values smaller than this fraction of the largest will be ignored for the pseudo-inverse operation.</p>
+</li>
+<li>
+<p><strong>clip_grad_norm</strong> (<em>float, optional</em>) - If not None, clip the norm of gradients to this value.</p>
+</li>
+<li>
+<p><strong>clip_grad_value</strong> (<em>float, optional</em>) - If not None, clip the values of gradients to [-<code>clip_grad_value</code>,<code>clip_grad_value</code>].</p>
+</li>
+<li>
+<p><strong>results_folder</strong> (<em>str, optional</em>) - Save results to this folder.</p>
+</li>
+<li>
+<p><strong>verbose</strong> (<em>bool, optional</em>) - Trigger verbose output.</p>
+</li>
+</ul>
+<h2 id="attributes">Attributes</h2>
+<ul>
+<li>
+<p><strong>uuid</strong> (<em>str</em>) - Unique ID for this object. Results are prefixed with <code>uuid</code>.</p>
+</li>
+<li>
+<p><strong>RTYPE</strong>, <strong>CTYPE</strong>, <strong>DEVICE</strong> - Torch tensor attributes - Real data precision, complex data precision, and device.</p>
+</li>
+<li>
+<p><strong>Xscale</strong> (<em>torch scalar</em>) - Max of absolute value of <code>Xtr</code>. All X data is scaled by <code>Xscale</code>.</p>
+</li>
+<li><strong>tshift</strong> (<em>float</em>) - First value of <code>ttr</code>. All t data is shifted backwards by <code>tshift</code> so that <code>ttr</code> starts from 0.</li>
+<li>
+<p><strong>tscale</strong> (<em>float</em>) - All t data is scaled by <code>tscale</code> so that <code>ttr</code> becomes <code>[0,1,&hellip;]</code></p>
+</li>
+<li>
+<p><strong>net</strong> (<em>utils.AutoEncoder</em>) - DeepKoopman neural network. <code>num_input_states</code> is set by num_input_states in X data, while other parameters are passed via this class.</p>
+</li>
+<li>
+<p><strong>opt</strong> (<em>torch optimizer</em>) - Optimizer used to train DeepKoopman neural net.</p>
+</li>
+<li>
+<p><strong>stats</strong> (<em>dict[list]</em>) - Stores different metrics like loss and error values for training and validation data for each epoch, and for test data.</p>
+</li>
+<li>
+<p><strong>Omega</strong> (<em>torch.Tensor</em>), <strong>W</strong> (<em>torch.Tensor</em>), <strong>coeffs</strong> (<em>torch.Tensor</em>) - Used to make predictions using a trained DeepKoopman model.</p>
+</li>
+<li>
+<p><strong>error_flag</strong> (<em>bool</em>) - Signals if any error has occurred in training.</p>
+</li>
+</ul></div>
+<h3>Methods</h3>
+<dl>
+<dt id="deepk.core.DeepKoopman.train_net"><code class="name flex">
+<span>def <span class="ident">train_net</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Train (and optionally validate) the Deep Koopman model.</p>
+<h2 id="effects">Effects</h2>
+<ul>
+<li>self.stats is populated.</li>
+<li>self.Omega, self.W and self.coeffs contain the eigendecomposition at the end of training. These can be used for future evaluation.</li>
+</ul></div>
+</dd>
+<dt id="deepk.core.DeepKoopman.test_net"><code class="name flex">
+<span>def <span class="ident">test_net</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Run the trained DeepKoopman model on test data.</p>
+<h2 id="effects">Effects</h2>
+<ul>
+<li>self.stats is populated further.</li>
+</ul></div>
+</dd>
+<dt id="deepk.core.DeepKoopman.predict_new"><code class="name flex">
+<span>def <span class="ident">predict_new</span></span>(<span>self, t) ‑> torch.Tensor</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Use the trained Deep Koopman model to predict the X values for new indices.</p>
+<p>This is different from testing because the ground truth values are not present, thus losses and errors are not computed. This method can be used to make predictions for interpolated and extrapolated indices.</p>
+<h2 id="parameters">Parameters</h2>
+<p><strong>t</strong> (<em>list[int/float]</em>) - Array containing new indices.</p>
+<h2 id="returns">Returns</h2>
+<p><strong>Xpred</strong> (<em>torch.Tensor, shape=(len(t),num_input_states)</em>) - Predicted X values for the new indices.</p></div>
+</dd>
+</dl>
+</dd>
+</dl>
+</section>
+</article>
+<nav id="sidebar">
+<h1>Index</h1>
+<div class="toc">
+<ul></ul>
+</div>
+<ul id="index">
+<li><h3>Super-module</h3>
+<ul>
+<li><code><a title="deepk" href="index.html">deepk</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-classes">Classes</a></h3>
+<ul>
+<li>
+<h4><code><a title="deepk.core.DeepKoopman" href="#deepk.core.DeepKoopman">DeepKoopman</a></code></h4>
+<ul class="">
+<li><code><a title="deepk.core.DeepKoopman.train_net" href="#deepk.core.DeepKoopman.train_net">train_net</a></code></li>
+<li><code><a title="deepk.core.DeepKoopman.test_net" href="#deepk.core.DeepKoopman.test_net">test_net</a></code></li>
+<li><code><a title="deepk.core.DeepKoopman.predict_new" href="#deepk.core.DeepKoopman.predict_new">predict_new</a></code></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</nav>
+</main>
+<footer id="footer">
+<p>Generated by <a href="https://pdoc3.github.io/pdoc" title="pdoc: Python API documentation generator"><cite>pdoc</cite> 0.10.0</a>.</p>
+</footer>
+</body>
+</html>

@@ -1,3 +1,6 @@
+"""**The core DeepKoopman class**""" 
+
+
 from collections import defaultdict
 import os
 
@@ -7,63 +10,98 @@ import torch
 from tqdm import tqdm
 
 from deepk import config as cfg
-from deepk.subnets import AutoEncoder
 from deepk import utils, losses, errors
 
 
-#NOTE:
-## Uncomment the following line if there's weird behavior and a more detailed analysis is desired.
-## Uncommenting catches runtime errors such as exploding nan gradients and displays where they happened in the forward pass.
-## However, uncommenting slows down execution.
-# torch.autograd.set_detect_anomaly(True)
-
-
 class DeepKoopman:
-    
-    def __init__(self, data, hyps, misc):
-        """
-        data: Input data. Can have:
-            - Xtr, Xva, Xte: 2d arrays for training, validation and test data. Each has shape = (num_samples_xx,num_dimensions), where xx = tr, va, te
-            - ttr, tva, tte: Lists / 1D arrays for training, validation and test independent variables. Each has length = num_samples_xx, where xx = tr, va, te
-        hyps: Training hyperparameters (all these have defaults, see the code):
-            - Dictionary of arguments as required by AutoEncoder().
-            - numepochs: Number of epochs for which to train neural net.
-            - early_stopping: (NOTE: uses prediction ANAE as the performance metric)
-                If False, no early stopping. The net will run for the complete `numepochs` epochs
-                If an integer, early stop if val perf doesn't improve for that many epochs
-                If a float, early stop if val perf doesn't improve for that fraction of epochs, rounded up
-            - lr: Learning rate for neural net optimizer, e.g. Adam.
-            - weight_decay: L2 coefficient for weights of the neural net.
-            - decoder_loss_weight: Weight of any losses that go through the decoder (i.e. reconstruction and prediction loss) w.r.t to those that don't (i.e. linearity loss). Papers use a mix from 1e-1 to 1e-3.
-            - K_reg: L1 penalty for the Ktilde matrix obtained from DMD.
-            - rank: Rank to which the data matrices are truncated, which is also the size of Ktilde. Use 0 for full rank.
-            - cond_threshold: Condition number of the eigenvector matrix W greater than this will be reported, and singular values smaller than this fraction of the largest will be ignored for the pinv.
-            - use_custom_stable_svd: If set, use the custom implementation from utils.stable_svd instead of torch.linalg.svd, which can blow up if multiple singular values are close to each other.
-            - clip_grad_norm: If not None, clip the norm of gradients to this.
-            - clip_grad_value: If not None, clip the values of gradients to [-clip_grad_value,clip_grad_value].
-            - normalize_Xdata: If True, Xtr, Xva, Xte are all divided by the max abs value in Xtr.
-               Theory:
-                    Normalizing data is a generally good technique for ML, and is normally done as X_col = (X_col-offset_col)/scale_col, where (offset_col,scale_col) = (mu_col,sigma_col) for Gaussian normalization, and (min_col,max_col-min_col) for Minmax normalization.
-                    However, this messes up the spectral techniques such as SVD and EVD. This is why we just use a single scale value for the whole data to get X = X/scale. This results in the spectra (i.e. the singular and eigen vectors) remaining the same, the only change is that the singular and eigen values get divided by scale.
-                    NOTE: Setting this to False may end the run by leading to a) NaNs in the gradient, or b) imaginary parts of tensors reaching values where the loss function depends on the phase (in torch >= 1.11, this leads to "RuntimeError: linalg_eig_backward: The eigenvectors in the complex case are specified up to multiplication by e^{i phi}. The specified loss function depends on this quantity, so it is ill-defined.") Thus, even though it makes more sense to report the final ANAE numbers on the un-normalized data values, don't try that.
-        misc: Other options (all these have defaults, see the code):
-            - results_folder: Folder where logs, output figs, etc will be stored. Will be created if it doesn't exist.
-            - sigma_threshold: Any singular value of the original SVD (prior to truncation to r values) lower than this will be reported.
-        """
-        ## Define results folder
-        self.results_folder = misc.get('results_folder', './')
-        os.makedirs(self.results_folder, exist_ok=True)
-        
-        ## Define UUID for the run
-        self.uuid = shortuuid.uuid()
+    """Main DeepKoopman class.
 
-        ## Define log file
-        self.log_file = os.path.join(self.results_folder, f'{self.uuid}.log')
+    ## Parameters
+    - **data** (*dict[str,torch.Tensor]*)
+        - Key **'Xtr'**: Training data (*torch.Tensor, shape=(num_training_samples, num_input_states)*).
+        - Key **'Xva'** (*optional*): Validation data (*torch.Tensor, shape=(num_validation_samples, num_input_states)*).
+        - Key **'Xte'** (*optional*): Test data (*torch.Tensor, shape=(num_test_samples, num_input_states)*).
+        - Key **'ttr'**: Training indices (*torch.Tensor, shape=(num_training_samples,)*). **Must be in ascending order.**
+        - Key **'tva'** (*optional*): Validation indices (*torch.Tensor, shape=(num_validation_samples,)*).
+        - Key **'tte'** (*optional*): Test indices (*torch.Tensor, shape=(num_test_samples,)*).
+    
+    - **rank** (*int*) - Rank of DeepK operation. Use 0 for full rank. Good values are 4-10.
+    
+    - Parameters required by [utils.AutoEncoder](TODO):
+        - **num_encoded_states** (*int*)
+        - **encoder_hidden_layers** (*list[int], optional*)
+        - **decoder_hidden_layers** (*list[int], optional*)
+        - **batch_norm** (*bool, optional*)
+    
+    - **numepochs** (*int, optional*) - Number of epochs for which to train neural net.
+    
+    - **early_stopping** (*bool/int/float, optional*) - Whether to terminate training early due to no improvement in validation metric.
+        - If `False`, no early stopping. The net will run for the complete `numepochs` epochs.
+        - If an integer, early stop if validation metric doesn't improve for that many epochs.
+        - If a float, early stop if validation performance doesn't improve for that fraction of epochs, rounded up.
+    - **early_stopping_metric** (*str, optional*) - Which metric to use for early stopping (metrics are given below in the documentation for `stats`). Irrelevant if `early_stopping=False`.
+    
+    - **lr** (*float, optional*) - Learning rate for neural net optimizer.
+    
+    - **weight_decay** (*float, optional*) - L2 coefficient for weights of the neural net.
+    
+    - **decoder_loss_weight** (*float, optional*) - Weight the losses between decoder outputs (`recon` and `pred`) by this number. This is to account for the scaling effect of the decoder.
+    
+    - **K_reg** (*float, optional*) - L1 penalty for the Ktilde matrix.
+    
+    - **cond_threshold** (*float, optional*) - Condition number of the eigenvector matrix greater than this will be reported, and singular values smaller than this fraction of the largest will be ignored for the pseudo-inverse operation.
+    
+    - **clip_grad_norm** (*float, optional*) - If not None, clip the norm of gradients to this value.
+    - **clip_grad_value** (*float, optional*) - If not None, clip the values of gradients to [-`clip_grad_value`,`clip_grad_value`].
+    
+    - **results_folder** (*str, optional*) - Save results to this folder.
+
+    - **verbose** (*bool, optional*) - Trigger verbose output.
+
+    ## Attributes
+    - **uuid** (*str*) - Unique ID for this object. Results are prefixed with `uuid`.
+
+    - **RTYPE**, **CTYPE**, **DEVICE** - Torch tensor attributes - Real data precision, complex data precision, and device.
+
+    - **Xscale** (*torch scalar*) - Max of absolute value of `Xtr`. All X data is scaled by `Xscale`.
+    - **tshift** (*float*) - First value of `ttr`. All t data is shifted backwards by `tshift` so that `ttr` starts from 0.
+    - **tscale** (*float*) - All t data is scaled by `tscale` so that `ttr` becomes `[0,1,...]`
+    
+    - **net** (*utils.AutoEncoder*) - DeepKoopman neural network. `num_input_states` is set by num_input_states in X data, while other parameters are passed via this class.
+    - **opt** (*torch optimizer*) - Optimizer used to train DeepKoopman neural net.
+
+    - **stats** (*dict[list]*) - Stores different metrics like loss and error values for training and validation data for each epoch, and for test data.
+
+    - **Omega** (*torch.Tensor*), **W** (*torch.Tensor*), **coeffs** (*torch.Tensor*) - Used to make predictions using a trained DeepKoopman model.
+
+    - **error_flag** (*bool*) - Signals if any error has occurred in training.
+    """
+    
+    def __init__(
+        self, data, rank,
+        num_encoded_states, encoder_hidden_layers=[], decoder_hidden_layers=[], batch_norm=False,
+        numepochs=500, early_stopping=False, early_stopping_metric='pred_anae',
+        lr=1e-3, weight_decay=0., decoder_loss_weight=1e-2, K_reg=1e-3,
+        cond_threshold=100., clip_grad_norm=None, clip_grad_value=None,
+        results_folder='./', verbose=True
+    ):
+        ## Define precision and device
+        self.RTYPE = torch.float16 if cfg.precision=="half" else torch.float32 if cfg.precision=="float" else torch.float64
+        self.CTYPE = torch.complex32 if cfg.precision=="half" else torch.complex64 if cfg.precision=="float" else torch.complex128
+        self.DEVICE = torch.device("cuda" if cfg.use_cuda and torch.cuda.is_available() else "cpu")
+        
+        ## Define verbose, results folder, UUID, and log file
+        self.verbose = verbose
+
+        self.results_folder = results_folder
+        os.makedirs(results_folder, exist_ok=True)
+
+        self.uuid = shortuuid.uuid()
+        print(f'UUID for this run = {self.uuid}')
+        
+        self.log_file = os.path.join(results_folder, f'{self.uuid}.log')
         lf = open(self.log_file, 'a')
         lf.write(f'Log file for Deep Koopman object {self.uuid}\n\n')
-        
-        ## Define sigma_threshold
-        self.sigma_threshold = misc.get('sigma_threshold',1e-25)
 
         ## Get X data
         Xtr = data.get('Xtr')
@@ -71,14 +109,13 @@ class DeepKoopman:
         Xte = data.get('Xte')
 
         ## Convert X data to torch tensors on device
-        self.Xtr = torch.as_tensor(Xtr, dtype=cfg.RTYPE, device=cfg.DEVICE) if Xtr is not None else torch.tensor([])
-        self.Xva = torch.as_tensor(Xva, dtype=cfg.RTYPE, device=cfg.DEVICE) if Xva is not None else torch.tensor([])
-        self.Xte = torch.as_tensor(Xte, dtype=cfg.RTYPE, device=cfg.DEVICE) if Xte is not None else torch.tensor([])
+        self.Xtr = torch.as_tensor(Xtr, dtype=self.RTYPE, device=self.DEVICE) if Xtr is not None else torch.tensor([])
+        self.Xva = torch.as_tensor(Xva, dtype=self.RTYPE, device=self.DEVICE) if Xva is not None else torch.tensor([])
+        self.Xte = torch.as_tensor(Xte, dtype=self.RTYPE, device=self.DEVICE) if Xte is not None else torch.tensor([])
 
         ## Define Xscale, and normalize X data if applicable
         self.Xscale = torch.max(torch.abs(self.Xtr))
-        self.normalize_Xdata = hyps.get('normalize_Xdata',True)
-        if self.normalize_Xdata:
+        if cfg.normalize_Xdata:
             self.Xtr /= self.Xscale
             self.Xva /= self.Xscale
             self.Xte /= self.Xscale
@@ -89,9 +126,9 @@ class DeepKoopman:
         tte = data.get('tte')
 
         ## Convert t data to torch tensors on device
-        self.ttr = torch.as_tensor(ttr, dtype=cfg.RTYPE, device=cfg.DEVICE) if ttr is not None else torch.tensor([])
-        self.tva = torch.as_tensor(tva, dtype=cfg.RTYPE, device=cfg.DEVICE) if tva is not None else torch.tensor([])
-        self.tte = torch.as_tensor(tte, dtype=cfg.RTYPE, device=cfg.DEVICE) if tte is not None else torch.tensor([])
+        self.ttr = torch.as_tensor(ttr, dtype=self.RTYPE, device=self.DEVICE) if ttr is not None else torch.tensor([])
+        self.tva = torch.as_tensor(tva, dtype=self.RTYPE, device=self.DEVICE) if tva is not None else torch.tensor([])
+        self.tte = torch.as_tensor(tte, dtype=self.RTYPE, device=self.DEVICE) if tte is not None else torch.tensor([])
 
         ## Shift t data to make ttr start from 0 if it doesn't
         self.tshift = self.ttr[0].item()
@@ -120,40 +157,41 @@ class DeepKoopman:
         assert dts == {1}, 'Training timestamps are not equally spaced.'
 
         ## Get hyps of AutoEncoder
-        self.num_encoded_states = hyps.get('num_encoded_states',50)
-        self.encoder_hidden_layers = hyps.get('encoder_hidden_layers',[100])
-        self.batch_norm = hyps.get('batch_norm',False)
+        self.num_encoded_states = num_encoded_states
+        self.encoder_hidden_layers = encoder_hidden_layers
+        self.decoder_hidden_layers = decoder_hidden_layers
+        self.batch_norm = batch_norm
         
         ## Get other hyps used in training
-        self.numepochs = hyps.get('numepochs',500)
-        self.lr = hyps.get('lr',1e-3)
-        self.weight_decay = hyps.get('weight_decay',0.)
-        self.decoder_loss_weight = hyps.get('decoder_loss_weight',0.01)
-        self.K_reg = hyps.get('K_reg',0.01)
-        self.cond_threshold = hyps.get('cond_threshold',100)
-        self.use_custom_stable_svd = hyps.get('use_custom_stable_svd', True)
-        self.clip_grad_norm = hyps.get('clip_grad_norm', None)
-        self.clip_grad_value = hyps.get('clip_grad_value', None)
+        self.numepochs = numepochs
+        self.lr = lr
+        self.weight_decay = weight_decay
+        self.decoder_loss_weight = decoder_loss_weight
+        self.K_reg = K_reg
+        self.cond_threshold = cond_threshold
+        self.clip_grad_norm = clip_grad_norm
+        self.clip_grad_value = clip_grad_value
 
         ## Get rank and ensure it's a valid value
-        self.rank = hyps.get('rank',4)
-        full_rank = min(self.num_encoded_states,len(self.ttr)-1) #this is basically min(Y.shape), where Y is defined in dmd_linearize() and has shape (p,m). p is num_encoded_states and length of ttr is m+1.
+        self.rank = rank
+        full_rank = min(self.num_encoded_states,len(self.ttr)-1) #this is basically min(Y.shape), where Y is defined in _dmd_linearize() and has shape (p,m). p is num_encoded_states and length of ttr is m+1.
         if self.rank==0 or self.rank>=full_rank:
             self.rank = full_rank
 
         ## Early stopping logic
-        self.early_stopping = hyps.get('early_stopping', False)
+        self.early_stopping = early_stopping
         if type(self.early_stopping)==float:
             self.early_stopping = int(np.ceil(self.early_stopping * self.numepochs))
+        self.early_stopping_metric = early_stopping_metric+'_va'
 
         ## Define AutoEncoder
-        self.net = AutoEncoder(
+        self.net = utils.AutoEncoder(
             num_input_states=self.Xtr.shape[1],
             num_encoded_states=self.num_encoded_states,
             encoder_hidden_layers=self.encoder_hidden_layers,
             batch_norm=self.batch_norm
         )
-        self.net.to(dtype=cfg.RTYPE, device=cfg.DEVICE) #for variables, we need `X = X.to()`. For net, only `net.to()` is sufficient
+        self.net.to(dtype=self.RTYPE, device=self.DEVICE) #for variables, we need `X = X.to()`. For net, only `net.to()` is sufficient
 
         ## Define training optimizer
         self.opt = torch.optim.Adam(self.net.parameters(), lr=self.lr, weight_decay=self.weight_decay) #papers either use SGD or Adam
@@ -170,7 +208,7 @@ class DeepKoopman:
         lf.close()
 
 
-    def dmd_linearize(self, Y, Yprime):
+    def _dmd_linearize(self, Y, Yprime):
         """
         Get the rank-reduced Koopman matrix Ktilde.
 
@@ -185,7 +223,7 @@ class DeepKoopman:
         Note that r is <= min(m,p)
         Also note that wherever we do `tensor.t()`, technically the Hermitian should be taken via `tensor.t().conj()`. But since we deal with real data, just the ordinary transpose is fine.
         """
-        if self.use_custom_stable_svd:
+        if cfg.use_custom_stable_svd:
             U, Sigma, V = utils.stable_svd(Y) #shapes: U = (p,min(m,p)), Sigma = (min(m,p),), V = (m,min(m,p))
         else:
             U, Sigma, Vt = torch.linalg.svd(Y) #shapes: U = (p,p), Sigma = (min(m,p),), Vt = (m,m)
@@ -196,9 +234,9 @@ class DeepKoopman:
         Ut = U.t() #shape = (r,p)
         
         # Singular values
-        if Sigma[-1] < self.sigma_threshold:
+        if self.verbose and Sigma[-1] < cfg.sigma_threshold:
             with open(self.log_file, 'a') as lf:
-                lf.write(f"Smallest singular value prior to truncation = {Sigma[-1]} is smaller than threshold = {self.sigma_threshold}. This may lead to very large / nan values in backprop of SVD.\n")
+                lf.write(f"Smallest singular value prior to truncation = {Sigma[-1]} is smaller than threshold = {cfg.sigma_threshold}. This may lead to very large / nan values in backprop of SVD.\n")
         #NOTE: We can also do a check if any pair (or more) of consecutive singular values are so close that the difference of their squares is less than some threshold, since this will also lead to very large / nan values during backprop. But doing this check requires looping over the Sigma tensor (time complexity = O(len(Sigma))) and is not worth it.
         Sigma = torch.diag(Sigma[:self.rank]) #shape = (r,r)
         
@@ -212,13 +250,13 @@ class DeepKoopman:
         return Ktilde, interm
 
 
-    def dmd_eigen(self, Ktilde, interm, y0):
+    def _dmd_eigen(self, Ktilde, interm, y0):
         """
         Get the eigendecomposition of the Koopman matrix.
 
         Inputs:
-            Ktilde: From dmd_linearize(). Shape = (r,r).
-            interm: From dmd_linearize(). Shape = (p,r).
+            Ktilde: From _dmd_linearize(). Shape = (r,r).
+            interm: From _dmd_linearize(). Shape = (p,r).
             y0: Initial state of the system (should be part of training data). Shape = (p,).
         
         Returns:
@@ -229,34 +267,35 @@ class DeepKoopman:
         Lambda, Wtilde = torch.linalg.eig(Ktilde) #Lambda is (r,), Wtilde is (r,r)
         
         # Eigenvalues
-        with open(self.log_file, 'a') as lf:
-            lf.write(f"Largest magnitude among eigenvalues = {torch.max(torch.abs(Lambda))}\n")
+        if self.verbose:
+            with open(self.log_file, 'a') as lf:
+                lf.write(f"Largest magnitude among eigenvalues = {torch.max(torch.abs(Lambda))}\n")
         Omega = torch.diag(torch.log(Lambda)) #shape = (r,r) #NOTE: No need to divide by self.tscale here because spacings are normalized to 1
         #NOTE: We can do a check if any pair (or more) of consecutive eigenvalues are so close that their difference is less than some threshold, since this will lead to very large / nan values during backprop. But doing this check requires looping over the Omega tensor (time complexity = O(len(Omega))) and is not worth it.
         
         # Eigenvectors
-        W = interm.to(cfg.CTYPE) @ Wtilde #shape = (p,r)
+        W = interm.to(self.CTYPE) @ Wtilde #shape = (p,r)
         S,s = torch.linalg.norm(W,2), torch.linalg.norm(W,-2)
         cond = S/s
-        if cond > self.cond_threshold:
+        if self.verbose and cond > self.cond_threshold:
             with open(self.log_file, 'a') as lf:
                 lf.write(f"Condition number = {cond} is greater than threshold = {self.cond_threshold}. This may lead to numerical instability in evaluating linearity loss. In an attempt to mitigate this, singular values smaller than 1/{self.cond_threshold} times the largest will be discarded from the pseudo-inverse computation.\n")
         
         # Coefficients
-        coeffs = torch.linalg.pinv(W, rtol=1./self.cond_threshold) @ y0.to(cfg.CTYPE) #shape = (r,)
+        coeffs = torch.linalg.pinv(W, rtol=1./self.cond_threshold) @ y0.to(self.CTYPE) #shape = (r,)
         
         return Omega, W, coeffs
 
 
-    def dmd_predict(self, t, Omega,W,coeffs):
+    def _dmd_predict(self, t, Omega,W,coeffs):
         """
         Predict the dynamics of a system.
         
         Inputs:
             t: Sequence of time steps for which dynamics are predicted. Shape = (num_samples,).
-            Omega: From dmd_eigen(). Shape = (r,r).
-            W: From dmd_eigen(). Shape = (p,r).
-            coeffs: From dmd_eigen(). Shape = (r,).
+            Omega: From _dmd_eigen(). Shape = (r,r).
+            W: From _dmd_eigen(). Shape = (p,r).
+            coeffs: From _dmd_eigen(). Shape = (r,).
         Note: Omega,W,coeffs can also be provided from outside for a new system.
         
         Returns:
@@ -271,20 +310,12 @@ class DeepKoopman:
 
 
     def train_net(self):
-        """
-        Train a Deep Koopman model.
-        This computes losses and the eigendecomposition.
-        If validation data exists in self, then the eigendecomposition at the end of training each epoch is used to do validation after every epoch and compute losses.
-        If test data exists in self, the final eigendecomposition is also used to do testing and compute losses.
+        """Train (and optionally validate) the Deep Koopman model.
 
-        Effects:
-            self.stats stores all the training (and val and test if those are done) stats.
-            self.Omega, self.W and self.coeffs contain the eigendecomposition at the end of training. These can be used for future evaluation.
-        
-        Inputs: None
-        Returns: None
+        ## Effects
+        - self.stats is populated.
+        - self.Omega, self.W and self.coeffs contain the eigendecomposition at the end of training. These can be used for future evaluation.
         """
-        print(f'UUID for this run = {self.uuid}')
         with open(self.log_file, 'a') as lf:
             lf.write("\nStarting training ...\n")
         
@@ -306,8 +337,8 @@ class DeepKoopman:
             Ytr, Xrtr = self.net(self.Xtr)
             
             # Following 2 steps are unique to training
-            Ktilde, interm = self.dmd_linearize(Y = Ytr[:-1,:].t(), Yprime = Ytr[1:,:].t())
-            Omega, W, coeffs = self.dmd_eigen(Ktilde=Ktilde, interm=interm, y0=Ytr[0])
+            Ktilde, interm = self._dmd_linearize(Y = Ytr[:-1,:].t(), Yprime = Ytr[1:,:].t())
+            Omega, W, coeffs = self._dmd_eigen(Ktilde=Ktilde, interm=interm, y0=Ytr[0])
 
             # Record DMD variables
             self.Omega = Omega
@@ -315,7 +346,7 @@ class DeepKoopman:
             self.coeffs = coeffs
             
             # Get predictions
-            Ypredtr = self.dmd_predict(t=self.ttr[1:], Omega=Omega, W=W, coeffs=coeffs)
+            Ypredtr = self._dmd_predict(t=self.ttr[1:], Omega=Omega, W=W, coeffs=coeffs)
             Xpredtr = self.net.decoder(Ypredtr)
 
             # ANAEs
@@ -352,7 +383,9 @@ class DeepKoopman:
                 break
             
             try:
-                utils.paramgrads_check_nan(self.net.parameters())
+                for parameter in self.net.parameters():
+                    if torch.any(torch.isnan(parameter.grad)).item():
+                        raise ValueError
             except ValueError:
                 self.error_flag = True
                 message = "Encountered NaN in gradients\nStopping training!\n"
@@ -374,7 +407,7 @@ class DeepKoopman:
                 self.net.eval()
                 with torch.no_grad():
                     Yva, Xrva = self.net(self.Xva)
-                    Ypredva = self.dmd_predict(t=self.tva, Omega=Omega, W=W, coeffs=coeffs)
+                    Ypredva = self._dmd_predict(t=self.tva, Omega=Omega, W=W, coeffs=coeffs)
                     Xpredva = self.net.decoder(Ypredva)
                     recon_anae_va, lin_anae_va, pred_anae_va = errors.overall(X=self.Xva, Y=Yva, Xr=Xrva, Ypred=Ypredva, Xpred=Xpredva)
                     recon_loss_va, lin_loss_va, pred_loss_va, loss_va = losses.overall(X=self.Xva, Y=Yva, Xr=Xrva, Ypred=Ypredva, Xpred=Xpredva, decoder_loss_weight=self.decoder_loss_weight)
@@ -393,22 +426,27 @@ class DeepKoopman:
 
                 ## Early stopping logic
                 if self.early_stopping:
-                    if pred_anae_va.item() < best_val_perf:
+                    if self.stats[self.early_stopping_metric][-1] < best_val_perf:
                         no_improvement_epochs_count = 0
-                        best_val_perf = pred_anae_va.item()
+                        best_val_perf = self.stats[self.early_stopping_metric][-1]
                     else:
                         no_improvement_epochs_count += 1
                     if no_improvement_epochs_count == self.early_stopping:
                         with open(self.log_file, 'a') as lf:
-                            lf.write(f"\nEarly stopped due to no improvement for {self.early_stopping} epochs.")
+                            lf.write(f"\nEarly stopped due to no improvement in {self.early_stopping_metric} for {self.early_stopping} epochs.")
                         break
 
 
     def test_net(self):
+        """Run the trained DeepKoopman model on test data.
+        
+        ## Effects
+        - self.stats is populated further.
+        """
         self.net.eval()
         with torch.no_grad():
             Yte, Xrte = self.net(self.Xte)
-            Ypredte = self.dmd_predict(t=self.tte, Omega=self.Omega, W=self.W, coeffs=self.coeffs)
+            Ypredte = self._dmd_predict(t=self.tte, Omega=self.Omega, W=self.W, coeffs=self.coeffs)
             Xpredte = self.net.decoder(Ypredte)
             recon_anae_te, lin_anae_te, pred_anae_te = errors.overall(X=self.Xte, Y=Yte, Xr=Xrte, Ypred=Ypredte, Xpred=Xpredte)
             recon_loss_te, lin_loss_te, pred_loss_te, loss_te = losses.overall(X=self.Xte, Y=Yte, Xr=Xrte, Ypred=Ypredte, Xpred=Xpredte, decoder_loss_weight=self.decoder_loss_weight)
@@ -425,22 +463,22 @@ class DeepKoopman:
             lf.write(f"\nTest ANAEs: Reconstruction = {recon_anae_te.item()}, Linearity = {lin_anae_te.item()}, Prediction = {pred_anae_te.item()}\nTest losses: Reconstruction = {recon_loss_te.item()}, Linearity = {lin_loss_te.item()}, Prediction = {pred_loss_te.item()}, Total = {loss_te.item()}\n")
 
 
-    def predict_new(self, t):
-        """
-        Use the trained Deep Koopman model to predict the X values for new t.
-            This is different from testing because there we have the ground truth Xte values and we use those to find loss. Here, we do not know the X values because the t values are new (e.g. they can be extrapolated in either direction (forward / backward) or interpolated between the existing t values used for training / val / test).
-
-        Inputs:
-            t: List / 1D array containing new timestamps. Shape = (num_samples,).
+    def predict_new(self, t) -> torch.Tensor:
+        """Use the trained Deep Koopman model to predict the X values for new indices.
         
-        Returns:
-            Xpred: Tensor with predictions for the new X values. Shape = (num_samples,n)
+        This is different from testing because the ground truth values are not present, thus losses and errors are not computed. This method can be used to make predictions for interpolated and extrapolated indices.
+
+        ## Parameters
+        **t** (*list[int/float]*) - Array containing new indices.
+
+        ## Returns
+        **Xpred** (*torch.Tensor, shape=(len(t),num_input_states)*) - Predicted X values for the new indices.
         """
-        t_processed = (torch.as_tensor(t, dtype=cfg.RTYPE, device=cfg.DEVICE) - self.tshift) / self.tscale
+        t_processed = (torch.as_tensor(t, dtype=self.RTYPE, device=self.DEVICE) - self.tshift) / self.tscale
         with torch.no_grad():
-            Ypred = self.dmd_predict(t=t_processed, Omega=self.Omega, W=self.W, coeffs=self.coeffs)
+            Ypred = self._dmd_predict(t=t_processed, Omega=self.Omega, W=self.W, coeffs=self.coeffs)
             Xpred = self.net.decoder(Ypred)
-            if self.normalize_Xdata:
+            if cfg.normalize_Xdata:
                 Xpred *= self.Xscale
         with open(self.log_file, 'a') as lf:
             lf.write("\nNew predictions:\n")
