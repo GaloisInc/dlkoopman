@@ -48,20 +48,17 @@
 </ul></div>
 </dd>
 <dt id="deepk.utils.plot_stats"><code class="name flex">
-<span>def <span class="ident">plot_stats</span></span>(<span>stats, perfs=['pred_anae'], save_path='./plots/', start_epoch=1, fontsize=12)</span>
+<span>def <span class="ident">plot_stats</span></span>(<span>dk, perfs=['pred_anae'], start_epoch=1, fontsize=12)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Plot stats from a DeepKoopman run.</p>
 <h2 id="parameters">Parameters</h2>
 <ul>
 <li>
-<p><strong>stats</strong> (<em>core.DeepKoopman.stats</em>) - Statistics object from a DeepKoopman run.</p>
+<p><strong>dk</strong> (<em>core.DeepKoopman</em>) - A DeepKoopman object with <code>stats</code> populated.</p>
 </li>
 <li>
 <p><strong>perfs</strong> (<em>list[str]</em>) - Which variables from <code>stats</code> to plot. For each variable, training data and validation data stats are plotted vs epochs, and the title of the plot is the test data stats value.</p>
-</li>
-<li>
-<p><strong>save_path</strong> (<em>str</em>) - Outputs plots are stored as <code>save_path+'&lt;perf&gt;.png'</code>.</p>
 </li>
 <li>
 <p><strong>start_epoch</strong> (<em>int</em>) - Start plotting from this epoch. Setting this to higher than 1 may be useful when the first few epochs have weird values that skew the y axis scale.</p>
@@ -71,7 +68,17 @@
 </li>
 </ul>
 <h2 id="effects">Effects</h2>
-<p>Saves png file(s) to disk.</p></div>
+<p>Creates plots for each <code>perf</code> and saves their png file(s) to <code>"&lt;dk.results_folder&gt;/&lt;dk.uuid&gt;_&lt;perf&gt;.png"</code>.</p></div>
+</dd>
+<dt id="deepk.utils.set_seed"><code class="name flex">
+<span>def <span class="ident">set_seed</span></span>(<span>seed)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Set a random seed to make results reproducible.</p>
+<h2 id="parameters">Parameters</h2>
+<p><strong>seed</strong> (<em>int</em>) - The seed to be set.</p>
+<h2 id="effects">Effects</h2>
+<p>Sets the random seed to <code>seed</code>.</p></div>
 </dd>
 </dl>
 </section>
@@ -195,6 +202,7 @@
 <ul class="">
 <li><code><a title="deepk.utils.stable_svd" href="#deepk.utils.stable_svd">stable_svd</a></code></li>
 <li><code><a title="deepk.utils.plot_stats" href="#deepk.utils.plot_stats">plot_stats</a></code></li>
+<li><code><a title="deepk.utils.set_seed" href="#deepk.utils.set_seed">set_seed</a></code></li>
 </ul>
 </li>
 <li><h3><a href="#header-classes">Classes</a></h3>

@@ -72,7 +72,7 @@ TODO diagram of encoder and decoder with pretty shapes
 dk.train_net()
 dk.test_net()
 ```
-Train and test the net. This uses all the default training settings, such as `numepochs=500`. All the defaults can be found [here](https://galoisinc.github.io/deep-koopman/core.html#deepk.core.DeepKoopman).
+Train and test the net. This uses all the default training settings, such as `numepochs=500`. All the defaults can be found [here](https://galoisinc.github.io/deep-koopman/core.html#deepk.core.DeepKoopman). When training starts, the UUID for the `DeepKoopman` object is printed. All resulting files are prefixed with this UUID.
 
 ### Results
 The goal of Deep Koopman is three-fold, which correspond to three types of losses and errors:
