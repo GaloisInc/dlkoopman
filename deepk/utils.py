@@ -3,6 +3,7 @@
 
 import matplotlib.pyplot as plt
 import numpy as np
+import os
 import torch
 
 
@@ -161,41 +162,39 @@ def stable_svd(x) -> tuple[torch.Tensor, torch.Tensor, torch.Tensor]:
     return _SVD.apply(x)
 
 
-def plot_stats(stats, perfs=['pred_anae'], save_path='./plots/', start_epoch=1, fontsize=12):
+def plot_stats(dk, perfs=['pred_anae'], start_epoch=1, fontsize=12):
     """Plot stats from a DeepKoopman run.
 
     ## Parameters
-    - **stats** (*core.DeepKoopman.stats*) - Statistics object from a DeepKoopman run.
+    - **dk** (*core.DeepKoopman*) - A DeepKoopman object with `stats` populated.
 
     - **perfs** (*list[str]*) - Which variables from `stats` to plot. For each variable, training data and validation data stats are plotted vs epochs, and the title of the plot is the test data stats value.
-
-    - **save_path** (*str*) - Outputs plots are stored as `save_path+'<perf>.png'`.
     
     - **start_epoch** (*int*) - Start plotting from this epoch. Setting this to higher than 1 may be useful when the first few epochs have weird values that skew the y axis scale.
 
     - **fontsize** (*int*) - Font size of plot title. Other font sizes are automatically adjusted relative to this.
 
     ## Effects
-    Saves png file(s) to disk.
+    Creates plots for each `perf` and saves their png file(s) to `"<dk.results_folder>/<dk.uuid>_<perf>.png"`.
     """
     for perf in perfs:
         is_anae = 'anae' in perf
 
-        tr_data = stats[perf+'_tr'][start_epoch-1:]
-        if stats[perf+'_va']:
-            va_data = stats[perf+'_va'][start_epoch-1:]
+        tr_data = dk.stats[perf+'_tr'][start_epoch-1:]
+        if dk.stats[perf+'_va']:
+            va_data = dk.stats[perf+'_va'][start_epoch-1:]
             tr_data = tr_data[:len(va_data)] # va_data should normally have size equal to tr_data, but will have lesser size if some error occurred during training. This slicing ensures that only that portion of tr_data is considered which corresponds to va_data.
         epoch_range = range(start_epoch,start_epoch+len(tr_data))
         
         plt.figure()
-        if stats[perf+'_te']:
-            plt.suptitle(f"Test performance = {stats[perf+'_te']}" + (' %' if is_anae else ''), fontsize=fontsize)
+        if dk.stats[perf+'_te']:
+            plt.suptitle(f"Test performance = {dk.stats[perf+'_te']}" + (' %' if is_anae else ''), fontsize=fontsize)
         
         if perf == 'loss':
-            plt.plot(epoch_range, stats['loss_tr_before_K_reg'][start_epoch-1:], c='DarkSlateBlue', label='Training, before K_reg')
-        plt.plot(epoch_range, stats[perf+'_tr'][start_epoch-1:], c='MediumBlue', label='Training')
-        if stats[perf+'_va']:
-            plt.plot(epoch_range, stats[perf+'_va'][start_epoch-1:], c='DeepPink', label='Validation')
+            plt.plot(epoch_range, dk.stats['loss_tr_before_K_reg'][start_epoch-1:], c='DarkSlateBlue', label='Training, before K_reg')
+        plt.plot(epoch_range, dk.stats[perf+'_tr'][start_epoch-1:], c='MediumBlue', label='Training')
+        if dk.stats[perf+'_va']:
+            plt.plot(epoch_range, dk.stats[perf+'_va'][start_epoch-1:], c='DeepPink', label='Validation')
         
         if is_anae:
             ylim_anae = plt.gca().get_ylim()
@@ -208,4 +207,17 @@ def plot_stats(stats, perfs=['pred_anae'], save_path='./plots/', start_epoch=1, 
         plt.grid()
         plt.legend(fontsize=fontsize)
 
-        plt.savefig(f'{save_path}_{perf}.png', dpi=600, bbox_inches='tight', pad_inches=0.1)
+        plt.savefig(os.path.join(dk.results_folder, f'{dk.uuid}_{perf}.png'), dpi=600, bbox_inches='tight', pad_inches=0.1)
+
+
+def set_seed(seed):
+    """Set a random seed to make results reproducible.
+
+    ## Parameters
+    **seed** (*int*) - The seed to be set.
+
+    ## Effects
+    Sets the random seed to `seed`.
+    """
+    torch.manual_seed(seed)
+    np.random.seed(seed)
