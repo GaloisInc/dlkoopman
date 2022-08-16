@@ -25,7 +25,7 @@ class DeepKoopman:
         - Key **'tva'** (*optional*): Validation indices (*torch.Tensor, shape=(num_validation_samples,)*).
         - Key **'tte'** (*optional*): Test indices (*torch.Tensor, shape=(num_test_samples,)*).
     
-    - **rank** (*int*) - Rank of DeepK operation. Use 0 for full rank. Good values are 4-10.
+    - **rank** (*int*) - Rank of DeepK operation. Use 0 for full rank.
     
     - Parameters required by [utils.AutoEncoder](https://galoisinc.github.io/deep-koopman/utils.html#deepk.utils.AutoEncoder):
         - **num_encoded_states** (*int*)
@@ -79,7 +79,7 @@ class DeepKoopman:
     
     def __init__(
         self, data, rank,
-        num_encoded_states, encoder_hidden_layers=[], decoder_hidden_layers=[], batch_norm=False,
+        num_encoded_states, encoder_hidden_layers=[100], decoder_hidden_layers=[], batch_norm=False,
         numepochs=500, early_stopping=False, early_stopping_metric='pred_anae',
         lr=1e-3, weight_decay=0., decoder_loss_weight=1e-2, K_reg=1e-3,
         cond_threshold=100., clip_grad_norm=None, clip_grad_value=None,

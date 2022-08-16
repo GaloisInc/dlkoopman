@@ -36,7 +36,7 @@
 <dl>
 <dt id="deepk.core.DeepKoopman"><code class="flex name class">
 <span>class <span class="ident">DeepKoopman</span></span>
-<span>(</span><span>data, rank, num_encoded_states, encoder_hidden_layers=[], decoder_hidden_layers=[], batch_norm=False, numepochs=500, early_stopping=False, early_stopping_metric='pred_anae', lr=0.001, weight_decay=0.0, decoder_loss_weight=0.01, K_reg=0.001, cond_threshold=100.0, clip_grad_norm=None, clip_grad_value=None, results_folder='./', verbose=True)</span>
+<span>(</span><span>data, rank, num_encoded_states, encoder_hidden_layers=[100], decoder_hidden_layers=[], batch_norm=False, numepochs=500, early_stopping=False, early_stopping_metric='pred_anae', lr=0.001, weight_decay=0.0, decoder_loss_weight=0.01, K_reg=0.001, cond_threshold=100.0, clip_grad_norm=None, clip_grad_value=None, results_folder='./', verbose=True)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Main DeepKoopman class.</p>
@@ -54,7 +54,7 @@
 </ul>
 </li>
 <li>
-<p><strong>rank</strong> (<em>int</em>) - Rank of DeepK operation. Use 0 for full rank. Good values are 4-10.</p>
+<p><strong>rank</strong> (<em>int</em>) - Rank of DeepK operation. Use 0 for full rank.</p>
 </li>
 <li>
 <p>Parameters required by <a href="https://galoisinc.github.io/deep-koopman/utils.html#deepk.utils.AutoEncoder">utils.AutoEncoder</a>:</p>
