@@ -13,7 +13,7 @@ from tqdm import tqdm
 from deepk.core import DeepKoopman
 
 
-def run_hyp_search(data, hyp_options, numruns=None, avg_ignore_initial_epochs=100, sort_key='avg_pred_anae_va', delete_logs=True) -> str:
+def run_hyp_search(data, hyp_options, numruns=None, avg_ignore_initial_epochs=100, sort_key='avg_pred_anae_va', results_folder=None, delete_logs=True) -> str:
     """Perform hyperparameter search by running DeepKoopman multiple times on given data, and save the loss and ANAE statistics for each run.
 
     **The method can be interrupted at any time and the intermediate results will be saved**.
@@ -61,10 +61,12 @@ def run_hyp_search(data, hyp_options, numruns=None, avg_ignore_initial_epochs=10
 
     - **sort_key** (*str, optional*) - Results in the final CSV will be sorted in ascending order of this column. For possible options, see **Saved statistics**. Note that sorting only happens at the end, and thus will not take place if execution is interrupted. Set to `None` to skip sorting.
 
+    - **results_folder** (*str, optional*) - Results will be stored in this folder. If None, this is set to `<script_folder>/hyp_search`.
+
     - **delete_logs** (*bool, optional*) - If set, log files of the runs are deleted. This prevents file clutter.
 
     ## Effects
-    Saves `hyp_search_<datetime>/hyp_search.csv` containing:
+    Saves `hyp_search_<datetime>.csv` in `results_folder`, containing:
     ```
     -------------------------------------------------------------------------
     | UUID | <hyperparameters swept over> | <loss results> | <anae results> |
@@ -77,7 +79,7 @@ def run_hyp_search(data, hyp_options, numruns=None, avg_ignore_initial_epochs=10
     If `delete_logs=False`, the folder also contains logs of all individual runs.
 
     ## Returns
-    **output_csv_path** (*str*) - The path to the results CSV, i.e. `hyp_search_<datetime>/hyp_search.csv`.
+    **output_csv_path** (*str*) - The path to the results CSV, i.e. `<results_folder>/hyp_search_<datetime>.csv`.
     """
     ## Pre-process hyp options
     POSSIBLE_KEYS = [arg for arg in inspect.getfullargspec(DeepKoopman).args if arg not in ['self', 'data', 'results_folder']]
@@ -104,9 +106,9 @@ def run_hyp_search(data, hyp_options, numruns=None, avg_ignore_initial_epochs=10
         hyps_list_all = random.sample(hyps_list_all, numruns)
 
     ## Get results stuff
-    results_folder = f'hyp_search_{datetime.now().strftime("%d%m%y_%H%M%S")}'
-    os.makedirs(results_folder)
-    output_csv_path = os.path.join(results_folder, 'hyp_search.csv')
+    results_folder = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'hyp_search') if not results_folder else results_folder
+    os.makedirs(results_folder, exist_ok=True)
+    output_csv_path = os.path.join(results_folder, f'hyp_search_{datetime.now().strftime("%d%m%y_%H%M%S")}.csv')
 
     ## Print initial info
     print('********************************************************************************')

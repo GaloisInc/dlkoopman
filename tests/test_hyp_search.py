@@ -25,10 +25,7 @@ def test_run_hyp_search(get_data):
             'early_stopping': False,
             'early_stopping_metric': ['pred_anae','loss']
         },
-        numruns = None,
-        avg_ignore_initial_epochs = 10,
-        sort_key = 'avg_pred_anae_va',
-        delete_logs = True
+        avg_ignore_initial_epochs = 10
     )
     
     df = pd.read_csv(output_csv_path)
@@ -37,11 +34,12 @@ def test_run_hyp_search(get_data):
     df_sortcol = list(df['avg_pred_anae_va'])
     assert df_sortcol == sorted(df_sortcol)
     
-    folder = '/'.join(output_csv_path.split('/')[:-1])
-    files = [file for file in os.listdir(folder) if not file.startswith('.')]
-    assert files == ['hyp_search.csv']
+    results_folder = '/'.join(output_csv_path.split('/')[:-1])
+    files = [file for file in os.listdir(results_folder) if not file.startswith('.')]
+    output_csv_file = output_csv_path.split('/')[-1]
+    assert files == [output_csv_file]
     
-    os.system(f'rm -rf {folder}')
+    os.system(f'rm -rf {results_folder}')
 
     
     output_csv_path = run_hyp_search(
@@ -65,10 +63,11 @@ def test_run_hyp_search(get_data):
     df_sortcol = list(df['avg_lin_loss_va'])
     assert df_sortcol == sorted(df_sortcol)
     
-    folder = '/'.join(output_csv_path.split('/')[:-1])
-    files = [file for file in os.listdir(folder) if not file.startswith('.')]
-    assert 'hyp_search.csv' in files
+    results_folder = '/'.join(output_csv_path.split('/')[:-1])
+    files = [file for file in os.listdir(results_folder) if not file.startswith('.')]
+    output_csv_file = output_csv_path.split('/')[-1]
+    assert output_csv_file in files
     logfiles = [file for file in files if file.endswith('.log')]
     assert len(logfiles) == 5
     
-    os.system(f'rm -rf {folder}') 
+    os.system(f'rm -rf {results_folder}') 

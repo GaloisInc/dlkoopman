@@ -124,7 +124,7 @@ print(dk.predict_new([3.75,21]))
 This uses the trained DeepKoopman model to print predictions for $X_{3.75}$ and $X_{21}$, i.e. the unknown $200$-dimensional pressure vector for angles of attack $3.75^{\circ}$ and $21^{\circ}$. Note that one of these $t$ values is in between the available $t$ values $3.5$ and $4$, while the other is beyond the available $t$ values. This demonstrates Deep Koopman's ability to perform *interpolation* and *extrapolation*.
 
 ## Hyperparameter search
-You might be wondering how we arrived at the 'good' input settings in the optimization section. The method in `deepk.hyp_search:run_hyp_search()` performs hyperparameter search by sweeping inputs to `DeepKoopman` and collecting the loss and ANAE values. These can then be used to select 'good' input settings.
+You might be wondering how we arrived at the 'good' input settings in the optimization section. The method `deepk.hyp_search:run_hyp_search()` performs hyperparameter search by sweeping inputs to `DeepKoopman` and collecting the loss and ANAE values. These can then be used to select 'good' input settings.
 
 Example code:
 ```python
