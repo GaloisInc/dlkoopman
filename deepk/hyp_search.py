@@ -13,7 +13,7 @@ from tqdm import tqdm
 from deepk.core import DeepKoopman
 
 
-def run_hyp_search(data, hyp_options, numruns=None, avg_ignore_initial_epochs=100, sort_key='avg_pred_anae_va', delete_logs=True):
+def run_hyp_search(data, hyp_options, numruns=None, avg_ignore_initial_epochs=100, sort_key='avg_pred_anae_va', delete_logs=True) -> str:
     """Perform hyperparameter search by running DeepKoopman multiple times on given data, and save the loss and ANAE statistics for each run.
 
     **The method can be interrupted at any time and the intermediate results will be saved**.
@@ -75,6 +75,9 @@ def run_hyp_search(data, hyp_options, numruns=None, avg_ignore_initial_epochs=10
     -------------------------------------------------------------------------
     ```
     If `delete_logs=False`, the folder also contains logs of all individual runs.
+
+    ## Returns
+    **output_csv_path** (*str*) - The path to the results CSV, i.e. `hyp_search_<datetime>/hyp_search.csv`.
     """
     ## Pre-process hyp options
     POSSIBLE_KEYS = [arg for arg in inspect.getfullargspec(DeepKoopman).args if arg not in ['self', 'data', 'results_folder']]
@@ -232,3 +235,5 @@ def run_hyp_search(data, hyp_options, numruns=None, avg_ignore_initial_epochs=10
         except KeyError:
             print(f"WARNING: `sort_key` = '{sort_key}' not found among the columns of the output CSV '{output_csv_path}'. Results will be unsorted.")
         df.to_csv(output_csv_path, index=False)
+
+    return output_csv_path
