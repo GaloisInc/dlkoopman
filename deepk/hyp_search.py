@@ -65,7 +65,7 @@ def run_hyp_search(data, hyp_options, numruns=None, avg_ignore_initial_epochs=10
 
     ## Effects
     Saves `hyp_search_<datetime>/hyp_search.csv` containing:
-    
+    ```
     -------------------------------------------------------------------------
     | UUID | <hyperparameters swept over> | <loss results> | <anae results> |
     -------------------------------------------------------------------------
@@ -73,7 +73,7 @@ def run_hyp_search(data, hyp_options, numruns=None, avg_ignore_initial_epochs=10
     | run2 |              ...             |       ...      |       ...      |
     | run3 |              ...             |       ...      |       ...      |
     -------------------------------------------------------------------------
-    
+    ```
     If `delete_logs=False`, the folder also contains logs of all individual runs.
     """
     ## Pre-process hyp options

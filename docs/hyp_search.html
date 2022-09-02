@@ -93,30 +93,14 @@ DeepKoopman(rank=8, num_encoded_states=50, encoder_hidden_layers=[200,100,50])
 </ul>
 <h2 id="effects">Effects</h2>
 <p>Saves <code>hyp_search_&lt;datetime&gt;/hyp_search.csv</code> containing:</p>
-<hr>
-<h2 id="uuid">| UUID | <hyperparameters swept over> | <loss results> | <anae results> |</h2>
-<p>| run1 |
-&hellip;
-|
-&hellip;
-|
-&hellip;
-|
-| run2 |
-&hellip;
-|
-&hellip;
-|
-&hellip;
-|
-| run3 |
-&hellip;
-|
-&hellip;
-|
-&hellip;
-|</p>
-<hr>
+<pre><code>-------------------------------------------------------------------------
+| UUID | &lt;hyperparameters swept over&gt; | &lt;loss results&gt; | &lt;anae results&gt; |
+-------------------------------------------------------------------------
+| run1 |              ...             |       ...      |       ...      |
+| run2 |              ...             |       ...      |       ...      |
+| run3 |              ...             |       ...      |       ...      |
+-------------------------------------------------------------------------
+</code></pre>
 <p>If <code>delete_logs=False</code>, the folder also contains logs of all individual runs.</p></div>
 </dd>
 </dl>
