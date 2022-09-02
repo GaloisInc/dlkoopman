@@ -32,7 +32,7 @@ The Deep Koopman system in this package performs three tasks:
 - *Linearity* (`lin`): Learn a Koopman matrix which can operate on the initial encoded state $Y_0$ to yield approximations $\{Y_1',Y_2',\cdots\}$ to the actual values $\{Y_1,Y_2,\cdots\}$
 - *Prediction* (`pred`): $\{Y_1',Y_2',\cdots\}$ are decoded to predict approximations $\{\hat{X}_1',\hat{X}_2',\cdots\}$ to the actual values $\{X_1,X_2,\cdots\}$. This is the task we care about the most.
 <figure><center>
-<img src="deepk_system.png" width=750/>
+<img src="figures/deepk_system.png" width=750/>
 </center></figure>
 
 ## Quick Tutorial
@@ -64,7 +64,7 @@ dk = DeepKoopman(
 ```
 This creates the `DeepKoopman` object (documented [here](https://galoisinc.github.io/deep-koopman/core.html#deepk.core.DeepKoopman)). The `rank` is $6$, i.e. the Koopman matrix will be of dimension $6\times6$ (for more on `rank`, see [`koopman_theory.pdf`](./koopman_theory.pdf)). The encoded vector $g(X)$ will be $50$-dimensional. Since by default `encoder_hidden_layers = [100]`, the overall network looks like:
 <figure><center>
-<img src="examples/naca0012/nn_architecture.png" width=480/>
+<img src="figures/naca0012_nn_architecture.png" width=480/>
 </center></figure>
 
 ```python
@@ -121,6 +121,30 @@ Training is now faster, and stops after 555 epochs. Your plots should look like 
 print(dk.predict_new([3.75,21]))
 ```
 This uses the trained DeepKoopman model to print predictions for $X_{3.75}$ and $X_{21}$, i.e. the unknown $200$-dimensional pressure vector for angles of attack $3.75^{\circ}$ and $21^{\circ}$. Note that one of these $t$ values is in between the available $t$ values $3.5$ and $4$, while the other is beyond the available $t$ values. This demonstrates Deep Koopman's ability to perform *interpolation* and *extrapolation*.
+
+## Hyperparameter search
+You might be wondering how we arrived at the 'good' input settings in the optimization section. The method in `deepk.hyp_search:run_hyp_search()` performs hyperparameter search by sweeping inputs to `DeepKoopman` and collecting the loss and ANAE values. These can then be used to select 'good' input settings.
+
+Example code:
+```python
+from deepk.hyp_search import run_hyp_search
+with open('examples/naca0012/data.pkl', 'rb') as f:
+    data = pickle.load(f)
+run_hyp_search(
+    data = data,
+    hyp_options = {
+        'rank': [3,6,8,10],
+        'num_encoded_states': [200,500,1000],
+        'encoder_hidden_layers': [[500,500],[500,1000],[1000,500],[500,500,500]],
+        'numepochs': 1000,
+        'clip_grad_norm': [None,5.,10.]
+        'clip_grad_value': [None,2.]
+    },
+    numruns = 100
+)
+```
+
+We highly recommend performing hyperparameter search for any problem as it can lead to massively improved results and overcome numerical instabilities. If required, increase `numruns` to several hundred or even several thousand, which can take several hours to run, but the results are usually worth it.
 
 ## Numerical instabilities
 The mathematical theory behind Deep Koopman involves operations such as singular value decomposition, eigenvalue decomposition, and matrix inversion. These can lead to the gradients becoming numerically unstable.

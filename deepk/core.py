@@ -25,13 +25,16 @@ class DeepKoopman:
         - Key **'tva'** (*optional*): Validation indices (*torch.Tensor, shape=(num_validation_samples,)*).
         - Key **'tte'** (*optional*): Test indices (*torch.Tensor, shape=(num_test_samples,)*).
     
-    - **rank** (*int*) - Rank of DeepK operation. Use 0 for full rank.
+    - **rank** (*int*) - Rank of DeepK operation. Use 0 for full rank. Will be set to `min(num_encoded_states, num_training_samples-1)` if the provided value is greater.
     
     - Parameters required by [utils.AutoEncoder](https://galoisinc.github.io/deep-koopman/utils.html#deepk.utils.AutoEncoder):
-        - **num_encoded_states** (*int*)
-        - **encoder_hidden_layers** (*list[int], optional*)
-        - **decoder_hidden_layers** (*list[int], optional*)
-        - **batch_norm** (*bool, optional*)
+        - **num_encoded_states** (*int*).
+        
+        - **encoder_hidden_layers** (*list[int], optional*).
+        
+        - **decoder_hidden_layers** (*list[int], optional*).
+        
+        - **batch_norm** (*bool, optional*).
     
     - **numepochs** (*int, optional*) - Number of epochs for which to train neural net.
     
@@ -39,7 +42,7 @@ class DeepKoopman:
         - If `False`, no early stopping. The net will run for the complete `numepochs` epochs.
         - If an integer, early stop if validation metric doesn't improve for that many epochs.
         - If a float, early stop if validation performance doesn't improve for that fraction of epochs, rounded up.
-    - **early_stopping_metric** (*str, optional*) - Which metric to use for early stopping (metrics are given below in the documentation for `stats`). Irrelevant if `early_stopping=False`.
+    - **early_stopping_metric** (*str, optional*) - Which validation metric to use for early stopping (metrics are given below in the documentation for `stats`). Ignored if `early_stopping=False`.
     
     - **lr** (*float, optional*) - Learning rate for neural net optimizer.
     
@@ -70,11 +73,11 @@ class DeepKoopman:
     - **net** (*utils.AutoEncoder*) - DeepKoopman neural network. `num_input_states` is set by num_input_states in X data, while other parameters are passed via this class.
     - **opt** (*torch optimizer*) - Optimizer used to train DeepKoopman neural net.
 
-    - **stats** (*dict[list]*) - Stores different metrics like loss and error values for training and validation data for each epoch, and for test data.
-
     - **Omega** (*torch.Tensor*), **W** (*torch.Tensor*), **coeffs** (*torch.Tensor*) - Used to make predictions using a trained DeepKoopman model.
 
     - **error_flag** (*bool*) - Signals if any error has occurred in training.
+
+    - **stats** (*dict[list]*) - Stores different metrics like loss and error values for training and validation data for each epoch, and for test data. Possible stats are `'<recon/lin/pred>_<loss/anae>_<tr/va/te>'`, and `'loss_<tr/va/te>'`.
     """
     
     def __init__(
@@ -174,7 +177,7 @@ class DeepKoopman:
 
         ## Get rank and ensure it's a valid value
         self.rank = rank
-        full_rank = min(self.num_encoded_states,len(self.ttr)-1) #this is basically min(Y.shape), where Y is defined in _dmd_linearize() and has shape (p,m). p is num_encoded_states and length of ttr is m+1.
+        full_rank = min(self.num_encoded_states,len(self.ttr)-1) #this is basically min(Y.shape), where Y is defined in _dmd_linearize()
         if self.rank==0 or self.rank>=full_rank:
             self.rank = full_rank
 
@@ -182,7 +185,10 @@ class DeepKoopman:
         self.early_stopping = early_stopping
         if type(self.early_stopping)==float:
             self.early_stopping = int(np.ceil(self.early_stopping * self.numepochs))
-        self.early_stopping_metric = early_stopping_metric+'_va'
+        self.early_stopping_metric = early_stopping_metric + ('_va' if not early_stopping_metric.endswith('va') else '')
+        if self.early_stopping:
+            EARLY_STOPPING_METRIC_CHOICES = ['recon_loss_va', 'lin_loss_va', 'pred_loss_va', 'loss_va', 'recon_anae_va', 'lin_anae_va', 'pred_anae_va']
+            assert self.early_stopping_metric in EARLY_STOPPING_METRIC_CHOICES, f"`early_stopping_metric` must be in {EARLY_STOPPING_METRIC_CHOICES}, instead found '{self.early_stopping_metric}'"
 
         ## Define AutoEncoder
         self.net = utils.AutoEncoder(
@@ -191,10 +197,10 @@ class DeepKoopman:
             encoder_hidden_layers=self.encoder_hidden_layers,
             batch_norm=self.batch_norm
         )
-        self.net.to(dtype=self.RTYPE, device=self.DEVICE) #for variables, we need `X = X.to()`. For net, only `net.to()` is sufficient
+        self.net.to(dtype=self.RTYPE, device=self.DEVICE) #for variables, we need `X = X.to()`. For net, only `net.to()` is sufficient.
 
         ## Define training optimizer
-        self.opt = torch.optim.Adam(self.net.parameters(), lr=self.lr, weight_decay=self.weight_decay) #papers either use SGD or Adam
+        self.opt = torch.optim.Adam(self.net.parameters(), lr=self.lr, weight_decay=self.weight_decay)
 
         ## Define other attributes to be used later
         self.stats = defaultdict(lambda: [])
@@ -213,39 +219,38 @@ class DeepKoopman:
         Get the rank-reduced Koopman matrix Ktilde.
 
         Inputs:
-            Y: Matrix of states as columns. Shape = (p,m), where p is the dimensionality of a state and m is the number of states.
-            Yprime: Matrix of states as columns, shifted forward by 1 from Y. Shape = (p,m).
+            Y: Matrix of states as columns. Contains all states except for last. Shape = (num_encoded_states, num_training_samples-1).
+            Yprime: Matrix of states as columns. Shifted forward by 1 from Y, i.e. contains all states except for first. Shape = (num_encoded_states, num_training_samples-1).
         
         Returns:
-            Ktilde: Rank-reduced Koopman matrix. Shape = (r,r).
-            interm: Intermediate quantity Y'VS^-1. Shape = (p,r).
+            Ktilde: Rank-reduced Koopman matrix. Shape = (rank, rank).
+            interm: Intermediate quantity Y'VS^-1. Shape = (num_encoded_states, rank).
 
-        Note that r is <= min(m,p)
-        Also note that wherever we do `tensor.t()`, technically the Hermitian should be taken via `tensor.t().conj()`. But since we deal with real data, just the ordinary transpose is fine.
+        Note that wherever we do `tensor.t()`, technically the Hermitian should be taken via `tensor.t().conj()`. But since we deal with real data, just the ordinary transpose is fine.
         """
         if cfg.use_custom_stable_svd:
-            U, Sigma, V = utils.stable_svd(Y) #shapes: U = (p,min(m,p)), Sigma = (min(m,p),), V = (m,min(m,p))
+            U, Sigma, V = utils.stable_svd(Y) #shapes: U = (num_encoded_states, min(num_training_samples-1,num_encoded_states)), Sigma = (min(num_training_samples-1,num_encoded_states),), V = (num_training_samples-1, min(num_training_samples-1,num_encoded_states))
         else:
-            U, Sigma, Vt = torch.linalg.svd(Y) #shapes: U = (p,p), Sigma = (min(m,p),), Vt = (m,m)
-            V = Vt.t() #shape = (m,m)
+            U, Sigma, Vt = torch.linalg.svd(Y) #shapes: U = (num_encoded_states, num_encoded_states), Sigma = (min(num_training_samples-1,num_encoded_states),), Vt = (num_training_samples-1, num_training_samples-1)
+            V = Vt.t() #shape = (num_training_samples-1, num_training_samples-1)
         
         # Left singular vectors
-        U = U[:,:self.rank] #shape = (p,r)
-        Ut = U.t() #shape = (r,p)
+        U = U[:,:self.rank] #shape = (num_encoded_states, rank)
+        Ut = U.t() #shape = (rank, num_encoded_states)
         
         # Singular values
         if self.verbose and Sigma[-1] < cfg.sigma_threshold:
             with open(self.log_file, 'a') as lf:
                 lf.write(f"Smallest singular value prior to truncation = {Sigma[-1]} is smaller than threshold = {cfg.sigma_threshold}. This may lead to very large / nan values in backprop of SVD.\n")
         #NOTE: We can also do a check if any pair (or more) of consecutive singular values are so close that the difference of their squares is less than some threshold, since this will also lead to very large / nan values during backprop. But doing this check requires looping over the Sigma tensor (time complexity = O(len(Sigma))) and is not worth it.
-        Sigma = torch.diag(Sigma[:self.rank]) #shape = (r,r)
+        Sigma = torch.diag(Sigma[:self.rank]) #shape = (rank, rank)
         
         # Right singular vectors
-        V = V[:,:self.rank] #shape = (m,r)
+        V = V[:,:self.rank] #shape = (num_training_samples-1, rank)
         
         # Outputs
-        interm = Yprime @ V @ torch.linalg.inv(Sigma) #shape = (p,r)
-        Ktilde = Ut @ interm #shape = (r,r)
+        interm = Yprime @ V @ torch.linalg.inv(Sigma) #shape = (num_encoded_states, rank)
+        Ktilde = Ut @ interm #shape = (rank, rank)
         
         return Ktilde, interm
 
@@ -255,26 +260,26 @@ class DeepKoopman:
         Get the eigendecomposition of the Koopman matrix.
 
         Inputs:
-            Ktilde: From _dmd_linearize(). Shape = (r,r).
-            interm: From _dmd_linearize(). Shape = (p,r).
-            y0: Initial state of the system (should be part of training data). Shape = (p,).
+            Ktilde: From _dmd_linearize(). Shape = (rank, rank).
+            interm: From _dmd_linearize(). Shape = (num_encoded_states, rank).
+            y0: Initial state of the system (should be part of training data). Shape = (num_encoded_states,).
         
         Returns:
-            Omega: Eigenvalues of **continuous time** Ktilde. Shape = (r,r).
-            W: First r exact eigenvectors of the full (i.e. not tilde) system. Shape = (p,r).
-            coeffs: Coefficients of the linear combination. Shape = (r,).
+            Omega: Eigenvalues of **continuous time** Ktilde. Shape = (rank, rank).
+            W: First 'rank' exact eigenvectors of the full (i.e. not tilde) system. Shape = (num_encoded_states, rank).
+            coeffs: Coefficients of the linear combination. Shape = (rank,).
         """
-        Lambda, Wtilde = torch.linalg.eig(Ktilde) #Lambda is (r,), Wtilde is (r,r)
+        Lambda, Wtilde = torch.linalg.eig(Ktilde) #shapes: Lambda = (rank,), Wtilde is (rank, rank)
         
         # Eigenvalues
         if self.verbose:
             with open(self.log_file, 'a') as lf:
                 lf.write(f"Largest magnitude among eigenvalues = {torch.max(torch.abs(Lambda))}\n")
-        Omega = torch.diag(torch.log(Lambda)) #shape = (r,r) #NOTE: No need to divide by self.tscale here because spacings are normalized to 1
+        Omega = torch.diag(torch.log(Lambda)) #shape = (rank, rank) #NOTE: No need to divide by self.tscale here because spacings are normalized to 1
         #NOTE: We can do a check if any pair (or more) of consecutive eigenvalues are so close that their difference is less than some threshold, since this will lead to very large / nan values during backprop. But doing this check requires looping over the Omega tensor (time complexity = O(len(Omega))) and is not worth it.
         
         # Eigenvectors
-        W = interm.to(self.CTYPE) @ Wtilde #shape = (p,r)
+        W = interm.to(self.CTYPE) @ Wtilde #shape = (num_encoded_states, rank)
         S,s = torch.linalg.norm(W,2), torch.linalg.norm(W,-2)
         cond = S/s
         if self.verbose and cond > self.cond_threshold:
@@ -282,7 +287,7 @@ class DeepKoopman:
                 lf.write(f"Condition number = {cond} is greater than threshold = {self.cond_threshold}. This may lead to numerical instability in evaluating linearity loss. In an attempt to mitigate this, singular values smaller than 1/{self.cond_threshold} times the largest will be discarded from the pseudo-inverse computation.\n")
         
         # Coefficients
-        coeffs = torch.linalg.pinv(W, rtol=1./self.cond_threshold) @ y0.to(self.CTYPE) #shape = (r,)
+        coeffs = torch.linalg.pinv(W, rtol=1./self.cond_threshold) @ y0.to(self.CTYPE) #shape = (rank,)
         
         return Omega, W, coeffs
 
@@ -293,19 +298,19 @@ class DeepKoopman:
         
         Inputs:
             t: Sequence of time steps for which dynamics are predicted. Shape = (num_samples,).
-            Omega: From _dmd_eigen(). Shape = (r,r).
-            W: From _dmd_eigen(). Shape = (p,r).
-            coeffs: From _dmd_eigen(). Shape = (r,).
+            Omega: From _dmd_eigen(). Shape = (rank, rank).
+            W: From _dmd_eigen(). Shape = (num_encoded_states, rank).
+            coeffs: From _dmd_eigen(). Shape = (rank,).
         Note: Omega,W,coeffs can also be provided from outside for a new system.
         
         Returns:
-            Ypred: Predictions for all the timestamps in t. Shape (num_samples,p).
+            Ypred: Predictions for all the timestamps in t. Shape (num_samples, num_encoded_states).
                 Predictions may be complex, however they are converted to real by taking absolute value. This is fine because, if things are okay, the imaginary parts should be negligible (several orders of magnitude less) than the real parts.
         """
         Ypred = torch.tensor([])
         for index,ti in enumerate(t):
-            ypred = W @ torch.linalg.matrix_exp(Omega*ti) @ coeffs #shape = (p,)
-            Ypred = ypred.view(1,-1) if index==0 else torch.vstack((Ypred,ypred)) #shape at end = (num_samples,p)
+            ypred = W @ torch.linalg.matrix_exp(Omega*ti) @ coeffs #shape = (num_encoded_states,)
+            Ypred = ypred.view(1,-1) if index==0 else torch.vstack((Ypred,ypred)) #shape at end = (num_samples, num_encoded_states)
         return torch.abs(Ypred)
 
 
@@ -323,9 +328,7 @@ class DeepKoopman:
         best_val_perf = np.inf
         
         for epoch in tqdm(range(self.numepochs)):
-            # NOTE: Do not do any kind of shuffling before/after epochs
-            # The num_input_states dimension cannot be shuffled because that would mess up the MLP weights
-            # The m dimension is typically shuffled for standard classification problems, here however, m captures time information, so order must be maintained
+            # NOTE: Do not do any kind of shuffling before/after epochs. The samples dimension is typically shuffled for standard classification problems, but here that corresponds to the index (such as time), which should be ordered.
             
             with open(self.log_file, 'a') as lf:
                 lf.write(f"\nEpoch {epoch+1}\n")
@@ -472,7 +475,7 @@ class DeepKoopman:
         **t** (*list[int/float]*) - Array containing new indices.
 
         ## Returns
-        **Xpred** (*torch.Tensor, shape=(len(t),num_input_states)*) - Predicted X values for the new indices.
+        **Xpred** (*torch.Tensor, shape=(len(t), num_input_states)*) - Predicted X values for the new indices.
         """
         t_processed = (torch.as_tensor(t, dtype=self.RTYPE, device=self.DEVICE) - self.tshift) / self.tscale
         with torch.no_grad():
