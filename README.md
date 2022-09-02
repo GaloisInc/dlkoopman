@@ -1,11 +1,12 @@
 # deep-koopman
 Koopman theory is a mathematical technique to achieve data-driven approximations of dynamical systems. This package implements Deep Koopman – a method to achieve Koopman approximations using *machine learning and deep neural networks* to learn the dynamics of any system and predict its unknown states.
 
-Key features:
-- Built using [Pytorch](https://pytorch.org/).
-- Full customization options for Koopman theory and neural nets.
-- Trains in seconds on both CPU and GPU.
+We acknowledge the work of [Lusch et al.](https://github.com/BethanyL/DeepKoopman), which our work builds on and expands via the following key features:
+- A generalized software tool to apply deep learning based Koopman theory to any system with arbitrary number of input components and amount of input data.
+- Extensive options / hyperparameters to customize training and overcome the mathematical challenges of applying deep learning to Koopman theory.
+- A ready-to-use hyperparameter search module to improve performance.
 - Novel error functions for visualizing performance.
+- Built using [Pytorch](https://pytorch.org/), supports both CPU and GPU platforms.
 
 ## Installation
 
@@ -149,7 +150,7 @@ We highly recommend performing hyperparameter search for any problem as it can l
 ## Numerical instabilities
 The mathematical theory behind Deep Koopman involves operations such as singular value decomposition, eigenvalue decomposition, and matrix inversion. These can lead to the gradients becoming numerically unstable.
 
-Some common numerical instabilities are described in the [issues](https://github.com/GaloisInc/deep-koopman/issues?q=is%3Aissue+is%3Aclosed).
+Some common numerical instabilities and ways to overcome them are described in the [issues](https://github.com/GaloisInc/deep-koopman/issues?q=is%3Aissue+is%3Aclosed).
 
 Specifically, to debug gradient issues, insert the following line in your script:
 ```python
@@ -159,7 +160,3 @@ This catches runtime errors such as exploding `NaN` gradients and displays where
 
 ## Acknowledgements
 This material is based upon work supported by the United States Air Force and DARPA under Contract No. FA8750-20-C-0534. Any opinions, findings and conclusions or recommendations expressed in this material are those of the author(s) and do not necessarily reflect the views of the United States Air Force and DARPA. Distribution Statement A, "Approved for Public Release, Distribution Unlimited."
-
-The authors also referred to the following sources while creating this package:
-- J. N. Kutz, S. L. Brunton, B. W. Brunton, and J. L. Proctor, "Dynamic Mode Decomposition: Data Driven Modeling of Complex Systems", published by Society for Industrial and Applied Mathematics (2016). DOI https://doi.org/10.1137/1.9781611974508.
-- B. Lusch, J. N. Kutz, and S. L. Brunton, "Deep learning for universal linear embeddings of nonlinear dynamics" in Nature Communication 9, 4950 (2018). DOI https://doi.org/10.1038/s41467-018-07210-0.
