@@ -54,15 +54,23 @@
 </ul>
 </li>
 <li>
-<p><strong>rank</strong> (<em>int</em>) - Rank of DeepK operation. Use 0 for full rank.</p>
+<p><strong>rank</strong> (<em>int</em>) - Rank of DeepK operation. Use 0 for full rank. Will be set to <code>min(num_encoded_states, num_training_samples-1)</code> if the provided value is greater.</p>
 </li>
 <li>
 <p>Parameters required by <a href="https://galoisinc.github.io/deep-koopman/utils.html#deepk.utils.AutoEncoder">utils.AutoEncoder</a>:</p>
 <ul>
-<li><strong>num_encoded_states</strong> (<em>int</em>)</li>
-<li><strong>encoder_hidden_layers</strong> (<em>list[int], optional</em>)</li>
-<li><strong>decoder_hidden_layers</strong> (<em>list[int], optional</em>)</li>
-<li><strong>batch_norm</strong> (<em>bool, optional</em>)</li>
+<li>
+<p><strong>num_encoded_states</strong> (<em>int</em>).</p>
+</li>
+<li>
+<p><strong>encoder_hidden_layers</strong> (<em>list[int], optional</em>).</p>
+</li>
+<li>
+<p><strong>decoder_hidden_layers</strong> (<em>list[int], optional</em>).</p>
+</li>
+<li>
+<p><strong>batch_norm</strong> (<em>bool, optional</em>).</p>
+</li>
 </ul>
 </li>
 <li>
@@ -77,7 +85,7 @@
 </ul>
 </li>
 <li>
-<p><strong>early_stopping_metric</strong> (<em>str, optional</em>) - Which metric to use for early stopping (metrics are given below in the documentation for <code>stats</code>). Irrelevant if <code>early_stopping=False</code>.</p>
+<p><strong>early_stopping_metric</strong> (<em>str, optional</em>) - Which validation metric to use for early stopping (metrics are given below in the documentation for <code>stats</code>). Ignored if <code>early_stopping=False</code>.</p>
 </li>
 <li>
 <p><strong>lr</strong> (<em>float, optional</em>) - Learning rate for neural net optimizer.</p>
@@ -129,13 +137,13 @@
 <p><strong>opt</strong> (<em>torch optimizer</em>) - Optimizer used to train DeepKoopman neural net.</p>
 </li>
 <li>
-<p><strong>stats</strong> (<em>dict[list]</em>) - Stores different metrics like loss and error values for training and validation data for each epoch, and for test data.</p>
-</li>
-<li>
 <p><strong>Omega</strong> (<em>torch.Tensor</em>), <strong>W</strong> (<em>torch.Tensor</em>), <strong>coeffs</strong> (<em>torch.Tensor</em>) - Used to make predictions using a trained DeepKoopman model.</p>
 </li>
 <li>
 <p><strong>error_flag</strong> (<em>bool</em>) - Signals if any error has occurred in training.</p>
+</li>
+<li>
+<p><strong>stats</strong> (<em>dict[list]</em>) - Stores different metrics like loss and error values for training and validation data for each epoch, and for test data. Possible stats are <code>'&lt;recon/lin/pred&gt;_&lt;loss/anae&gt;_&lt;tr/va/te&gt;'</code>, and <code>'loss_&lt;tr/va/te&gt;'</code>.</p>
 </li>
 </ul></div>
 <h3>Methods</h3>
@@ -170,7 +178,7 @@
 <h2 id="parameters">Parameters</h2>
 <p><strong>t</strong> (<em>list[int/float]</em>) - Array containing new indices.</p>
 <h2 id="returns">Returns</h2>
-<p><strong>Xpred</strong> (<em>torch.Tensor, shape=(len(t),num_input_states)</em>) - Predicted X values for the new indices.</p></div>
+<p><strong>Xpred</strong> (<em>torch.Tensor, shape=(len(t), num_input_states)</em>) - Predicted X values for the new indices.</p></div>
 </dd>
 </dl>
 </dd>
