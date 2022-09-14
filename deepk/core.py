@@ -224,7 +224,7 @@ class DeepKoopman:
         
         Returns:
             Ktilde: Rank-reduced Koopman matrix. Shape = (rank, rank).
-            interm: Intermediate quantity Y'VS^-1. Shape = (num_encoded_states, rank).
+            interm: Intermediate quantity, which is Y'VS^-1 for exact eignvectors, or U for projected eigenvectors. Shape = (num_encoded_states, rank).
 
         Note that wherever we do `tensor.t()`, technically the Hermitian should be taken via `tensor.t().conj()`. But since we deal with real data, just the ordinary transpose is fine.
         """
@@ -251,6 +251,9 @@ class DeepKoopman:
         # Outputs
         interm = Yprime @ V @ torch.linalg.inv(Sigma) #shape = (num_encoded_states, rank)
         Ktilde = Ut @ interm #shape = (rank, rank)
+
+        if not cfg.use_exact_eigenvectors:
+            interm = U
         
         return Ktilde, interm
 

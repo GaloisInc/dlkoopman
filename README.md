@@ -26,18 +26,18 @@ Available at https://galoisinc.github.io/deep-koopman/.
 ## Background
 This section gives a brief overview. For a thorough mathematical treatment, refer to [`koopman_theory.pdf`](./koopman_theory.pdf).
 
-Assume a dynamical system $X_{t+1} = F(X_t)$, where $X$ is the state of the system at index $t$, and $F$ is the evolution rule describing the dynamics of the system. Koopman theory attempts to transform $X$ into a different space $Y = g(X)$ where the dynamics are linear, i.e. $Y_{t+1} = KY_t$, where $K$ is the Koopman matrix. Linearizing the system is incredibly powerful since the state $X_T$ at any $t=T$ can be predicted from $K$ and the initial state $X_0$ as $X_T = g^{-1}\left(K^Tg(X_0)\right)$.
+Assume a dynamical system $x_{t+1} = F(x_t)$, where $x$ is the (multi-dimensional, i.e. vector) state of the system at index $t$, and $F$ is the evolution rule describing the dynamics of the system. Koopman theory attempts to transform $x$ into a different space $y = g(x)$ where the dynamics are linear, i.e. $y_{t+1} = Ky_t$, where $K$ is the Koopman matrix. Linearizing the system is incredibly powerful since the state $x_i$ at any $t=i$ can be predicted from $K$ and the initial state $x_0$ as $x_i = g^{-1}\left(K^ig(x_0)\right)$.
 
 The Deep Koopman system in this package performs three tasks:
-- *Reconstruction* (`recon`): Learn an autoencoder architecture to create the pipeline $\hat{X} = g^{-1}(Y) = g^{-1}\left(g(X)\right)$.
-- *Linearity* (`lin`): Learn a Koopman matrix which can operate on the initial encoded state $Y_0$ to yield approximations $\{Y_1',Y_2',\cdots\}$ to the actual values $\{Y_1,Y_2,\cdots\}$
-- *Prediction* (`pred`): $\{Y_1',Y_2',\cdots\}$ are decoded to predict approximations $\{\hat{X}_1',\hat{X}_2',\cdots\}$ to the actual values $\{X_1,X_2,\cdots\}$. This is the task we care about the most.
+- *Reconstruction* (`recon`): Learn an autoencoder architecture to create the pipeline $\hat{x} = g^{-1}(y) = g^{-1}\left(g(x)\right)$.
+- *Linearity* (`lin`): Learn a Koopman matrix which can operate on the initial encoded state $y_0$ to yield approximations $\{y_1',y_2',\cdots\}$ to the actual values $\{y_1,y_2,\cdots\}$, as well as predict unknown $y_i'$ for values of $i$ not in the given data.
+- *Prediction* (`pred`): $\{y_1',y_2',\cdots\}$ are decoded to predict approximations $\{\hat{x}_1',\hat{x}_2',\cdots\}$ to the actual values $\{x_1,x_2,\cdots\}$, as well as predict unknown $\hat{x}_i'$ for values of $i$ not in the given data. This is the task we care about the most.
 <figure><center>
 <img src="figures/deepk_system.png" width=750/>
 </center></figure>
 
 ## Quick Tutorial
-We will walk through a tutorial on predicting the $200$-dimensional pressure vector $X$ across the surface of a [NACA0012 airfoil](https://en.wikipedia.org/wiki/NACA_airfoil) at varying angles of attack $t$. Run `python examples/naca0012/run.py`. The script is broken down below:
+We will walk through a tutorial on predicting the $200$-dimensional pressure vector $x$ across the surface of a [NACA0012 airfoil](https://en.wikipedia.org/wiki/NACA_airfoil) at varying angles of attack $t$. Run `python examples/naca0012/run.py`. The script is broken down below:
 
 ### Data
 ```python
@@ -46,9 +46,9 @@ with open('./data.pkl', 'rb') as f:
 ```
 The resulting `data` dictionary is documented [here](https://galoisinc.github.io/deep-koopman/core.html#deepk.core.DeepKoopman). Its contents are:
 - `'ttr': range(15)`. Angle of attack values used for training. Note that the training indices must be in ascending order and should ideally be equally spaced.
-- `'Xtr'` of shape `(15,200)`. Each row is the 200-dimensional pressure vector $X$ for the corresponding angle of attack (i.e. `Xtr[0]` corresponds to $X_0$).
+- `'Xtr'` of shape `(15,200)`. Each row is the 200-dimensional pressure vector $x$ for the corresponding angle of attack (i.e. `Xtr[0]` corresponds to $x_0$).
 - `'tva': [0.5,3.5,4.5,7.5,16,17,20]`, and `'tte': [1.5,2.5,5.5,6.5,15,18,19]`. Angle of attack values used for validating and testing the neural net, respectively. Note that these indices can be anything, order and spacing is not important.
-- `'Xva'` and `'Xte'`. Pressure vectors corresponding to `'tva'` and `'tte'` (i.e. `Xva[0]` corresponds to $X_{0.5}$, `Xte[-1]` corresponds to $X_{19}$, etc).
+- `'Xva'` and `'Xte'`. Pressure vectors corresponding to `'tva'` and `'tte'` (i.e. `Xva[0]` corresponds to $x_{0.5}$, `Xte[-1]` corresponds to $x_{19}$, etc).
 
 ### Deep Koopman run
 ```python
@@ -63,7 +63,7 @@ dk = DeepKoopman(
     num_encoded_states = 50
 )
 ```
-This creates the `DeepKoopman` object (documented [here](https://galoisinc.github.io/deep-koopman/core.html#deepk.core.DeepKoopman)). The `rank` is $6$, i.e. the Koopman matrix will be of dimension $6\times6$ (for more on `rank`, see [`koopman_theory.pdf`](./koopman_theory.pdf)). The encoded vector $g(X)$ will be $50$-dimensional. Since by default `encoder_hidden_layers = [100]`, the overall network looks like:
+This creates the `DeepKoopman` object (documented [here](https://galoisinc.github.io/deep-koopman/core.html#deepk.core.DeepKoopman)). The `rank` is $6$, i.e. the Koopman matrix will be of dimension $6\times6$ (for more on `rank`, see [`koopman_theory.pdf`](./koopman_theory.pdf)). The encoded vector $g(x)$ will be $50$-dimensional. Since by default `encoder_hidden_layers = [100]`, the overall network looks like:
 <figure><center>
 <img src="figures/naca0012_nn_architecture.png" width=480/>
 </center></figure>
@@ -85,7 +85,7 @@ UUID for this run = <something>
 ```python
 utils.plot_stats(dk, ['pred_loss', 'loss', 'pred_anae'])
 ```
-This plots the [MSE loss](https://galoisinc.github.io/deep-koopman/losses.html#deepk.losses.mse) for the *prediction* task [described above](#background), as well as the [overall loss](https://galoisinc.github.io/deep-koopman/losses.html#deepk.losses.overall), which is a linear combination of losses from the three tasks and is optimized during training via gradient descent. It also plots the prediction [average normalized absolute error (ANAE)](https://galoisinc.github.io/deep-koopman/errors.html#deepk.errors.anae), which is a measure of the relative error between $X$ and $\hat{X}'$.
+This plots the [MSE loss](https://galoisinc.github.io/deep-koopman/losses.html#deepk.losses.mse) for the *prediction* task [described above](#background), as well as the [overall loss](https://galoisinc.github.io/deep-koopman/losses.html#deepk.losses.overall), which is a linear combination of losses from the three tasks and is optimized during training via gradient descent. It also plots the prediction [average normalized absolute error (ANAE)](https://galoisinc.github.io/deep-koopman/errors.html#deepk.errors.anae), which is a measure of the relative error between $x$ and $\hat{x}'$.
 
 Your plots will be prefixed with the UUID, and should look like the ones in [`unopt_results`](./examples/naca0012/unopt_results/).
 
@@ -105,7 +105,7 @@ dk = DeepKoopman(
     clip_grad_value = 2.
 )
 ```
-and again train, test, and plot stats. Your plots should now look like the ones in [`opt_results`](./examples/naca0012/opt_results/). We can see that the `pred_anae` on test data is now an impressive $6.95\%$, indicating that one can expect any predictions $X$ for some unknown $t$ to be within $7\%$ of the actual values.
+and again train, test, and plot stats. Your plots should now look like the ones in [`opt_results`](./examples/naca0012/opt_results/). We can see that the `pred_anae` on test data is now an impressive $6.95\%$, indicating that one can expect any predictions $x$ for some unknown $t$ to be within $7\%$ of the actual values.
 
 This network might take close to a minute to train. Let's try stopping training early if the validation `pred_anae` does not improve for 50 epochs. Keep everything same as before, but add the following options:
 ```python
@@ -117,11 +117,11 @@ dk = DeepKoopman(
 ```
 Training is now faster, and stops after 555 epochs. Your plots should look like the ones in [`opt_es_results`](./examples/naca0012/opt_es_results/). The `pred_anae` on test data is slightly higher than before at $7.43\%$.
 
-### New predictions
+### Unkonwn state predictions
 ```python
 print(dk.predict_new([3.75,21]))
 ```
-This uses the trained DeepKoopman model to print predictions for $X_{3.75}$ and $X_{21}$, i.e. the unknown $200$-dimensional pressure vector for angles of attack $3.75^{\circ}$ and $21^{\circ}$. Note that one of these $t$ values is in between the available $t$ values $3.5$ and $4$, while the other is beyond the available $t$ values. This demonstrates Deep Koopman's ability to perform *interpolation* and *extrapolation*.
+This uses the trained DeepKoopman model to print predictions for $x_{3.75}$ and $x_{21}$, i.e. the unknown $200$-dimensional pressure vectors for angles of attack $3.75^{\circ}$ and $21^{\circ}$. Note that one of these $t$ values is in between the available $t$ values $3.5$ and $4$, while the other is beyond the available $t$ values. This demonstrates Deep Koopman's ability to perform *interpolation* and *extrapolation*.
 
 ## Hyperparameter search
 You might be wondering how we arrived at the 'good' input settings in the optimization section. The method `deepk.hyp_search:run_hyp_search()` performs hyperparameter search by sweeping inputs to `DeepKoopman` and collecting the loss and ANAE values. These can then be used to select 'good' input settings.

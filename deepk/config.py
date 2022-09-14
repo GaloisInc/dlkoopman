@@ -4,7 +4,7 @@
 precision = "float"
 """Numerical precision of tensors.
 
-Options (in increasing order of precision) = `"half"` / `"float"` / `"double"`.
+**Options** (in increasing order of precision): `"half"` / `"float"` / `"double"`.
 
 **Default**: `"float"`
 
@@ -15,11 +15,15 @@ Setting `precision = "double"` may help sloghtly with numerical instabilities, h
 use_cuda = True
 """If `True`, tensor computations when take place on CuDA GPUs whenever available.
 
+**Options**: `True` / `False`
+
 **Default**: `True`
 """
 
 normalize_Xdata = True
 """If `True`, all input data (training, validation, test) are divided by the maximum absolute value in the training data.
+
+**Options**: `True` / `False`
 
 **Default**: `True`
 
@@ -29,14 +33,16 @@ Normalizing data is a generally good technique for deep learning, and is normall
 $$X_f = \\frac{X_f-\\text{offset}_f}{\\text{scale}_f}$$
 (where offset and scale are mean and standard deviation for Gaussian normalization, or minimum value and range for Minmax normalization.) However, *this messes up the spectral techniques such as singular value and eigen value decomposition required in Deep Koopman*. Hence, setting `normalize_Xdata=True` will just use a single scale value for normalizing the whole data to get
 $$X = \\frac{X}{\\text{scale}}$$
-This results in the spectra (i.e. the singular and eigen vectors) remaining the same, the only change is that the singular and eigen values get divided by scale.
+This results in the singular and eigen vectors remaining the same.
 
 ## Caution
 Setting this to `normalize_Xdata=False` may end the run by leading to imaginary parts of tensors reaching values where the loss function depends on the phase (in `torch >= 1.11`, this leads to `"RuntimeError: linalg_eig_backward: The eigenvectors in the complex case are specified up to multiplication by e^{i phi}. The specified loss function depends on this quantity, so it is ill-defined"`). The only benefit to setting this to `False` is that if the run successfully completes, the final error metrics such as ANAE are slightly more accurate since they are reported on the un-normalized data values.
 """
 
 use_custom_stable_svd = True
-""" The singular value decomposition used is `utils.stable_svd` if `True`, and `torch.linalg.svd` if `False`.
+"""The singular value decomposition used is `utils.stable_svd` if `True`, and `torch.linalg.svd` if `False`.
+
+**Options**: `True` / `False`
 
 **Default**: `True`
 
@@ -44,8 +50,65 @@ use_custom_stable_svd = True
 Setting this to `False` may end the run due to encountering NaNs in gradients, as explained [here](https://pytorch.org/docs/stable/generated/torch.linalg.svd.html).
 """
 
+use_exact_eigenvectors = True
+"""If `True`, the exact eigenvectors of the Koopman matrix are used, if `False`, the projected eigenvectors are used.
+
+**Options**: `True` / `False`
+
+**Default**: `True`
+
+## Notes
+
+For a discussion on exact and projected eigenvectors, see [Tu et al](https://arxiv.org/abs/1312.0041) or [Chapter 1 of Kutz et al](https://epubs.siam.org/doi/pdf/10.1137/1.9781611974508.ch1). The basic idea is that using exact eigenvectors is more accurate, but their computation may become less numerically stable than that of projected eigenvectors.
+"""
+
 sigma_threshold = 1e-25
 """Any singular value lower than this will be reported when in debug mode, since this is a possible cause of unstable gradients.
 
+**Options**: Any numerical value.
+
 **Default**: `1e-25`
 """
+
+###############################################################################
+# Validate config
+# Run automatically whenever config is imported
+###############################################################################
+import sys
+_error = False
+
+try:
+    assert precision in ["half", "float", "double"], '`precision` must be either of "half" / "float" / "double"'
+except AssertionError as e:
+    print(f'Config Validation Error: {e}')
+    _error = True
+try:
+    assert use_cuda in [True, False], '`use_cuda` must be either True or False'
+except AssertionError as e:
+    print(f'Config Validation Error: {e}')
+    _error = True
+try:
+    assert normalize_Xdata in [True, False], '`normalize_Xdata` must be either True or False'
+except AssertionError as e:
+    print(f'Config Validation Error: {e}')
+    _error = True
+try:
+    assert use_custom_stable_svd in [True, False], '`use_custom_stable_svd` must be either True or False'
+except AssertionError as e:
+    print(f'Config Validation Error: {e}')
+    _error = True
+try:
+    assert use_exact_eigenvectors in [True, False], '`use_exact_eigenvectors` must be either True or False'
+except AssertionError as e:
+    print(f'Config Validation Error: {e}')
+    _error = True
+try:
+    assert type(sigma_threshold) in [int, float], '`sigma_threshold` must be a number'
+except AssertionError as e:
+    print(f'Config Validation Error: {e}')
+    _error = True
+
+if _error:
+    print('\nConfig validation failed, exiting!')
+    sys.exit()
+###############################################################################
