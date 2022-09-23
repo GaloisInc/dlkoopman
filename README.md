@@ -158,5 +158,5 @@ torch.autograd.set_detect_anomaly(True)
 ```
 This catches runtime errors such as exploding `NaN` gradients and displays where they happened in the forward pass. The cost is slower execution. 
 
-## Acknowledgements
+## Acknowledgements and Distribution Statement
 This material is based upon work supported by the United States Air Force and DARPA under Contract No. FA8750-20-C-0534. Any opinions, findings and conclusions or recommendations expressed in this material are those of the author(s) and do not necessarily reflect the views of the United States Air Force and DARPA. Distribution Statement A, "Approved for Public Release, Distribution Unlimited."
