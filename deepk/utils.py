@@ -191,7 +191,7 @@ def plot_stats(dk, perfs=['pred_anae'], start_epoch=1, fontsize=12):
             plt.suptitle(f"Test performance = {dk.stats[perf+'_te']}" + (' %' if is_anae else ''), fontsize=fontsize)
         
         if perf == 'loss':
-            plt.plot(epoch_range, dk.stats['loss_tr_before_K_reg'][start_epoch-1:], c='DarkSlateBlue', label='Training, before K_reg')
+            plt.plot(epoch_range, dk.stats['loss_before_K_reg_tr'][start_epoch-1:], c='DarkSlateBlue', label='Training, before K_reg')
         plt.plot(epoch_range, dk.stats[perf+'_tr'][start_epoch-1:], c='MediumBlue', label='Training')
         if dk.stats[perf+'_va']:
             plt.plot(epoch_range, dk.stats[perf+'_va'][start_epoch-1:], c='DeepPink', label='Validation')

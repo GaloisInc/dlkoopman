@@ -367,7 +367,7 @@ class DeepKoopman:
             self.stats['recon_loss_tr'].append(recon_loss_tr.item())
             self.stats['lin_loss_tr'].append(lin_loss_tr.item())
             self.stats['pred_loss_tr'].append(pred_loss_tr.item())
-            self.stats['loss_tr_before_K_reg'].append(loss_tr.item())
+            self.stats['loss_before_K_reg_tr'].append(loss_tr.item())
 
             ## Following steps – adding K regularization – are unique to training
             K_reg_loss_tr = self.K_reg*torch.sum(torch.abs(Ktilde))/torch.numel(Ktilde)
