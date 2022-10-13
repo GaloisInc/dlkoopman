@@ -3,7 +3,6 @@
 
 import matplotlib.pyplot as plt
 import numpy as np
-import os
 import torch
 
 
@@ -76,7 +75,7 @@ def plot_stats(dk, perfs=['pred_anae'], start_epoch=1, fontsize=12):
     - **fontsize** (*int*) - Font size of plot title. Other font sizes are automatically adjusted relative to this.
 
     ## Effects
-    Creates plots for each `perf` and saves their png file(s) to `"<dk.results_folder>/<dk.uuid>_<perf>.png"`.
+    Creates plots for each `perf` and saves their png file(s) to `"/dk_<dk.uuid>_<perf>.png"`.
     """
     for perf in perfs:
         is_anae = 'anae' in perf
@@ -108,7 +107,7 @@ def plot_stats(dk, perfs=['pred_anae'], start_epoch=1, fontsize=12):
         plt.grid()
         plt.legend(fontsize=fontsize)
 
-        plt.savefig(os.path.join(dk.results_folder, f'{dk.uuid}_{perf}.png'), dpi=600, bbox_inches='tight', pad_inches=0.1)
+        plt.savefig(f'dk_{dk.uuid}_{perf}.png', dpi=600, bbox_inches='tight', pad_inches=0.1)
 
 
 def set_seed(seed):

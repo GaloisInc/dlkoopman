@@ -74,25 +74,24 @@ dk.test_net()
 ```
 Train and test the net. This uses all the default training settings, which can be found [here](https://galoisinc.github.io/deep-koopman/core.html#deepk.core.DeepKoopman).
 
-### Results
 If all goes well, you should see something like this in the console:
 ```
-UUID for this run = <something>
+Log file for this run = <path>/dk_<uuid>.log
 100%|████████████████████████████████████████████████| 500/500
 ```
-*Note*: You may get a `UserWarning: An output with one or more elements was resized`. Do not worry about this. Even though Pytorch complains, the matrix shapes are actually perfectly compatible.
 
+### Results
 ```python
 utils.plot_stats(dk, ['pred_loss', 'loss', 'pred_anae'])
 ```
 This plots the [MSE loss](https://galoisinc.github.io/deep-koopman/losses.html#deepk.losses.mse) for the *prediction* task [described above](#background), as well as the [overall loss](https://galoisinc.github.io/deep-koopman/losses.html#deepk.losses.overall), which is a linear combination of losses from the three tasks and is optimized during training via gradient descent. It also plots the prediction [average normalized absolute error (ANAE)](https://galoisinc.github.io/deep-koopman/errors.html#deepk.errors.anae), which is a measure of the relative error between $x$ and $\hat{x}'$.
 
-Your plots will be prefixed with the UUID, and should look like the ones in [`unopt_results`](./examples/naca0012/unopt_results/).
+Your plots will be named as `dk_<uuid>_<quantity>.png`, and should look like the ones in [`unopt_results`](./examples/naca0012/unopt_results/).
 
 Despite [numerical instabilities](#numerical-instabilities) causing a spike early on in training, `loss` and `pred_loss` go down as expected and the final losses on test data are low. However, `pred_anae` on test data is $\sim46\%$, which isn't great, but also isn't surprising since we didn't optimize the training at all. Let's see if we can do better.
 
 ### Optimizing
-Let's tweak the settings to:
+Comment out the `# Un-optimized` section of the code and uncomment the `# Optimized` section, which tweaks the settings to:
 ```python
 dk = DeepKoopman(
     data = data,
@@ -105,9 +104,9 @@ dk = DeepKoopman(
     clip_grad_value = 2.
 )
 ```
-and again train, test, and plot stats. Your plots should now look like the ones in [`opt_results`](./examples/naca0012/opt_results/). We can see that the `pred_anae` on test data is now an impressive $6.95\%$, indicating that one can expect any predictions $x$ for some unknown $t$ to be within $7\%$ of the actual values.
+Run the script again. Your plots should now look like the ones in [`opt_results`](./examples/naca0012/opt_results/). We can see that the `pred_anae` on test data is now an impressive $6.95\%$, indicating that one can expect any predictions $x$ for some unknown $t$ to be within $7\%$ of the actual values.
 
-This network might take close to a minute to train. Let's try stopping training early if the validation `pred_anae` does not improve for 50 epochs. Keep everything same as before, but add the following options:
+This network might take close to a minute to train. Let's try stopping training early if the validation `pred_anae` does not improve for 50 epochs. Comment out the `# Optimized` section of the code and uncomment the `# Optimized, with early stopping` section, which adds the following options:
 ```python
 dk = DeepKoopman(
     # as before
@@ -118,6 +117,7 @@ dk = DeepKoopman(
 Training is now faster, and stops after 555 epochs. Your plots should look like the ones in [`opt_es_results`](./examples/naca0012/opt_es_results/). The `pred_anae` on test data is slightly higher than before at $7.43\%$.
 
 ### Unknown state predictions
+Uncomment the line:
 ```python
 print(dk.predict_new([3.75,21]))
 ```
@@ -147,10 +147,14 @@ run_hyp_search(
 
 We highly recommend performing hyperparameter search for any problem as it can lead to massively improved results and overcome numerical instabilities. If required, increase `numruns` to several hundred or even several thousand, which can take several hours to run, but the results are usually worth it.
 
-## Numerical instabilities
-The mathematical theory behind Deep Koopman involves operations such as singular value decomposition, eigenvalue decomposition, and matrix inversion. These can lead to the gradients becoming numerically unstable.
+## Known issues
+Some common issues and ways to overcome them are described in the [issues](https://github.com/GaloisInc/deep-koopman/issues?q=is%3Aissue+is%3Aclosed).
 
-Some common numerical instabilities and ways to overcome them are described in the [issues](https://github.com/GaloisInc/deep-koopman/issues?q=is%3Aissue+is%3Aclosed).
+### UserWarning: An output with one or more elements was resized
+If you get this `UserWarning`, *do not worry*. Even though Pytorch complains, the matrix shapes are actually perfectly compatible.
+
+### Numerical instabilities
+The mathematical theory behind Deep Koopman involves operations such as singular value decomposition, eigenvalue decomposition, and matrix inversion. These can lead to the gradients becoming numerically unstable.
 
 Specifically, to debug gradient issues, insert the following line in your script:
 ```python

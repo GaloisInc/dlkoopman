@@ -2,9 +2,8 @@
 
 
 from collections import defaultdict
-import os
-
 import numpy as np
+from pathlib import Path
 import shortuuid
 import torch
 from tqdm import tqdm
@@ -56,15 +55,12 @@ class DeepKoopman:
     
     - **clip_grad_norm** (*float, optional*) - If not None, clip the norm of gradients to this value.
     - **clip_grad_value** (*float, optional*) - If not None, clip the values of gradients to [-`clip_grad_value`,`clip_grad_value`].
-    
-    - **results_folder** (*str, optional*) - Save results to this folder.
 
     - **verbose** (*bool, optional*) - Trigger verbose output.
 
     ## Attributes
-    - **uuid** (*str*) - Unique ID for this object. Results are prefixed with `uuid`.
-
-    - **RTYPE**, **CTYPE**, **DEVICE** - Torch tensor attributes - Real data precision, complex data precision, and device.
+    - **uuid** (*str*) - Unique ID for this Deep Koopman run.
+    - **log_file** (*Path*) - Path to log file for this Deep Koopman run = `./dk_<uuid>.log`.
 
     - **Xscale** (*torch scalar*) - Max of absolute value of `Xtr`. All X data is scaled by `Xscale`.
     - **tshift** (*float*) - First value of `ttr`. All t data is shifted backwards by `tshift` so that `ttr` starts from 0.
@@ -86,25 +82,19 @@ class DeepKoopman:
         numepochs=500, early_stopping=False, early_stopping_metric='pred_anae',
         lr=1e-3, weight_decay=0., decoder_loss_weight=1e-2, K_reg=1e-3,
         cond_threshold=100., clip_grad_norm=None, clip_grad_value=None,
-        results_folder='./', verbose=True
+        verbose=True
     ):
         ## Define precision and device
-        self.RTYPE = torch.float16 if cfg.precision=="half" else torch.float32 if cfg.precision=="float" else torch.float64
-        self.CTYPE = torch.complex32 if cfg.precision=="half" else torch.complex64 if cfg.precision=="float" else torch.complex128
+        self.RTYPE = torch.half if cfg.precision=="half" else torch.float if cfg.precision=="float" else torch.double
+        self.CTYPE = torch.chalf if cfg.precision=="half" else torch.cfloat if cfg.precision=="float" else torch.cdouble
         self.DEVICE = torch.device("cuda" if cfg.use_cuda and torch.cuda.is_available() else "cpu")
         
         ## Define verbose, results folder, UUID, and log file
         self.verbose = verbose
 
-        self.results_folder = results_folder
-        os.makedirs(results_folder, exist_ok=True)
-
         self.uuid = shortuuid.uuid()
-        print(f'UUID for this run = {self.uuid}')
-        
-        self.log_file = os.path.join(results_folder, f'{self.uuid}.log')
-        lf = open(self.log_file, 'a')
-        lf.write(f'Log file for Deep Koopman object {self.uuid}\n\n')
+        self.log_file = Path(f'./dk_{self.uuid}.log').resolve()
+        print(f'Log file for this run = {self.log_file}')
 
         ## Get X data
         Xtr = data.get('Xtr')
@@ -143,21 +133,17 @@ class DeepKoopman:
         dts = defaultdict(int)
         for i in range(len(self.ttr)-1):
             dts[self.ttr[i+1].item()-self.ttr[i].item()] += 1
-        lf.write("Timestamp difference | Frequency\n")
-        for dt,freq in dts.items():
-            lf.write(f"{dt} | {freq}\n")
-        
+
         ## Define t scale as most common difference between ttr values, and normalize t data by it
         self.tscale = max(dts, key=dts.get)
-        lf.write(f"Using timestamp difference = {self.tscale}. Training timestamp values not on this grid will be rounded.\n")
         self.ttr /= self.tscale
         self.tva /= self.tscale
         self.tte /= self.tscale
 
         ## Ensure that ttr now goes as [0,1,2,...], i.e. no gaps
         self.ttr = torch.round(self.ttr)
-        dts = set(self.ttr[i+1].item()-self.ttr[i].item() for i in range(len(self.ttr)-1))
-        assert dts == {1}, 'Training timestamps are not equally spaced.'
+        dts_set = set(self.ttr[i+1].item()-self.ttr[i].item() for i in range(len(self.ttr)-1))
+        assert dts_set == {1}, 'Training timestamps are not equally spaced.'
 
         ## Get hyps of AutoEncoder
         self.num_encoded_states = num_encoded_states
@@ -211,7 +197,12 @@ class DeepKoopman:
         ## Define error flag
         self.error_flag = False
 
-        lf.close()
+        ## Finally, if no errors have occurred, write info to log file
+        with open(self.log_file, 'a') as lf:
+            lf.write("Timestamp difference | Frequency\n")
+            for dt,freq in dts.items():
+                lf.write(f"{dt} | {freq}\n")
+            lf.write(f"Using timestamp difference = {self.tscale}. Training timestamp values not on this grid will be rounded.\n")
 
 
     def _dmd_linearize(self, Y, Yprime):

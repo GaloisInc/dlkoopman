@@ -1,19 +1,20 @@
 """Run hyperparameter search across inputs to DeepKoopman.""" 
 
 import csv
-from datetime import datetime
 import inspect
 import itertools
 import numpy as np
 import os
 import pandas as pd
+from pathlib import Path
 import random
+import shortuuid
 from tqdm import tqdm
 
 from deepk.core import DeepKoopman
 
 
-def run_hyp_search(data, hyp_options, numruns=None, avg_ignore_initial_epochs=100, sort_key='avg_pred_anae_va', results_folder=None, delete_logs=True) -> str:
+def run_hyp_search(data, hyp_options, numruns=None, avg_ignore_initial_epochs=100, sort_key='avg_pred_anae_va') -> str:
     """Perform hyperparameter search by running DeepKoopman multiple times on given data, and save the loss and ANAE statistics for each run.
 
     **The method can be interrupted at any time and the intermediate results will be saved**.
@@ -39,7 +40,7 @@ def run_hyp_search(data, hyp_options, numruns=None, avg_ignore_initial_epochs=10
     ## Parameters
     - **data** (*dict[str,torch.Tensor]*) - Data to be used for all runs. Same format as `data` for the [`DeepKoopman` class](https://galoisinc.github.io/deep-koopman/core.html#deepk.core.DeepKoopman).
     
-    - **hyp_options** (*dict[str,list]*) - Input hyperparameters to `DeepKoopman` will be swept over these values across runs. Set a key to have a single value to keep it constant across runs. Possible keys are any input to [`DeepKoopman`](https://galoisinc.github.io/deep-koopman/core.html) except for `data` and `results_folder`. Example:
+    - **hyp_options** (*dict[str,list]*) - Input hyperparameters to `DeepKoopman` will be swept over these values across runs. Set a key to have a single value to keep it constant across runs. Possible keys are any input to [`DeepKoopman`](https://galoisinc.github.io/deep-koopman/core.html) except for `data`. Example:
     ```python
     hyp_options = {
         'rank': [6,8],
@@ -61,12 +62,8 @@ def run_hyp_search(data, hyp_options, numruns=None, avg_ignore_initial_epochs=10
 
     - **sort_key** (*str, optional*) - Results in the final CSV will be sorted in ascending order of this column. For possible options, see **Saved statistics**. Note that sorting only happens at the end, and thus will not take place if execution is interrupted. Set to `None` to skip sorting.
 
-    - **results_folder** (*str, optional*) - Results will be stored in this folder. If None, this is set to `<script_folder>/hyp_search/`.
-
-    - **delete_logs** (*bool, optional*) - If set, log files of the runs are deleted. This prevents file clutter.
-
-    ## Effects
-    Saves `hyp_search_<datetime>.csv` in `results_folder`, containing:
+    ## Returns
+    **output_csv_path** (*Path*) - The path to a newly created results CSV file = `hyp_search_<uuid>.csv`. This contains results in the format: 
     ```
     -------------------------------------------------------------------------
     | UUID | <hyperparameters swept over> | <loss results> | <anae results> |
@@ -76,13 +73,9 @@ def run_hyp_search(data, hyp_options, numruns=None, avg_ignore_initial_epochs=10
     | run3 |              ...             |       ...      |       ...      |
     -------------------------------------------------------------------------
     ```
-    If `delete_logs=False`, the folder also contains logs of all individual runs.
-
-    ## Returns
-    **output_csv_path** (*str*) - The path to the results CSV, i.e. `<results_folder>/hyp_search_<datetime>.csv`.
     """
     ## Pre-process hyp options
-    POSSIBLE_KEYS = [arg for arg in inspect.getfullargspec(DeepKoopman).args if arg not in ['self', 'data', 'results_folder']]
+    POSSIBLE_KEYS = [arg for arg in inspect.getfullargspec(DeepKoopman).args if arg not in ['self', 'data']]
     ignore_hyps = []
     for k,v in hyp_options.items():
         if k not in POSSIBLE_KEYS:
@@ -105,10 +98,8 @@ def run_hyp_search(data, hyp_options, numruns=None, avg_ignore_initial_epochs=10
     if numruns and len(hyps_list_all) > numruns:
         hyps_list_all = random.sample(hyps_list_all, numruns)
 
-    ## Get results stuff
-    results_folder = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'hyp_search') if not results_folder else results_folder
-    os.makedirs(results_folder, exist_ok=True)
-    output_csv_path = os.path.join(results_folder, f'hyp_search_{datetime.now().strftime("%d%m%y_%H%M%S")}.csv')
+    ## Get results file path
+    output_csv_path = Path(f'./hyp_search_{shortuuid.uuid()}.csv').resolve()
 
     ## Print initial info
     print('********************************************************************************')
@@ -155,8 +146,7 @@ def run_hyp_search(data, hyp_options, numruns=None, avg_ignore_initial_epochs=10
                 dk = DeepKoopman(
                     data = data,
                     **hyps,
-                    **hyp_constants,
-                    results_folder = results_folder
+                    **hyp_constants
                 )
             
             except AssertionError as e:
@@ -223,10 +213,10 @@ def run_hyp_search(data, hyp_options, numruns=None, avg_ignore_initial_epochs=10
                     ]
 
                 csvwriter.writerow(row)
+
+                os.system(f"rm -rf {dk.log_file}")
             
             finally:
-                if delete_logs:
-                    os.system(f"rm -rf {os.path.join(results_folder, '*.log')}")
                 print('\n\n')
 
     ## Sort results

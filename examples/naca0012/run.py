@@ -1,9 +1,12 @@
 import os
 import pickle
+import warnings
 from deepk.core import DeepKoopman
 from deepk import utils
 
 os.chdir(os.path.dirname(os.path.realpath(__file__)))
+
+warnings.filterwarnings("ignore", category=UserWarning) 
 
 
 with open('./data.pkl', 'rb') as f:
@@ -47,11 +50,11 @@ dk = DeepKoopman(
 #     num_encoded_states = 500,
 #     encoder_hidden_layers = [1000,500],
 #     numepochs = 1000,
-#     early_stopping = 50,
-#     early_stopping_metric = 'pred_anae',
 #     decoder_loss_weight = 0.1,
 #     K_reg = 0.,
-#     clip_grad_value = 2.
+#     clip_grad_value = 2.,
+#     early_stopping = 50,
+#     early_stopping_metric = 'pred_anae'
 # )
 
 
