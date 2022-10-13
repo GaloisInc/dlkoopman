@@ -137,8 +137,8 @@ run_hyp_search(
         'rank': [3,6,8,10],
         'num_encoded_states': [200,500,1000],
         'encoder_hidden_layers': [[500,500],[500,1000],[1000,500],[500,500,500]],
-        'numepochs': 1000,
-        'clip_grad_norm': [None,5.,10.]
+        'numepochs': 500,
+        'clip_grad_norm': [None,5.,10.],
         'clip_grad_value': [None,2.]
     },
     numruns = 100

@@ -162,6 +162,7 @@ def run_hyp_search(data, hyp_options, numruns=None, avg_ignore_initial_epochs=10
                 
                 if dk.error_flag:
                     row += (len(header_row)-len(row))*[np.nan]
+                    #TODO have a way of signaling this to user?
                 else:
                     if avg_ignore_initial_epochs >= len(dk.stats['loss_tr']): # can pick any key
                         print(f"WARNING: The value of `avg_ignore_initial_epochs` = {avg_ignore_initial_epochs} is greater than the actual number of epochs for which the current DeepKoopman instance has run for = {len(dk.stats['loss_tr'])}. Thus, 'avg' statistics will be equal to the last epoch's value.")
