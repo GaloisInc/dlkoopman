@@ -3,6 +3,7 @@
 
 import matplotlib.pyplot as plt
 import numpy as np
+from pathlib import Path
 import torch
 
 
@@ -107,7 +108,9 @@ def plot_stats(dk, perfs=['pred_anae'], start_epoch=1, fontsize=12):
         plt.grid()
         plt.legend(fontsize=fontsize)
 
-        plt.savefig(f'dk_{dk.uuid}_{perf}.png', dpi=600, bbox_inches='tight', pad_inches=0.1)
+        save_path = Path(f'./dk_{dk.uuid}_{perf}.png').resolve()
+        print(f'Saving figure {save_path}')
+        plt.savefig(save_path, dpi=600, bbox_inches='tight', pad_inches=0.1)
 
 
 def set_seed(seed):

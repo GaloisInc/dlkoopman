@@ -84,7 +84,7 @@ class DeepKoopman:
         ## Define UUID and log file
         self.uuid = shortuuid.uuid()
         self.log_file = Path(f'./dk_{self.uuid}.log').resolve()
-        print(f'Log file for this run = {self.log_file}')
+        print(f'Deep Koopman log file = {self.log_file}')
 
         ## Define precision and device
         self.RTYPE = torch.half if cfg.precision=="half" else torch.float if cfg.precision=="float" else torch.double
