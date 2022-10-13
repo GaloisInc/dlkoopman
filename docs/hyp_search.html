@@ -33,7 +33,7 @@
 <h2 class="section-title" id="header-functions">Functions</h2>
 <dl>
 <dt id="deepk.hyp_search.run_hyp_search"><code class="name flex">
-<span>def <span class="ident">run_hyp_search</span></span>(<span>data, hyp_options, numruns=None, avg_ignore_initial_epochs=100, sort_key='avg_pred_anae_va', results_folder=None, delete_logs=True) ‑> str</span>
+<span>def <span class="ident">run_hyp_search</span></span>(<span>data, hyp_options, numruns=None, avg_ignore_initial_epochs=100, sort_key='avg_pred_anae_va') ‑> str</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Perform hyperparameter search by running DeepKoopman multiple times on given data, and save the loss and ANAE statistics for each run.</p>
@@ -61,7 +61,7 @@
 <p><strong>data</strong> (<em>dict[str,torch.Tensor]</em>) - Data to be used for all runs. Same format as <code>data</code> for the <a href="https://galoisinc.github.io/deep-koopman/core.html#deepk.core.DeepKoopman"><code>DeepKoopman</code> class</a>.</p>
 </li>
 <li>
-<p><strong>hyp_options</strong> (<em>dict[str,list]</em>) - Input hyperparameters to <code>DeepKoopman</code> will be swept over these values across runs. Set a key to have a single value to keep it constant across runs. Possible keys are any input to <a href="https://galoisinc.github.io/deep-koopman/core.html"><code>DeepKoopman</code></a> except for <code>data</code> and <code>results_folder</code>. Example:</p>
+<p><strong>hyp_options</strong> (<em>dict[str,list]</em>) - Input hyperparameters to <code>DeepKoopman</code> will be swept over these values across runs. Set a key to have a single value to keep it constant across runs. Possible keys are any input to <a href="https://galoisinc.github.io/deep-koopman/core.html"><code>DeepKoopman</code></a> except for <code>data</code>. Example:</p>
 </li>
 </ul>
 <pre><code class="language-python">hyp_options = {
@@ -87,15 +87,9 @@ DeepKoopman(rank=8, num_encoded_states=50, encoder_hidden_layers=[200,100,50])
 <li>
 <p><strong>sort_key</strong> (<em>str, optional</em>) - Results in the final CSV will be sorted in ascending order of this column. For possible options, see <strong>Saved statistics</strong>. Note that sorting only happens at the end, and thus will not take place if execution is interrupted. Set to <code>None</code> to skip sorting.</p>
 </li>
-<li>
-<p><strong>results_folder</strong> (<em>str, optional</em>) - Results will be stored in this folder. If None, this is set to <code>&lt;script_folder&gt;/hyp_search/</code>.</p>
-</li>
-<li>
-<p><strong>delete_logs</strong> (<em>bool, optional</em>) - If set, log files of the runs are deleted. This prevents file clutter.</p>
-</li>
 </ul>
-<h2 id="effects">Effects</h2>
-<p>Saves <code>hyp_search_&lt;datetime&gt;.csv</code> in <code>results_folder</code>, containing:</p>
+<h2 id="returns">Returns</h2>
+<p><strong>output_csv_path</strong> (<em>Path</em>) - The path to a newly created results CSV file = <code>hyp_search_&lt;uuid&gt;.csv</code>. This contains results in the format: </p>
 <pre><code>-------------------------------------------------------------------------
 | UUID | &lt;hyperparameters swept over&gt; | &lt;loss results&gt; | &lt;anae results&gt; |
 -------------------------------------------------------------------------
@@ -103,10 +97,7 @@ DeepKoopman(rank=8, num_encoded_states=50, encoder_hidden_layers=[200,100,50])
 | run2 |              ...             |       ...      |       ...      |
 | run3 |              ...             |       ...      |       ...      |
 -------------------------------------------------------------------------
-</code></pre>
-<p>If <code>delete_logs=False</code>, the folder also contains logs of all individual runs.</p>
-<h2 id="returns">Returns</h2>
-<p><strong>output_csv_path</strong> (<em>str</em>) - The path to the results CSV, i.e. <code>&lt;results_folder&gt;/hyp_search_&lt;datetime&gt;.csv</code>.</p></div>
+</code></pre></div>
 </dd>
 </dl>
 </section>
