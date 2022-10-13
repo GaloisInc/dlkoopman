@@ -10,7 +10,7 @@ import torch
 from tqdm import tqdm
 
 from deepk import config as cfg
-from deepk import utils, losses, errors
+from deepk import utils, losses, errors, nets
 
 
 class DeepKoopman:
@@ -27,7 +27,7 @@ class DeepKoopman:
     
     - **rank** (*int*) - Rank of DeepK operation. Use 0 for full rank. Will be set to `min(num_encoded_states, num_training_samples-1)` if the provided value is greater.
     
-    - Parameters required by [utils.AutoEncoder](https://galoisinc.github.io/deep-koopman/utils.html#deepk.utils.AutoEncoder):
+    - Parameters required by [AutoEncoder](https://galoisinc.github.io/deep-koopman/nets.html#deepk.nets.AutoEncoder):
         - **num_encoded_states** (*int*).
         
         - **encoder_hidden_layers** (*list[int], optional*).
@@ -70,7 +70,7 @@ class DeepKoopman:
     - **tshift** (*float*) - First value of `ttr`. All t data is shifted backwards by `tshift` so that `ttr` starts from 0.
     - **tscale** (*float*) - All t data is scaled by `tscale` so that `ttr` becomes `[0,1,...]`
     
-    - **net** (*utils.AutoEncoder*) - DeepKoopman neural network. `num_input_states` is set by num_input_states in X data, while other parameters are passed via this class.
+    - **net** (*nets.AutoEncoder*) - DeepKoopman neural network. `num_input_states` is set by num_input_states in X data, while other parameters are passed via this class.
     - **opt** (*torch optimizer*) - Optimizer used to train DeepKoopman neural net.
 
     - **Omega** (*torch.Tensor*), **W** (*torch.Tensor*), **coeffs** (*torch.Tensor*) - Used to make predictions using a trained DeepKoopman model.
@@ -191,7 +191,7 @@ class DeepKoopman:
             assert self.early_stopping_metric in EARLY_STOPPING_METRIC_CHOICES, f"`early_stopping_metric` must be in {EARLY_STOPPING_METRIC_CHOICES}, instead found '{self.early_stopping_metric}'"
 
         ## Define AutoEncoder
-        self.net = utils.AutoEncoder(
+        self.net = nets.AutoEncoder(
             num_input_states=self.Xtr.shape[1],
             num_encoded_states=self.num_encoded_states,
             encoder_hidden_layers=self.encoder_hidden_layers,
