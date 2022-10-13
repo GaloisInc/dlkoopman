@@ -61,7 +61,7 @@ def run_hyp_search(data, hyp_options, numruns=None, avg_ignore_initial_epochs=10
 
     - **sort_key** (*str, optional*) - Results in the final CSV will be sorted in ascending order of this column. For possible options, see **Saved statistics**. Note that sorting only happens at the end, and thus will not take place if execution is interrupted. Set to `None` to skip sorting.
 
-    - **results_folder** (*str, optional*) - Results will be stored in this folder. If None, this is set to `<script_folder>/hyp_search`.
+    - **results_folder** (*str, optional*) - Results will be stored in this folder. If None, this is set to `<script_folder>/hyp_search/`.
 
     - **delete_logs** (*bool, optional*) - If set, log files of the runs are deleted. This prevents file clutter.
 

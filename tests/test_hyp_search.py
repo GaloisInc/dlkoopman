@@ -14,7 +14,10 @@ def get_data():
 def test_run_hyp_search(get_data):
     data = get_data
     
-    
+    ### Test 1 ###
+
+    sort_key='avg_pred_anae_va'
+
     output_csv_path = run_hyp_search(
         data = data,
         hyp_options = {
@@ -25,22 +28,26 @@ def test_run_hyp_search(get_data):
             'early_stopping': False,
             'early_stopping_metric': ['pred_anae','loss']
         },
-        avg_ignore_initial_epochs = 10
+        avg_ignore_initial_epochs = 10,
+        sort_key = sort_key
     )
     
     df = pd.read_csv(output_csv_path)
     assert len(df) == 4
     
-    df_sortcol = list(df['avg_pred_anae_va'])
+    df_sortcol = list(df[sort_key])
     assert df_sortcol == sorted(df_sortcol)
     
     results_folder = '/'.join(output_csv_path.split('/')[:-1])
-    files = [file for file in os.listdir(results_folder) if not file.startswith('.')]
+    files = [f for f in os.listdir(results_folder) if not f.startswith('.')]
     output_csv_file = output_csv_path.split('/')[-1]
     assert files == [output_csv_file]
     
     os.system(f'rm -rf {results_folder}')
 
+    ### Test 2 ###
+
+    sort_key = 'avg_lin_loss_va'
     
     output_csv_path = run_hyp_search(
         data = data,
@@ -54,20 +61,20 @@ def test_run_hyp_search(get_data):
         },
         numruns = 5,
         avg_ignore_initial_epochs = 10,
-        sort_key = 'avg_lin_loss_va',
+        sort_key = sort_key,
         delete_logs = False
     )
     df = pd.read_csv(output_csv_path)
     assert len(df) == 5
     
-    df_sortcol = list(df['avg_lin_loss_va'])
+    df_sortcol = list(df[sort_key])
     assert df_sortcol == sorted(df_sortcol)
     
     results_folder = '/'.join(output_csv_path.split('/')[:-1])
-    files = [file for file in os.listdir(results_folder) if not file.startswith('.')]
+    files = [f for f in os.listdir(results_folder) if not f.startswith('.')]
     output_csv_file = output_csv_path.split('/')[-1]
     assert output_csv_file in files
-    logfiles = [file for file in files if file.endswith('.log')]
+    logfiles = [f for f in files if f.endswith('.log')]
     assert len(logfiles) == 5
     
     os.system(f'rm -rf {results_folder}') 
