@@ -76,7 +76,7 @@ def plot_stats(dk, perfs=['pred_anae'], start_epoch=1, fontsize=12):
     - **fontsize** (*int*) - Font size of plot title. Other font sizes are automatically adjusted relative to this.
 
     ## Effects
-    Creates plots for each `perf` and saves their png file(s) to `"/dk_<dk.uuid>_<perf>.png"`.
+    Creates plots for each `perf` and saves their png file(s) to `"./dk_<dk.uuid>_<perf>.png"`.
     """
     for perf in perfs:
         is_anae = 'anae' in perf

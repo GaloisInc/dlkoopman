@@ -36,7 +36,7 @@
 <dl>
 <dt id="deepk.core.DeepKoopman"><code class="flex name class">
 <span>class <span class="ident">DeepKoopman</span></span>
-<span>(</span><span>data, rank, num_encoded_states, encoder_hidden_layers=[100], decoder_hidden_layers=[], batch_norm=False, numepochs=500, early_stopping=False, early_stopping_metric='pred_anae', lr=0.001, weight_decay=0.0, decoder_loss_weight=0.01, K_reg=0.001, cond_threshold=100.0, clip_grad_norm=None, clip_grad_value=None, verbose=True)</span>
+<span>(</span><span>data, rank, num_encoded_states, encoder_hidden_layers=[100], decoder_hidden_layers=[], batch_norm=False, numepochs=500, early_stopping=False, early_stopping_metric='pred_anae', lr=0.001, weight_decay=0.0, decoder_loss_weight=0.01, K_reg=0.001, cond_threshold=100.0, clip_grad_norm=None, clip_grad_value=None)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Main DeepKoopman class.</p>
@@ -105,12 +105,7 @@
 <li>
 <p><strong>clip_grad_norm</strong> (<em>float, optional</em>) - If not None, clip the norm of gradients to this value.</p>
 </li>
-<li>
-<p><strong>clip_grad_value</strong> (<em>float, optional</em>) - If not None, clip the values of gradients to [-<code>clip_grad_value</code>,<code>clip_grad_value</code>].</p>
-</li>
-<li>
-<p><strong>verbose</strong> (<em>bool, optional</em>) - Trigger verbose output.</p>
-</li>
+<li><strong>clip_grad_value</strong> (<em>float, optional</em>) - If not None, clip the values of gradients to [-<code>clip_grad_value</code>,<code>clip_grad_value</code>].</li>
 </ul>
 <h2 id="attributes">Attributes</h2>
 <ul>
