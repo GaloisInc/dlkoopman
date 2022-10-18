@@ -11,6 +11,9 @@ from tqdm import tqdm
 from deepk import config as cfg
 from deepk import utils, losses, errors, nets
 
+import warnings
+warnings.filterwarnings("ignore", category=UserWarning)
+
 
 class DeepKoopman:
     """Main DeepKoopman class.
