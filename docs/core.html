@@ -36,7 +36,7 @@
 <dl>
 <dt id="deepk.core.DeepKoopman"><code class="flex name class">
 <span>class <span class="ident">DeepKoopman</span></span>
-<span>(</span><span>data, rank, num_encoded_states, encoder_hidden_layers=[100], decoder_hidden_layers=[], batch_norm=False, numepochs=500, early_stopping=False, early_stopping_metric='pred_anae', lr=0.001, weight_decay=0.0, decoder_loss_weight=0.01, K_reg=0.001, cond_threshold=100.0, clip_grad_norm=None, clip_grad_value=None, results_folder='./', verbose=True)</span>
+<span>(</span><span>data, rank, num_encoded_states, encoder_hidden_layers=[100], decoder_hidden_layers=[], batch_norm=False, numepochs=500, early_stopping=False, early_stopping_metric='pred_anae', lr=0.001, weight_decay=0.0, decoder_loss_weight=0.01, K_reg=0.001, cond_threshold=100.0, clip_grad_norm=None, clip_grad_value=None)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Main DeepKoopman class.</p>
@@ -57,7 +57,7 @@
 <p><strong>rank</strong> (<em>int</em>) - Rank of DeepK operation. Use 0 for full rank. Will be set to <code>min(num_encoded_states, num_training_samples-1)</code> if the provided value is greater.</p>
 </li>
 <li>
-<p>Parameters required by <a href="https://galoisinc.github.io/deep-koopman/utils.html#deepk.utils.AutoEncoder">utils.AutoEncoder</a>:</p>
+<p>Parameters required by <a href="https://galoisinc.github.io/deep-koopman/nets.html#deepk.nets.AutoEncoder">AutoEncoder</a>:</p>
 <ul>
 <li>
 <p><strong>num_encoded_states</strong> (<em>int</em>).</p>
@@ -105,23 +105,13 @@
 <li>
 <p><strong>clip_grad_norm</strong> (<em>float, optional</em>) - If not None, clip the norm of gradients to this value.</p>
 </li>
-<li>
-<p><strong>clip_grad_value</strong> (<em>float, optional</em>) - If not None, clip the values of gradients to [-<code>clip_grad_value</code>,<code>clip_grad_value</code>].</p>
-</li>
-<li>
-<p><strong>results_folder</strong> (<em>str, optional</em>) - Save results to this folder.</p>
-</li>
-<li>
-<p><strong>verbose</strong> (<em>bool, optional</em>) - Trigger verbose output.</p>
-</li>
+<li><strong>clip_grad_value</strong> (<em>float, optional</em>) - If not None, clip the values of gradients to [-<code>clip_grad_value</code>,<code>clip_grad_value</code>].</li>
 </ul>
 <h2 id="attributes">Attributes</h2>
 <ul>
+<li><strong>uuid</strong> (<em>str</em>) - Unique ID for this Deep Koopman run.</li>
 <li>
-<p><strong>uuid</strong> (<em>str</em>) - Unique ID for this object. Results are prefixed with <code>uuid</code>.</p>
-</li>
-<li>
-<p><strong>RTYPE</strong>, <strong>CTYPE</strong>, <strong>DEVICE</strong> - Torch tensor attributes - Real data precision, complex data precision, and device.</p>
+<p><strong>log_file</strong> (<em>Path</em>) - Path to log file for this Deep Koopman run = <code>./dk_&lt;uuid&gt;.log</code>.</p>
 </li>
 <li>
 <p><strong>Xscale</strong> (<em>torch scalar</em>) - Max of absolute value of <code>Xtr</code>. All X data is scaled by <code>Xscale</code>.</p>
@@ -131,7 +121,7 @@
 <p><strong>tscale</strong> (<em>float</em>) - All t data is scaled by <code>tscale</code> so that <code>ttr</code> becomes <code>[0,1,&hellip;]</code></p>
 </li>
 <li>
-<p><strong>net</strong> (<em>utils.AutoEncoder</em>) - DeepKoopman neural network. <code>num_input_states</code> is set by num_input_states in X data, while other parameters are passed via this class.</p>
+<p><strong>net</strong> (<em>nets.AutoEncoder</em>) - DeepKoopman neural network. <code>num_input_states</code> is set by num_input_states in X data, while other parameters are passed via this class.</p>
 </li>
 <li>
 <p><strong>opt</strong> (<em>torch optimizer</em>) - Optimizer used to train DeepKoopman neural net.</p>

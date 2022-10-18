@@ -9,7 +9,7 @@ precision = "float"
 **Default**: `"float"`
 
 ## Note
-Setting `precision = "double"` may help sloghtly with numerical instabilities, however, may also lead to inefficient GPU runtimes.
+Setting `precision = "double"` may help slightly with numerical instabilities, however, may also lead to inefficient GPU runtimes.
 """
 
 use_cuda = True

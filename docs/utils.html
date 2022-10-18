@@ -68,7 +68,7 @@
 </li>
 </ul>
 <h2 id="effects">Effects</h2>
-<p>Creates plots for each <code>perf</code> and saves their png file(s) to <code>"&lt;dk.results_folder&gt;/&lt;dk.uuid&gt;_&lt;perf&gt;.png"</code>.</p></div>
+<p>Creates plots for each <code>perf</code> and saves their png file(s) to <code>"./dk_&lt;dk.uuid&gt;_&lt;perf&gt;.png"</code>.</p></div>
 </dd>
 <dt id="deepk.utils.set_seed"><code class="name flex">
 <span>def <span class="ident">set_seed</span></span>(<span>seed)</span>
@@ -83,108 +83,6 @@
 </dl>
 </section>
 <section>
-<h2 class="section-title" id="header-classes">Classes</h2>
-<dl>
-<dt id="deepk.utils.MLP"><code class="flex name class">
-<span>class <span class="ident">MLP</span></span>
-<span>(</span><span>input_size, output_size, hidden_sizes=[], batch_norm=False)</span>
-</code></dt>
-<dd>
-<div class="desc"><p>Multi-layer perceptron neural net.</p>
-<h2 id="parameters">Parameters</h2>
-<ul>
-<li>
-<p><strong>input_size</strong> (<em>int</em>) - Dimension of the input layer.</p>
-</li>
-<li>
-<p><strong>output_size</strong> (<em>int</em>) - Dimension of the output layer.</p>
-</li>
-<li>
-<p><strong>hidden_sizes</strong> (<em>list[int], optional</em>) - Dimensions of hidden layers, if any.</p>
-</li>
-<li>
-<p><strong>batch_norm</strong> (<em>bool, optional</em>) - Whether to use batch normalization.</p>
-</li>
-</ul>
-<h2 id="attributes">Attributes</h2>
-<ul>
-<li><strong>net</strong> (<em>torch.nn.ModuleList</em>) - List of layers</li>
-</ul></div>
-<h3>Methods</h3>
-<dl>
-<dt id="deepk.utils.MLP.forward"><code class="name flex">
-<span>def <span class="ident">forward</span></span>(<span>self, X) ‑> torch.Tensor</span>
-</code></dt>
-<dd>
-<div class="desc"><p>Forward propagation of neural net.</p>
-<h2 id="parameters">Parameters</h2>
-<ul>
-<li><strong>X</strong> (<em>torch.Tensor, shape=(*,input_size)</em>) - Input data to net.</li>
-</ul>
-<h2 id="returns">Returns</h2>
-<ul>
-<li><strong>X</strong> (<em>torch.Tensor, shape=(*,output_size)</em>) - Output data from net.</li>
-</ul></div>
-</dd>
-</dl>
-</dd>
-<dt id="deepk.utils.AutoEncoder"><code class="flex name class">
-<span>class <span class="ident">AutoEncoder</span></span>
-<span>(</span><span>num_input_states, num_encoded_states, encoder_hidden_layers=[], decoder_hidden_layers=[], batch_norm=False)</span>
-</code></dt>
-<dd>
-<div class="desc"><p>AutoEncoder neural net. Contains an encoder MLP connected to a decoder MLP.</p>
-<h2 id="parameters">Parameters</h2>
-<ul>
-<li>
-<p><strong>num_input_states</strong> (<em>int</em>) - Number of dimensions in original data (<code>X</code>) and reconstructed data (<code>Xr</code>).</p>
-</li>
-<li>
-<p><strong>num_encoded_states</strong> (<em>int</em>) - Number of dimensions in encoded data (<code>Y</code>).</p>
-</li>
-<li>
-<p><strong>encoder_hidden_layers</strong> (<em>list[int], optional</em>) - Encoder will have layers = <code>[num_input_states, *encoder_hidden_layers, num_encoded_states]</code>. If not set, defaults to reverse of <code>decoder_hidden_layers</code>. If that is also not set, defaults to <code>[]</code>.</p>
-</li>
-<li>
-<p><strong>decoder_hidden_layers</strong> (<em>list[int], optional</em>) - Decoder has layers = <code>[num_encoded_states, *decoder_hidden_layers, num_input_states]</code>. If not set, defaults to reverse of <code>encoder_hidden_layers</code>. If that is also not set, defaults to <code>[]</code>.</p>
-</li>
-<li>
-<p><strong>batch_norm</strong> (<em>bool, optional</em>): Whether to use batch normalization.</p>
-</li>
-</ul>
-<h2 id="attributes">Attributes</h2>
-<ul>
-<li>
-<p><strong>encoder</strong> (<em>MLP</em>) - Encoder neural net.</p>
-</li>
-<li>
-<p><strong>decoder</strong> (<em>MLP</em>) - Decoder neural net.</p>
-</li>
-</ul></div>
-<h3>Methods</h3>
-<dl>
-<dt id="deepk.utils.AutoEncoder.forward"><code class="name flex">
-<span>def <span class="ident">forward</span></span>(<span>self, X) ‑> tuple[torch.Tensor, torch.Tensor]</span>
-</code></dt>
-<dd>
-<div class="desc"><p>Forward propagation of neural net.</p>
-<h2 id="parameters">Parameters</h2>
-<ul>
-<li><strong>X</strong> (<em>torch.Tensor, shape=(*,num_input_states)</em>) - Input data to encoder.</li>
-</ul>
-<h2 id="returns">Returns</h2>
-<ul>
-<li>
-<p><strong>Y</strong> (<em>torch.Tensor, shape=(*,num_encoded_states)</em>) - Encoded data, i.e. output from encoder, input to decoder.</p>
-</li>
-<li>
-<p><strong>Xr</strong> (<em>torch.Tensor, shape=(*,num_input_states)</em>) - Reconstructed data, i.e. output of decoder.</p>
-</li>
-</ul></div>
-</dd>
-</dl>
-</dd>
-</dl>
 </section>
 </article>
 <nav id="sidebar">
@@ -203,22 +101,6 @@
 <li><code><a title="deepk.utils.stable_svd" href="#deepk.utils.stable_svd">stable_svd</a></code></li>
 <li><code><a title="deepk.utils.plot_stats" href="#deepk.utils.plot_stats">plot_stats</a></code></li>
 <li><code><a title="deepk.utils.set_seed" href="#deepk.utils.set_seed">set_seed</a></code></li>
-</ul>
-</li>
-<li><h3><a href="#header-classes">Classes</a></h3>
-<ul>
-<li>
-<h4><code><a title="deepk.utils.MLP" href="#deepk.utils.MLP">MLP</a></code></h4>
-<ul class="">
-<li><code><a title="deepk.utils.MLP.forward" href="#deepk.utils.MLP.forward">forward</a></code></li>
-</ul>
-</li>
-<li>
-<h4><code><a title="deepk.utils.AutoEncoder" href="#deepk.utils.AutoEncoder">AutoEncoder</a></code></h4>
-<ul class="">
-<li><code><a title="deepk.utils.AutoEncoder.forward" href="#deepk.utils.AutoEncoder.forward">forward</a></code></li>
-</ul>
-</li>
 </ul>
 </li>
 </ul>

@@ -2,15 +2,17 @@
 
 
 from collections import defaultdict
-import os
-
 import numpy as np
+from pathlib import Path
 import shortuuid
 import torch
 from tqdm import tqdm
 
 from deepk import config as cfg
-from deepk import utils, losses, errors
+from deepk import utils, losses, errors, nets
+
+import warnings
+warnings.filterwarnings("ignore", category=UserWarning)
 
 
 class DeepKoopman:
@@ -27,7 +29,7 @@ class DeepKoopman:
     
     - **rank** (*int*) - Rank of DeepK operation. Use 0 for full rank. Will be set to `min(num_encoded_states, num_training_samples-1)` if the provided value is greater.
     
-    - Parameters required by [utils.AutoEncoder](https://galoisinc.github.io/deep-koopman/utils.html#deepk.utils.AutoEncoder):
+    - Parameters required by [AutoEncoder](https://galoisinc.github.io/deep-koopman/nets.html#deepk.nets.AutoEncoder):
         - **num_encoded_states** (*int*).
         
         - **encoder_hidden_layers** (*list[int], optional*).
@@ -56,21 +58,16 @@ class DeepKoopman:
     
     - **clip_grad_norm** (*float, optional*) - If not None, clip the norm of gradients to this value.
     - **clip_grad_value** (*float, optional*) - If not None, clip the values of gradients to [-`clip_grad_value`,`clip_grad_value`].
-    
-    - **results_folder** (*str, optional*) - Save results to this folder.
-
-    - **verbose** (*bool, optional*) - Trigger verbose output.
 
     ## Attributes
-    - **uuid** (*str*) - Unique ID for this object. Results are prefixed with `uuid`.
-
-    - **RTYPE**, **CTYPE**, **DEVICE** - Torch tensor attributes - Real data precision, complex data precision, and device.
+    - **uuid** (*str*) - Unique ID for this Deep Koopman run.
+    - **log_file** (*Path*) - Path to log file for this Deep Koopman run = `./dk_<uuid>.log`.
 
     - **Xscale** (*torch scalar*) - Max of absolute value of `Xtr`. All X data is scaled by `Xscale`.
     - **tshift** (*float*) - First value of `ttr`. All t data is shifted backwards by `tshift` so that `ttr` starts from 0.
     - **tscale** (*float*) - All t data is scaled by `tscale` so that `ttr` becomes `[0,1,...]`
     
-    - **net** (*utils.AutoEncoder*) - DeepKoopman neural network. `num_input_states` is set by num_input_states in X data, while other parameters are passed via this class.
+    - **net** (*nets.AutoEncoder*) - DeepKoopman neural network. `num_input_states` is set by num_input_states in X data, while other parameters are passed via this class.
     - **opt** (*torch optimizer*) - Optimizer used to train DeepKoopman neural net.
 
     - **Omega** (*torch.Tensor*), **W** (*torch.Tensor*), **coeffs** (*torch.Tensor*) - Used to make predictions using a trained DeepKoopman model.
@@ -85,26 +82,17 @@ class DeepKoopman:
         num_encoded_states, encoder_hidden_layers=[100], decoder_hidden_layers=[], batch_norm=False,
         numepochs=500, early_stopping=False, early_stopping_metric='pred_anae',
         lr=1e-3, weight_decay=0., decoder_loss_weight=1e-2, K_reg=1e-3,
-        cond_threshold=100., clip_grad_norm=None, clip_grad_value=None,
-        results_folder='./', verbose=True
+        cond_threshold=100., clip_grad_norm=None, clip_grad_value=None
     ):
-        ## Define precision and device
-        self.RTYPE = torch.float16 if cfg.precision=="half" else torch.float32 if cfg.precision=="float" else torch.float64
-        self.CTYPE = torch.complex32 if cfg.precision=="half" else torch.complex64 if cfg.precision=="float" else torch.complex128
-        self.DEVICE = torch.device("cuda" if cfg.use_cuda and torch.cuda.is_available() else "cpu")
-        
-        ## Define verbose, results folder, UUID, and log file
-        self.verbose = verbose
-
-        self.results_folder = results_folder
-        os.makedirs(results_folder, exist_ok=True)
-
+        ## Define UUID and log file
         self.uuid = shortuuid.uuid()
-        print(f'UUID for this run = {self.uuid}')
-        
-        self.log_file = os.path.join(results_folder, f'{self.uuid}.log')
-        lf = open(self.log_file, 'a')
-        lf.write(f'Log file for Deep Koopman object {self.uuid}\n\n')
+        self.log_file = Path(f'./dk_{self.uuid}.log').resolve()
+        print(f'Deep Koopman log file = {self.log_file}')
+
+        ## Define precision and device
+        self.RTYPE = torch.half if cfg.precision=="half" else torch.float if cfg.precision=="float" else torch.double
+        self.CTYPE = torch.chalf if cfg.precision=="half" else torch.cfloat if cfg.precision=="float" else torch.cdouble
+        self.DEVICE = torch.device("cuda" if cfg.use_cuda and torch.cuda.is_available() else "cpu")
 
         ## Get X data
         Xtr = data.get('Xtr')
@@ -143,21 +131,17 @@ class DeepKoopman:
         dts = defaultdict(int)
         for i in range(len(self.ttr)-1):
             dts[self.ttr[i+1].item()-self.ttr[i].item()] += 1
-        lf.write("Timestamp difference | Frequency\n")
-        for dt,freq in dts.items():
-            lf.write(f"{dt} | {freq}\n")
-        
+
         ## Define t scale as most common difference between ttr values, and normalize t data by it
         self.tscale = max(dts, key=dts.get)
-        lf.write(f"Using timestamp difference = {self.tscale}. Training timestamp values not on this grid will be rounded.\n")
         self.ttr /= self.tscale
         self.tva /= self.tscale
         self.tte /= self.tscale
 
         ## Ensure that ttr now goes as [0,1,2,...], i.e. no gaps
         self.ttr = torch.round(self.ttr)
-        dts = set(self.ttr[i+1].item()-self.ttr[i].item() for i in range(len(self.ttr)-1))
-        assert dts == {1}, 'Training timestamps are not equally spaced.'
+        dts_set = set(self.ttr[i+1].item()-self.ttr[i].item() for i in range(len(self.ttr)-1))
+        assert dts_set == {1}, 'Training timestamps are not equally spaced.'
 
         ## Get hyps of AutoEncoder
         self.num_encoded_states = num_encoded_states
@@ -176,22 +160,18 @@ class DeepKoopman:
         self.clip_grad_value = clip_grad_value
 
         ## Get rank and ensure it's a valid value
-        self.rank = rank
         full_rank = min(self.num_encoded_states,len(self.ttr)-1) #this is basically min(Y.shape), where Y is defined in _dmd_linearize()
-        if self.rank==0 or self.rank>=full_rank:
-            self.rank = full_rank
+        self.rank = full_rank if (rank==0 or rank>=full_rank) else rank
 
         ## Early stopping logic
-        self.early_stopping = early_stopping
-        if type(self.early_stopping)==float:
-            self.early_stopping = int(np.ceil(self.early_stopping * self.numepochs))
+        if early_stopping:
+            EARLY_STOPPING_METRIC_CHOICES = ['recon_loss', 'lin_loss', 'pred_loss', 'loss', 'recon_anae', 'lin_anae', 'pred_anae']
+            assert early_stopping_metric in EARLY_STOPPING_METRIC_CHOICES, f"`early_stopping_metric` must be in {EARLY_STOPPING_METRIC_CHOICES}, instead found '{early_stopping_metric}'"
+        self.early_stopping = int(np.ceil(early_stopping * self.numepochs)) if type(early_stopping)==float else early_stopping
         self.early_stopping_metric = early_stopping_metric + ('_va' if not early_stopping_metric.endswith('va') else '')
-        if self.early_stopping:
-            EARLY_STOPPING_METRIC_CHOICES = ['recon_loss_va', 'lin_loss_va', 'pred_loss_va', 'loss_va', 'recon_anae_va', 'lin_anae_va', 'pred_anae_va']
-            assert self.early_stopping_metric in EARLY_STOPPING_METRIC_CHOICES, f"`early_stopping_metric` must be in {EARLY_STOPPING_METRIC_CHOICES}, instead found '{self.early_stopping_metric}'"
 
         ## Define AutoEncoder
-        self.net = utils.AutoEncoder(
+        self.net = nets.AutoEncoder(
             num_input_states=self.Xtr.shape[1],
             num_encoded_states=self.num_encoded_states,
             encoder_hidden_layers=self.encoder_hidden_layers,
@@ -211,10 +191,15 @@ class DeepKoopman:
         ## Define error flag
         self.error_flag = False
 
-        lf.close()
+        ## Finally, if no errors have occurred, write info to log file
+        with open(self.log_file, 'a') as lf:
+            lf.write("Timestamp difference | Frequency\n")
+            for dt,freq in dts.items():
+                lf.write(f"{dt} | {freq}\n")
+            lf.write(f"Using timestamp difference = {self.tscale}. Training timestamp values not on this grid will be rounded.\n")
 
 
-    def _dmd_linearize(self, Y, Yprime):
+    def _dmd_linearize(self, Y, Yprime) -> tuple[torch.Tensor, torch.Tensor]:
         """
         Get the rank-reduced Koopman matrix Ktilde.
 
@@ -239,7 +224,7 @@ class DeepKoopman:
         Ut = U.t() #shape = (rank, num_encoded_states)
         
         # Singular values
-        if self.verbose and Sigma[-1] < cfg.sigma_threshold:
+        if Sigma[-1] < cfg.sigma_threshold:
             with open(self.log_file, 'a') as lf:
                 lf.write(f"Smallest singular value prior to truncation = {Sigma[-1]} is smaller than threshold = {cfg.sigma_threshold}. This may lead to very large / nan values in backprop of SVD.\n")
         #NOTE: We can also do a check if any pair (or more) of consecutive singular values are so close that the difference of their squares is less than some threshold, since this will also lead to very large / nan values during backprop. But doing this check requires looping over the Sigma tensor (time complexity = O(len(Sigma))) and is not worth it.
@@ -258,7 +243,7 @@ class DeepKoopman:
         return Ktilde, interm
 
 
-    def _dmd_eigen(self, Ktilde, interm, y0):
+    def _dmd_eigen(self, Ktilde, interm, y0) -> tuple[torch.Tensor, torch.Tensor, torch.Tensor]:
         """
         Get the eigendecomposition of the Koopman matrix.
 
@@ -275,9 +260,8 @@ class DeepKoopman:
         Lambda, Wtilde = torch.linalg.eig(Ktilde) #shapes: Lambda = (rank,), Wtilde is (rank, rank)
         
         # Eigenvalues
-        if self.verbose:
-            with open(self.log_file, 'a') as lf:
-                lf.write(f"Largest magnitude among eigenvalues = {torch.max(torch.abs(Lambda))}\n")
+        with open(self.log_file, 'a') as lf:
+            lf.write(f"Largest magnitude among eigenvalues = {torch.max(torch.abs(Lambda))}\n")
         Omega = torch.diag(torch.log(Lambda)) #shape = (rank, rank) #NOTE: No need to divide by self.tscale here because spacings are normalized to 1
         #NOTE: We can do a check if any pair (or more) of consecutive eigenvalues are so close that their difference is less than some threshold, since this will lead to very large / nan values during backprop. But doing this check requires looping over the Omega tensor (time complexity = O(len(Omega))) and is not worth it.
         
@@ -285,7 +269,7 @@ class DeepKoopman:
         W = interm.to(self.CTYPE) @ Wtilde #shape = (num_encoded_states, rank)
         S,s = torch.linalg.norm(W,2), torch.linalg.norm(W,-2)
         cond = S/s
-        if self.verbose and cond > self.cond_threshold:
+        if cond > self.cond_threshold:
             with open(self.log_file, 'a') as lf:
                 lf.write(f"Condition number = {cond} is greater than threshold = {self.cond_threshold}. This may lead to numerical instability in evaluating linearity loss. In an attempt to mitigate this, singular values smaller than 1/{self.cond_threshold} times the largest will be discarded from the pseudo-inverse computation.\n")
         
@@ -295,7 +279,7 @@ class DeepKoopman:
         return Omega, W, coeffs
 
 
-    def _dmd_predict(self, t, Omega,W,coeffs):
+    def _dmd_predict(self, t, Omega,W,coeffs) -> torch.Tensor:
         """
         Predict the dynamics of a system.
         

@@ -37,13 +37,12 @@ def test_core(get_data, get_ref_dk_stats_rounded3):
         data = data,
         rank = 6,
         num_encoded_states = 50,
-        numepochs = 50,
-        results_folder = os.path.dirname(os.path.realpath(__file__))
+        numepochs = 50
     )
     dk.train_net()
     dk.test_net()
     
     assert round3(dk.stats) == ref_stats
-    logfile = os.path.join(dk.results_folder, f'{dk.uuid}.log')
+    logfile = os.path.join(f'dk_{dk.uuid}.log')
     assert os.path.isfile(logfile)
     os.system(f'rm -rf {logfile}')
