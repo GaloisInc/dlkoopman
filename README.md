@@ -114,7 +114,7 @@ dk = DeepKoopman(
     early_stopping_metric = 'pred_anae'
 )
 ```
-Training is now faster, and stops after 555 epochs. Your plots should look like the ones in [`opt_es_results`](./examples/naca0012/opt_es_results/). The `pred_anae` on test data is slightly higher than before at $7.43\%$.
+Training is now faster, and stops after 555 epochs. Your plots should look like the ones in [`optes_results`](./examples/naca0012/optes_results/). The `pred_anae` on test data is slightly higher than before at $7.43\%$.
 
 ### Unknown state predictions
 Uncomment the line:

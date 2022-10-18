@@ -4,7 +4,7 @@
 import torch
 
 
-class _MLP(torch.nn.Module):
+class MLP(torch.nn.Module):
     """Multi-layer perceptron neural net.
 
     ## Parameters
@@ -46,7 +46,7 @@ class _MLP(torch.nn.Module):
 
 
 class AutoEncoder(torch.nn.Module):
-    """AutoEncoder neural net. Contains an encoder connected to a decoder, both are multilayer perceptron neural nets.
+    """AutoEncoder neural net. Contains an encoder MLP connected to a decoder MLP.
 
     ## Parameters
     - **num_input_states** (*int*) - Number of dimensions in original data (`X`) and reconstructed data (`Xr`).
@@ -60,9 +60,9 @@ class AutoEncoder(torch.nn.Module):
     - **batch_norm** (*bool, optional*): Whether to use batch normalization.
 
     ## Attributes
-    - **encoder** - Encoder neural net.
+    - **encoder** (*MLP*) - Encoder neural net.
 
-    - **decoder** - Decoder neural net.
+    - **decoder** (*MLP*) - Decoder neural net.
     """
     def __init__(self, num_input_states, num_encoded_states, encoder_hidden_layers=[], decoder_hidden_layers=[], batch_norm=False):
         """ """
@@ -73,14 +73,14 @@ class AutoEncoder(torch.nn.Module):
         elif not encoder_hidden_layers and decoder_hidden_layers:
             encoder_hidden_layers = decoder_hidden_layers[::-1]
 
-        self.encoder = _MLP(
+        self.encoder = MLP(
             input_size = num_input_states,
             output_size = num_encoded_states,
             hidden_sizes = encoder_hidden_layers,
             batch_norm = batch_norm
         )
 
-        self.decoder = _MLP(
+        self.decoder = MLP(
             input_size = num_encoded_states,
             output_size = num_input_states,
             hidden_sizes = decoder_hidden_layers,
@@ -101,29 +101,3 @@ class AutoEncoder(torch.nn.Module):
         Y = self.encoder(X) # encoder complete output
         Xr = self.decoder(Y) # final reconstructed output
         return Y, Xr
-
-
-class LinearKoopman(torch.nn.Module):
-    """Linear neural net to approximate the Koopman matrix.
-
-    ## Parameters
-    - **size** (*int*) - Dimension of the data to operate on.
-
-    ## Attributes
-    - **net** (*torch.nn.Linear*) - The neural net.
-    """
-    def __init__(self, size):
-        """ """
-        super().__init__()
-        self.net = torch.nn.Linear(size,size, bias=False)
-
-    def forward(self, X) -> torch.Tensor:
-        """Forward propagation of neural net.
-
-        ## Parameters
-        - **X** (*torch.Tensor, shape=(\\*,input_size)*) - Input data to net.
-
-        ## Returns 
-        - **X** (*torch.Tensor, shape=(\\*,output_size)*) - Output data from net.
-        """
-        return self.net(X)
