@@ -36,21 +36,23 @@ def test_core(get_data, get_ref_dk_stats_rounded3):
         Xva=data['Xva'], tva=data['tva'],
         Xte=data['Xte'], tte=data['tte']
     )
-    
+
     ref_stats = get_ref_dk_stats_rounded3
-    
+
     utils.set_seed(10)
 
     dk = DeepKoopman(
         dh = dh,
         rank = 6,
-        num_encoded_states = 50,
+        num_encoded_states = 50
+    )
+    dk.train_net(
         numepochs = 50
     )
-    dk.train_net()
     dk.test_net()
-    
-    assert round3(dk.stats) == ref_stats
+
     logfile = os.path.join(f'dk_{dk.uuid}.log')
     assert os.path.isfile(logfile)
     os.system(f'rm -rf {logfile}')
+
+    assert round3(dk.stats) == ref_stats

@@ -30,34 +30,14 @@ class DeepKoopman:
         - **decoder_hidden_layers** (*list[int], optional*).
         
         - **batch_norm** (*bool, optional*).
-    
-    - **numepochs** (*int, optional*) - Number of epochs for which to train neural net.
-    
-    - **early_stopping** (*bool/int/float, optional*) - Whether to terminate training early due to no improvement in validation metric.
-        - If `False`, no early stopping. The net will run for the complete `numepochs` epochs.
-        - If an integer, early stop if validation metric doesn't improve for that many epochs.
-        - If a float, early stop if validation performance doesn't improve for that fraction of epochs, rounded up.
-    - **early_stopping_metric** (*str, optional*) - Which validation metric to use for early stopping (metrics are given below in the documentation for `stats`). Ignored if `early_stopping=False`.
-    
-    - **lr** (*float, optional*) - Learning rate for neural net optimizer.
-    
-    - **weight_decay** (*float, optional*) - L2 coefficient for weights of the neural net.
-    
-    - **decoder_loss_weight** (*float, optional*) - Weight the losses between decoder outputs (`recon` and `pred`) by this number. This is to account for the scaling effect of the decoder.
-    
-    - **Kreg** (*float, optional*) - L1 penalty for the Ktilde matrix.
-    
-    - **cond_threshold** (*float, optional*) - Condition number of the eigenvector matrix greater than this will be reported, and singular values smaller than this fraction of the largest will be ignored for the pseudo-inverse operation.
-    
-    - **clip_grad_norm** (*float, optional*) - If not None, clip the norm of gradients to this value.
-    - **clip_grad_value** (*float, optional*) - If not None, clip the values of gradients to [-`clip_grad_value`,`clip_grad_value`].
 
     ## Attributes
     - **uuid** (*str*) - Unique ID for this Deep Koopman run.
     - **log_file** (*Path*) - Path to log file for this Deep Koopman run = `./dk_<uuid>.log`.
     
     - **net** (*nets.AutoEncoder*) - DeepKoopman neural network. `num_input_states` is set by num_input_states in X data, while other parameters are passed via this class.
-    - **opt** (*torch optimizer*) - Optimizer used to train DeepKoopman neural net.
+
+    - **decoder_loss_weight** - See `train_net()`.
 
     - **Omega** (*torch.Tensor*), **eigvecs** (*torch.Tensor*), **coeffs** (*torch.Tensor*) - Used to make predictions using a trained DeepKoopman model.
 
@@ -66,12 +46,9 @@ class DeepKoopman:
     - **stats** (*dict[list]*) - Stores different metrics like loss and error values for training and validation data for each epoch, and for test data. Possible stats are `'<recon/lin/pred>_<loss/anae>_<tr/va/te>'`, and `'loss_<tr/va/te>'`.
     """
     
-    def __init__(
-        self, dh, rank,
-        num_encoded_states, encoder_hidden_layers=[100], decoder_hidden_layers=[], batch_norm=False,
-        numepochs=500, early_stopping=False, early_stopping_metric='pred_anae',
-        lr=1e-3, weight_decay=0., decoder_loss_weight=1e-2, Kreg=1e-3,
-        cond_threshold=100., clip_grad_norm=None, clip_grad_value=None
+    def __init__(self,
+        dh, rank, num_encoded_states,
+        encoder_hidden_layers=[100], decoder_hidden_layers=[], batch_norm=False
     ):
         self.dh = dh
         
@@ -85,27 +62,6 @@ class DeepKoopman:
         self.encoder_hidden_layers = encoder_hidden_layers
         self.decoder_hidden_layers = decoder_hidden_layers
         self.batch_norm = batch_norm
-        
-        ## Get other hyps used in training
-        self.numepochs = numepochs
-        self.lr = lr
-        self.weight_decay = weight_decay
-        self.decoder_loss_weight = decoder_loss_weight
-        self.Kreg = Kreg
-        self.cond_threshold = cond_threshold
-        self.clip_grad_norm = clip_grad_norm
-        self.clip_grad_value = clip_grad_value
-
-        ## Get rank and ensure it's a valid value
-        full_rank = min(self.num_encoded_states,len(self.dh.ttr)-1) #this is basically min(Y.shape), where Y is defined in _dmd_linearize()
-        self.rank = full_rank if (rank==0 or rank>=full_rank) else rank
-
-        ## Early stopping logic
-        if early_stopping:
-            EARLY_STOPPING_METRIC_CHOICES = ['recon_loss', 'lin_loss', 'pred_loss', 'loss', 'recon_anae', 'lin_anae', 'pred_anae']
-            assert early_stopping_metric in EARLY_STOPPING_METRIC_CHOICES, f"`early_stopping_metric` must be in {EARLY_STOPPING_METRIC_CHOICES}, instead found '{early_stopping_metric}'"
-        self.early_stopping = int(np.ceil(early_stopping * self.numepochs)) if type(early_stopping)==float else early_stopping
-        self.early_stopping_metric = early_stopping_metric + ('_va' if not early_stopping_metric.endswith('va') else '')
 
         ## Define AutoEncoder
         self.net = nets.AutoEncoder(
@@ -114,13 +70,15 @@ class DeepKoopman:
             encoder_hidden_layers=self.encoder_hidden_layers,
             batch_norm=self.batch_norm
         )
-        self.net.to(dtype=cfg._RTYPE, device=cfg._DEVICE) #for variables, we need `X = X.to()`. For net, only `net.to()` is sufficient.
+        self.net.to(dtype=cfg._RTYPE, device=cfg._DEVICE)
 
-        ## Define training optimizer
-        self.opt = torch.optim.Adam(self.net.parameters(), lr=self.lr, weight_decay=self.weight_decay)
+        ## Get rank and ensure it's a valid value
+        full_rank = min(self.num_encoded_states,len(self.dh.ttr)-1) #this is basically min(Y.shape), where Y is defined in _dmd_linearize()
+        self.rank = full_rank if (rank==0 or rank>=full_rank) else rank
 
         ## Define other attributes to be used later
         self.stats = defaultdict(lambda: [])
+        self.decoder_loss_weight = None
         self.Omega = None
         self.eigvecs = None
         self.coeffs = None
@@ -128,12 +86,23 @@ class DeepKoopman:
         ## Define error flag
         self.error_flag = False
 
-        ## Finally, if no errors have occurred, write info to log file
+        ## Write info to log file
         with open(self.log_file, 'a') as lf:
             lf.write("Timestamp difference | Frequency\n")
             for dt,freq in self.dh.dts.items():
                 lf.write(f"{dt} | {freq}\n")
             lf.write(f"Using timestamp difference = {self.dh.tscale}. Training timestamp values not on this grid will be rounded.\n")
+
+
+    @property
+    def decoder_loss_weight(self):
+        if self._decoder_loss_weight is None:
+            raise ValueError("'decoder_loss_weight' is not set. Please call 'train_net()' first.")
+        return self._decoder_loss_weight
+
+    @decoder_loss_weight.setter
+    def decoder_loss_weight(self, val):
+        self._decoder_loss_weight = val
 
 
     def _dmd_linearize(self, Y, Yprime) -> tuple[torch.Tensor, torch.Tensor]:
@@ -180,7 +149,7 @@ class DeepKoopman:
         return Ktilde, interm
 
 
-    def _dmd_eigen(self, Ktilde, interm, y0) -> tuple[torch.Tensor, torch.Tensor, torch.Tensor]:
+    def _dmd_eigen(self, Ktilde, interm, y0, cond_threshold) -> tuple[torch.Tensor, torch.Tensor, torch.Tensor]:
         """
         Get the eigendecomposition of the Koopman matrix.
 
@@ -188,6 +157,7 @@ class DeepKoopman:
             Ktilde: From _dmd_linearize(). Shape = (rank, rank).
             interm: From _dmd_linearize(). Shape = (num_encoded_states, rank).
             y0: Initial state of the system (should be part of training data). Shape = (num_encoded_states,).
+            cond_threshold: Condition number of the eigenvector matrix greater than this will be reported, and singular values smaller than this fraction of the largest will be ignored for the pseudo-inverse operation.
         
         Returns:
             Omega: Eigenvalues of **continuous time** Ktilde. Shape = (rank, rank).
@@ -206,12 +176,12 @@ class DeepKoopman:
         eigvecs = interm.to(cfg._CTYPE) @ Wtilde #shape = (num_encoded_states, rank)
         S,s = torch.linalg.norm(eigvecs,2), torch.linalg.norm(eigvecs,-2)
         cond = S/s
-        if cond > self.cond_threshold:
+        if cond > cond_threshold:
             with open(self.log_file, 'a') as lf:
-                lf.write(f"Condition number = {cond} is greater than threshold = {self.cond_threshold}. This may lead to numerical instability in evaluating linearity loss. In an attempt to mitigate this, singular values smaller than 1/{self.cond_threshold} times the largest will be discarded from the pseudo-inverse computation.\n")
+                lf.write(f"Condition number = {cond} is greater than threshold = {cond_threshold}. This may lead to numerical instability in evaluating linearity loss. In an attempt to mitigate this, singular values smaller than 1/{cond_threshold} times the largest will be discarded from the pseudo-inverse computation.\n")
         
         # Coefficients
-        coeffs = torch.linalg.pinv(eigvecs, rtol=1./self.cond_threshold) @ y0.to(cfg._CTYPE) #shape = (rank,)
+        coeffs = torch.linalg.pinv(eigvecs, rtol=1./cond_threshold) @ y0.to(cfg._CTYPE) #shape = (rank,)
         
         return Omega, eigvecs, coeffs
 
@@ -251,20 +221,56 @@ class DeepKoopman:
             lf.write(', '.join([f'{k} = {v[-1]}' for k,v in self.stats.items() if k.endswith(suffix)]) + '\n')
 
 
-    def train_net(self):
+    def train_net(self,
+        numepochs=500, early_stopping=0, early_stopping_metric='pred_anae',
+        lr=1e-3, weight_decay=0., decoder_loss_weight=1e-2, Kreg=1e-3,
+        cond_threshold=100., clip_grad_norm=None, clip_grad_value=None
+    ):
         """Train (and optionally validate) the Deep Koopman model.
+
+        ## Parameters
+        - **numepochs** (*int, optional*) - Number of epochs for which to train neural net.
+    
+        - **early_stopping** (*int/float, optional*) - Whether to terminate training early due to no improvement in validation metric.
+            - If `0`, no early stopping. The net will run for the complete `numepochs` epochs.
+            - If an integer, early stop if validation metric doesn't improve for that many epochs.
+            - If a float, early stop if validation performance doesn't improve for that fraction of epochs, rounded up.
+        - **early_stopping_metric** (*str, optional*) - Which validation metric to use for early stopping (metrics are given below in the documentation for `stats`). Ignored if `early_stopping=False`.
+        
+        - **lr** (*float, optional*) - Learning rate for neural net optimizer.
+        
+        - **weight_decay** (*float, optional*) - L2 coefficient for weights of the neural net.
+        
+        - **decoder_loss_weight** (*float, optional*) - Weight the losses between decoder outputs (`recon` and `pred`) by this number. This is to account for the scaling effect of the decoder.
+        
+        - **Kreg** (*float, optional*) - L1 penalty for the Ktilde matrix.
+        
+        - **cond_threshold** (*float, optional*) - Condition number of the eigenvector matrix greater than this will be reported, and singular values smaller than this fraction of the largest will be ignored for the pseudo-inverse operation.
+        
+        - **clip_grad_norm** (*float, optional*) - If not None, clip the norm of gradients to this value.
+        - **clip_grad_value** (*float, optional*) - If not None, clip the values of gradients to [-`clip_grad_value`,`clip_grad_value`].
 
         ## Effects
         - self.stats is populated.
         - self.Omega, self.eigvecs and self.coeffs contain the eigendecomposition at the end of training. These can be used for future evaluation.
         """
+        # Define decoder_loss_weight as instance attribute since it will be used in other methods as well
+        self.decoder_loss_weight = decoder_loss_weight
+
+        # Define validation condition
+        do_val = len(self.dh.Xva) > 0
+
+        # Check if early stopping is moot
+        if not do_val and early_stopping:
+            print("WARNING: You have specified 'early_stopping=True' without providing validation data. As a result, early stopping will not occur.")
+
+        # Define optimizer
+        opt = torch.optim.Adam(self.net.parameters(), lr=lr, weight_decay=weight_decay)
+
+        # Start epochs
         with open(self.log_file, 'a') as lf:
             lf.write("\nStarting training ...\n")
-        
-        no_improvement_epochs_count = 0
-        best_val_perf = np.inf
-        
-        for epoch in tqdm(range(self.numepochs)):
+        for epoch in tqdm(range(numepochs)):
             # NOTE: Do not do any kind of shuffling before/after epochs. The samples dimension is typically shuffled for standard classification problems, but here that corresponds to the index (such as time), which should be ordered.
             
             with open(self.log_file, 'a') as lf:
@@ -272,13 +278,13 @@ class DeepKoopman:
             
             ## Training ##
             self.net.train()
-            self.opt.zero_grad()
+            opt.zero_grad()
             
             Ytr, Xrtr = self.net(self.dh.Xtr)
             
             # Following 2 steps are unique to training
             Ktilde, interm = self._dmd_linearize(Y = Ytr[:-1,:].t(), Yprime = Ytr[1:,:].t())
-            Omega, eigvecs, coeffs = self._dmd_eigen(Ktilde=Ktilde, interm=interm, y0=Ytr[0])
+            Omega, eigvecs, coeffs = self._dmd_eigen(Ktilde=Ktilde, interm=interm, y0=Ytr[0], cond_threshold=cond_threshold)
 
             # Record DMD variables
             self.Omega = Omega
@@ -296,16 +302,15 @@ class DeepKoopman:
 
             # Losses
             losses_tr = losses.overall(X=self.dh.Xtr[1:], Y=Ytr[1:], Xr=Xrtr[1:], Ypred=Ypredtr, Xpred=Xpredtr, decoder_loss_weight = self.decoder_loss_weight)
-            losses_tr['Kreg'] = self.Kreg*torch.sum(torch.abs(Ktilde))/torch.numel(Ktilde) # this is unique to training
+            losses_tr['Kreg'] = Kreg*torch.sum(torch.abs(Ktilde))/torch.numel(Ktilde) # this is unique to training
             losses_tr['total'] += losses_tr['Kreg']
             self._update_stats(losses_tr, 'loss_tr')
 
-            ## Record
+            # Record
             self._write_to_log_file('_tr')
 
             # Backprop
             loss_tr = losses_tr['total']
-
             try:
                 loss_tr.backward()
             except RuntimeError as e:
@@ -316,6 +321,7 @@ class DeepKoopman:
                 print(message)
                 break
 
+            # Check for NaN gradients
             try:
                 for parameter in self.net.parameters():
                     if torch.any(torch.isnan(parameter.grad)).item():
@@ -328,16 +334,17 @@ class DeepKoopman:
                 print(message)
                 break
 
-            if self.clip_grad_norm:
-                torch.nn.utils.clip_grad_norm_(self.net.parameters(), self.clip_grad_norm)
-            if self.clip_grad_value:
-                torch.nn.utils.clip_grad_value_(self.net.parameters(), self.clip_grad_value)
+            # Gradient clipping
+            if clip_grad_norm:
+                torch.nn.utils.clip_grad_norm_(self.net.parameters(), clip_grad_norm)
+            if clip_grad_value:
+                torch.nn.utils.clip_grad_value_(self.net.parameters(), clip_grad_value)
 
             # Update
-            self.opt.step()
+            opt.step()
 
             ## Validation ##
-            if len(self.dh.Xva):
+            if do_val:
                 self.net.eval()
                 with torch.no_grad():
                     Yva, Xrva = self.net(self.dh.Xva)
@@ -352,16 +359,29 @@ class DeepKoopman:
 
                 self._write_to_log_file('_va')
 
-                ## Early stopping logic
-                if self.early_stopping:
-                    if self.stats[self.early_stopping_metric][-1] < best_val_perf:
+                # Early stopping
+                if early_stopping:
+
+                    # Initialize early stopping in first epoch
+                    if epoch==0:
+                        EARLY_STOPPING_METRIC_CHOICES = [k for k in self.stats.keys() if k.endswith('_va')]
+                        early_stopping_metric = early_stopping_metric + ('_va' if not early_stopping_metric.endswith('va') else '')
+                        if early_stopping_metric not in EARLY_STOPPING_METRIC_CHOICES:
+                            raise ValueError(f"'early_stopping_metric' must be in {EARLY_STOPPING_METRIC_CHOICES}, instead found '{early_stopping_metric}'")
+                        early_stopping = int(np.ceil(early_stopping * numepochs)) if type(early_stopping)==float else early_stopping
+
                         no_improvement_epochs_count = 0
-                        best_val_perf = self.stats[self.early_stopping_metric][-1]
+                        best_val_perf = np.inf
+
+                    # Perform early stopping
+                    if self.stats[early_stopping_metric][-1] < best_val_perf:
+                        no_improvement_epochs_count = 0
+                        best_val_perf = self.stats[early_stopping_metric][-1]
                     else:
                         no_improvement_epochs_count += 1
-                    if no_improvement_epochs_count == self.early_stopping:
+                    if no_improvement_epochs_count == early_stopping:
                         with open(self.log_file, 'a') as lf:
-                            lf.write(f"\nEarly stopped due to no improvement in {self.early_stopping_metric} for {self.early_stopping} epochs.\n")
+                            lf.write(f"\nEarly stopped due to no improvement in {early_stopping_metric} for {early_stopping} epochs.\n")
                         break
 
 
