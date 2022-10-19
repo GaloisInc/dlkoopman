@@ -5,6 +5,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 from pathlib import Path
 import torch
+from typing import Any
 
 
 def _safe_inverse(x, epsilon=1e-12):
@@ -124,3 +125,13 @@ def set_seed(seed):
     """
     torch.manual_seed(seed)
     np.random.seed(seed)
+
+
+def _tensorize(arg, dtype, device) -> Any:
+    return torch.as_tensor(arg, dtype=dtype, device=device) if arg is not None else torch.tensor([])
+
+def _scale(arg, scale) -> Any:
+    return arg/scale
+
+def _shift(arg, shift) -> Any:
+    return arg-shift

@@ -1,6 +1,9 @@
 """Configuration options"""
 
 
+import torch
+
+
 precision = "float"
 """Numerical precision of tensors.
 
@@ -111,4 +114,13 @@ except AssertionError as e:
 if _error:
     print('\nConfig validation failed, exiting!')
     sys.exit()
+###############################################################################
+
+
+###############################################################################
+# Set other constants from config values
+###############################################################################
+_RTYPE = torch.half if precision=="half" else torch.float if precision=="float" else torch.double
+_CTYPE = torch.chalf if precision=="half" else torch.cfloat if precision=="float" else torch.cdouble
+_DEVICE = torch.device("cuda" if use_cuda and torch.cuda.is_available() else "cpu")
 ###############################################################################
