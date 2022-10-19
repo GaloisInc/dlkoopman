@@ -59,7 +59,7 @@ class DeepKoopman:
     - **net** (*nets.AutoEncoder*) - DeepKoopman neural network. `num_input_states` is set by num_input_states in X data, while other parameters are passed via this class.
     - **opt** (*torch optimizer*) - Optimizer used to train DeepKoopman neural net.
 
-    - **Omega** (*torch.Tensor*), **W** (*torch.Tensor*), **coeffs** (*torch.Tensor*) - Used to make predictions using a trained DeepKoopman model.
+    - **Omega** (*torch.Tensor*), **eigvecs** (*torch.Tensor*), **coeffs** (*torch.Tensor*) - Used to make predictions using a trained DeepKoopman model.
 
     - **error_flag** (*bool*) - Signals if any error has occurred in training.
 
@@ -122,7 +122,7 @@ class DeepKoopman:
         ## Define other attributes to be used later
         self.stats = defaultdict(lambda: [])
         self.Omega = None
-        self.W = None
+        self.eigvecs = None
         self.coeffs = None
 
         ## Define error flag
@@ -191,7 +191,7 @@ class DeepKoopman:
         
         Returns:
             Omega: Eigenvalues of **continuous time** Ktilde. Shape = (rank, rank).
-            W: First 'rank' exact eigenvectors of the full (i.e. not tilde) system. Shape = (num_encoded_states, rank).
+            eigvecs: First 'rank' exact eigenvectors of the full (i.e. not tilde) system. Shape = (num_encoded_states, rank).
             coeffs: Coefficients of the linear combination. Shape = (rank,).
         """
         Lambda, Wtilde = torch.linalg.eig(Ktilde) #shapes: Lambda = (rank,), Wtilde is (rank, rank)
@@ -203,29 +203,29 @@ class DeepKoopman:
         #NOTE: We can do a check if any pair (or more) of consecutive eigenvalues are so close that their difference is less than some threshold, since this will lead to very large / nan values during backprop. But doing this check requires looping over the Omega tensor (time complexity = O(len(Omega))) and is not worth it.
         
         # Eigenvectors
-        W = interm.to(cfg._CTYPE) @ Wtilde #shape = (num_encoded_states, rank)
-        S,s = torch.linalg.norm(W,2), torch.linalg.norm(W,-2)
+        eigvecs = interm.to(cfg._CTYPE) @ Wtilde #shape = (num_encoded_states, rank)
+        S,s = torch.linalg.norm(eigvecs,2), torch.linalg.norm(eigvecs,-2)
         cond = S/s
         if cond > self.cond_threshold:
             with open(self.log_file, 'a') as lf:
                 lf.write(f"Condition number = {cond} is greater than threshold = {self.cond_threshold}. This may lead to numerical instability in evaluating linearity loss. In an attempt to mitigate this, singular values smaller than 1/{self.cond_threshold} times the largest will be discarded from the pseudo-inverse computation.\n")
         
         # Coefficients
-        coeffs = torch.linalg.pinv(W, rtol=1./self.cond_threshold) @ y0.to(cfg._CTYPE) #shape = (rank,)
+        coeffs = torch.linalg.pinv(eigvecs, rtol=1./self.cond_threshold) @ y0.to(cfg._CTYPE) #shape = (rank,)
         
-        return Omega, W, coeffs
+        return Omega, eigvecs, coeffs
 
 
-    def _dmd_predict(self, t, Omega,W,coeffs) -> torch.Tensor:
+    def _dmd_predict(self, t, Omega,eigvecs,coeffs) -> torch.Tensor:
         """
         Predict the dynamics of a system.
         
         Inputs:
             t: Sequence of time steps for which dynamics are predicted. Shape = (num_samples,).
             Omega: From _dmd_eigen(). Shape = (rank, rank).
-            W: From _dmd_eigen(). Shape = (num_encoded_states, rank).
+            eigvecs: From _dmd_eigen(). Shape = (num_encoded_states, rank).
             coeffs: From _dmd_eigen(). Shape = (rank,).
-        Note: Omega,W,coeffs can also be provided from outside for a new system.
+        Note: Omega,eigvecs,coeffs can also be provided from outside for a new system.
         
         Returns:
             Ypred: Predictions for all the timestamps in t. Shape (num_samples, num_encoded_states).
@@ -233,7 +233,7 @@ class DeepKoopman:
         """
         Ypred = torch.tensor([])
         for index,ti in enumerate(t):
-            ypred = W @ torch.linalg.matrix_exp(Omega*ti) @ coeffs #shape = (num_encoded_states,)
+            ypred = eigvecs @ torch.linalg.matrix_exp(Omega*ti) @ coeffs #shape = (num_encoded_states,)
             Ypred = ypred.view(1,-1) if index==0 else torch.vstack((Ypred,ypred)) #shape at end = (num_samples, num_encoded_states)
         return torch.abs(Ypred)
 
@@ -243,7 +243,7 @@ class DeepKoopman:
 
         ## Effects
         - self.stats is populated.
-        - self.Omega, self.W and self.coeffs contain the eigendecomposition at the end of training. These can be used for future evaluation.
+        - self.Omega, self.eigvecs and self.coeffs contain the eigendecomposition at the end of training. These can be used for future evaluation.
         """
         with open(self.log_file, 'a') as lf:
             lf.write("\nStarting training ...\n")
@@ -265,15 +265,15 @@ class DeepKoopman:
             
             # Following 2 steps are unique to training
             Ktilde, interm = self._dmd_linearize(Y = Ytr[:-1,:].t(), Yprime = Ytr[1:,:].t())
-            Omega, W, coeffs = self._dmd_eigen(Ktilde=Ktilde, interm=interm, y0=Ytr[0])
+            Omega, eigvecs, coeffs = self._dmd_eigen(Ktilde=Ktilde, interm=interm, y0=Ytr[0])
 
             # Record DMD variables
             self.Omega = Omega
-            self.W = W
+            self.eigvecs = eigvecs
             self.coeffs = coeffs
             
             # Get predictions
-            Ypredtr = self._dmd_predict(t=self.dh.ttr[1:], Omega=Omega, W=W, coeffs=coeffs)
+            Ypredtr = self._dmd_predict(t=self.dh.ttr[1:], Omega=Omega, eigvecs=eigvecs, coeffs=coeffs)
             Xpredtr = self.net.decoder(Ypredtr)
 
             # ANAEs
@@ -334,7 +334,7 @@ class DeepKoopman:
                 self.net.eval()
                 with torch.no_grad():
                     Yva, Xrva = self.net(self.dh.Xva)
-                    Ypredva = self._dmd_predict(t=self.dh.tva, Omega=Omega, W=W, coeffs=coeffs)
+                    Ypredva = self._dmd_predict(t=self.dh.tva, Omega=Omega, eigvecs=eigvecs, coeffs=coeffs)
                     Xpredva = self.net.decoder(Ypredva)
                     recon_anae_va, lin_anae_va, pred_anae_va = errors.overall(X=self.dh.Xva, Y=Yva, Xr=Xrva, Ypred=Ypredva, Xpred=Xpredva)
                     recon_loss_va, lin_loss_va, pred_loss_va, loss_va = losses.overall(X=self.dh.Xva, Y=Yva, Xr=Xrva, Ypred=Ypredva, Xpred=Xpredva, decoder_loss_weight=self.decoder_loss_weight)
@@ -373,7 +373,7 @@ class DeepKoopman:
         self.net.eval()
         with torch.no_grad():
             Yte, Xrte = self.net(self.dh.Xte)
-            Ypredte = self._dmd_predict(t=self.dh.tte, Omega=self.Omega, W=self.W, coeffs=self.coeffs)
+            Ypredte = self._dmd_predict(t=self.dh.tte, Omega=self.Omega, eigvecs=self.eigvecs, coeffs=self.coeffs)
             Xpredte = self.net.decoder(Ypredte)
             recon_anae_te, lin_anae_te, pred_anae_te = errors.overall(X=self.dh.Xte, Y=Yte, Xr=Xrte, Ypred=Ypredte, Xpred=Xpredte)
             recon_loss_te, lin_loss_te, pred_loss_te, loss_te = losses.overall(X=self.dh.Xte, Y=Yte, Xr=Xrte, Ypred=Ypredte, Xpred=Xpredte, decoder_loss_weight=self.decoder_loss_weight)
@@ -405,7 +405,7 @@ class DeepKoopman:
         _t = utils._shift(_t, shift=self.dh.tshift)
         _t = utils._scale(_t, scale=self.dh.tscale)
         with torch.no_grad():
-            Ypred = self._dmd_predict(t=_t, Omega=self.Omega, W=self.W, coeffs=self.coeffs)
+            Ypred = self._dmd_predict(t=_t, Omega=self.Omega, eigvecs=self.eigvecs, coeffs=self.coeffs)
             Xpred = self.net.decoder(Ypred)
             if cfg.normalize_Xdata:
                 Xpred = utils._scale(Xpred, scale=1/self.dh.Xscale) # inverse operation, hence 1/

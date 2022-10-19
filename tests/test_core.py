@@ -3,6 +3,7 @@ import pickle
 import os
 import numpy as np
 from deepk.core import *
+from deepk.data import DataHandler
 from deepk import utils
 
 
@@ -30,11 +31,18 @@ def get_ref_dk_stats_rounded3():
 
 def test_core(get_data, get_ref_dk_stats_rounded3):
     data = get_data
+    dh = DataHandler(
+        Xtr=data['Xtr'], ttr=data['ttr'],
+        Xva=data['Xva'], tva=data['tva'],
+        Xte=data['Xte'], tte=data['tte']
+    )
+    
     ref_stats = get_ref_dk_stats_rounded3
+    
     utils.set_seed(10)
 
     dk = DeepKoopman(
-        data = data,
+        dh = dh,
         rank = 6,
         num_encoded_states = 50,
         numepochs = 50
