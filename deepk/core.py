@@ -45,7 +45,7 @@ class DeepKoopman:
     
     - **decoder_loss_weight** (*float, optional*) - Weight the losses between decoder outputs (`recon` and `pred`) by this number. This is to account for the scaling effect of the decoder.
     
-    - **K_reg** (*float, optional*) - L1 penalty for the Ktilde matrix.
+    - **Kreg** (*float, optional*) - L1 penalty for the Ktilde matrix.
     
     - **cond_threshold** (*float, optional*) - Condition number of the eigenvector matrix greater than this will be reported, and singular values smaller than this fraction of the largest will be ignored for the pseudo-inverse operation.
     
@@ -70,7 +70,7 @@ class DeepKoopman:
         self, dh, rank,
         num_encoded_states, encoder_hidden_layers=[100], decoder_hidden_layers=[], batch_norm=False,
         numepochs=500, early_stopping=False, early_stopping_metric='pred_anae',
-        lr=1e-3, weight_decay=0., decoder_loss_weight=1e-2, K_reg=1e-3,
+        lr=1e-3, weight_decay=0., decoder_loss_weight=1e-2, Kreg=1e-3,
         cond_threshold=100., clip_grad_norm=None, clip_grad_value=None
     ):
         self.dh = dh
@@ -91,7 +91,7 @@ class DeepKoopman:
         self.lr = lr
         self.weight_decay = weight_decay
         self.decoder_loss_weight = decoder_loss_weight
-        self.K_reg = K_reg
+        self.Kreg = Kreg
         self.cond_threshold = cond_threshold
         self.clip_grad_norm = clip_grad_norm
         self.clip_grad_value = clip_grad_value
@@ -238,6 +238,19 @@ class DeepKoopman:
         return torch.abs(Ypred)
 
 
+    def _update_stats(self, comps, suffix):
+        for comp,val in comps.items():
+            try:
+                _val = val.item()
+            except (AttributeError, ValueError):
+                _val = val
+            self.stats[f'{comp}_{suffix}'].append(_val)
+
+    def _write_to_log_file(self, suffix):
+        with open(self.log_file, 'a') as lf:
+            lf.write(', '.join([f'{k} = {v[-1]}' for k,v in self.stats.items() if k.endswith(suffix)]) + '\n')
+
+
     def train_net(self):
         """Train (and optionally validate) the Deep Koopman model.
 
@@ -278,27 +291,21 @@ class DeepKoopman:
 
             # ANAEs
             with torch.no_grad():
-                recon_anae_tr, lin_anae_tr, pred_anae_tr = errors.overall(X=self.dh.Xtr[1:], Y=Ytr[1:], Xr=Xrtr[1:], Ypred=Ypredtr, Xpred=Xpredtr)
-            self.stats['recon_anae_tr'].append(recon_anae_tr.item())
-            self.stats['lin_anae_tr'].append(lin_anae_tr.item())
-            self.stats['pred_anae_tr'].append(pred_anae_tr.item())
-            
+                anaes_tr = errors.overall(X=self.dh.Xtr[1:], Y=Ytr[1:], Xr=Xrtr[1:], Ypred=Ypredtr, Xpred=Xpredtr)
+            self._update_stats(anaes_tr, 'anae_tr')
+
             # Losses
-            recon_loss_tr, lin_loss_tr, pred_loss_tr, loss_tr = losses.overall(X=self.dh.Xtr[1:], Y=Ytr[1:], Xr=Xrtr[1:], Ypred=Ypredtr, Xpred=Xpredtr, decoder_loss_weight=self.decoder_loss_weight)
-            self.stats['recon_loss_tr'].append(recon_loss_tr.item())
-            self.stats['lin_loss_tr'].append(lin_loss_tr.item())
-            self.stats['pred_loss_tr'].append(pred_loss_tr.item())
-            self.stats['loss_before_K_reg_tr'].append(loss_tr.item())
+            losses_tr = losses.overall(X=self.dh.Xtr[1:], Y=Ytr[1:], Xr=Xrtr[1:], Ypred=Ypredtr, Xpred=Xpredtr, decoder_loss_weight = self.decoder_loss_weight)
+            losses_tr['Kreg'] = self.Kreg*torch.sum(torch.abs(Ktilde))/torch.numel(Ktilde) # this is unique to training
+            losses_tr['total'] += losses_tr['Kreg']
+            self._update_stats(losses_tr, 'loss_tr')
 
-            ## Following steps – adding K regularization – are unique to training
-            K_reg_loss_tr = self.K_reg*torch.sum(torch.abs(Ktilde))/torch.numel(Ktilde)
-            loss_tr += K_reg_loss_tr
-            self.stats['loss_tr'].append(loss_tr.item())
+            ## Record
+            self._write_to_log_file('_tr')
 
-            with open(self.log_file, 'a') as lf:
-                lf.write(f"Training ANAEs: Reconstruction = {recon_anae_tr.item()}, Linearity = {lin_anae_tr.item()}, Prediction = {pred_anae_tr.item()}\nTraining losses: Reconstruction = {recon_loss_tr.item()}, Linearity = {lin_loss_tr.item()}, Prediction = {pred_loss_tr.item()}, Due to K_reg = {K_reg_loss_tr.item()}, Total = {loss_tr.item()}\n")
-            
             # Backprop
+            loss_tr = losses_tr['total']
+
             try:
                 loss_tr.backward()
             except RuntimeError as e:
@@ -308,7 +315,7 @@ class DeepKoopman:
                     lf.write(message)
                 print(message)
                 break
-            
+
             try:
                 for parameter in self.net.parameters():
                     if torch.any(torch.isnan(parameter.grad)).item():
@@ -320,15 +327,15 @@ class DeepKoopman:
                     lf.write(message)
                 print(message)
                 break
-            
+
             if self.clip_grad_norm:
                 torch.nn.utils.clip_grad_norm_(self.net.parameters(), self.clip_grad_norm)
             if self.clip_grad_value:
                 torch.nn.utils.clip_grad_value_(self.net.parameters(), self.clip_grad_value)
-            
+
             # Update
             self.opt.step()
-    
+
             ## Validation ##
             if len(self.dh.Xva):
                 self.net.eval()
@@ -336,20 +343,14 @@ class DeepKoopman:
                     Yva, Xrva = self.net(self.dh.Xva)
                     Ypredva = self._dmd_predict(t=self.dh.tva, Omega=Omega, eigvecs=eigvecs, coeffs=coeffs)
                     Xpredva = self.net.decoder(Ypredva)
-                    recon_anae_va, lin_anae_va, pred_anae_va = errors.overall(X=self.dh.Xva, Y=Yva, Xr=Xrva, Ypred=Ypredva, Xpred=Xpredva)
-                    recon_loss_va, lin_loss_va, pred_loss_va, loss_va = losses.overall(X=self.dh.Xva, Y=Yva, Xr=Xrva, Ypred=Ypredva, Xpred=Xpredva, decoder_loss_weight=self.decoder_loss_weight)
-                    #Note that for evaluation, there is no K_reg. This is because K_reg is only used for training.
-                    
-                self.stats['recon_anae_va'].append(recon_anae_va.item())
-                self.stats['lin_anae_va'].append(lin_anae_va.item())
-                self.stats['pred_anae_va'].append(pred_anae_va.item())
-                self.stats['recon_loss_va'].append(recon_loss_va.item())
-                self.stats['lin_loss_va'].append(lin_loss_va.item())
-                self.stats['pred_loss_va'].append(pred_loss_va.item())
-                self.stats['loss_va'].append(loss_va.item())
 
-                with open(self.log_file, 'a') as lf:
-                    lf.write(f"Validation ANAEs: Reconstruction = {recon_anae_va.item()}, Linearity = {lin_anae_va.item()}, Prediction = {pred_anae_va.item()}\nValidation losses: Reconstruction = {recon_loss_va.item()}, Linearity = {lin_loss_va.item()}, Prediction = {pred_loss_va.item()}, Total = {loss_va.item()}\n")
+                    anaes_va = errors.overall(X=self.dh.Xva, Y=Yva, Xr=Xrva, Ypred=Ypredva, Xpred=Xpredva)
+                    self._update_stats(anaes_va, 'anae_va')
+
+                    losses_va = losses.overall(X=self.dh.Xva, Y=Yva, Xr=Xrva, Ypred=Ypredva, Xpred=Xpredva, decoder_loss_weight=self.decoder_loss_weight)
+                    self._update_stats(losses_va, 'loss_va')
+
+                self._write_to_log_file('_va')
 
                 ## Early stopping logic
                 if self.early_stopping:
@@ -360,7 +361,7 @@ class DeepKoopman:
                         no_improvement_epochs_count += 1
                     if no_improvement_epochs_count == self.early_stopping:
                         with open(self.log_file, 'a') as lf:
-                            lf.write(f"\nEarly stopped due to no improvement in {self.early_stopping_metric} for {self.early_stopping} epochs.")
+                            lf.write(f"\nEarly stopped due to no improvement in {self.early_stopping_metric} for {self.early_stopping} epochs.\n")
                         break
 
 
@@ -375,19 +376,14 @@ class DeepKoopman:
             Yte, Xrte = self.net(self.dh.Xte)
             Ypredte = self._dmd_predict(t=self.dh.tte, Omega=self.Omega, eigvecs=self.eigvecs, coeffs=self.coeffs)
             Xpredte = self.net.decoder(Ypredte)
-            recon_anae_te, lin_anae_te, pred_anae_te = errors.overall(X=self.dh.Xte, Y=Yte, Xr=Xrte, Ypred=Ypredte, Xpred=Xpredte)
-            recon_loss_te, lin_loss_te, pred_loss_te, loss_te = losses.overall(X=self.dh.Xte, Y=Yte, Xr=Xrte, Ypred=Ypredte, Xpred=Xpredte, decoder_loss_weight=self.decoder_loss_weight)
-            
-        self.stats['recon_anae_te'] = recon_anae_te.item()
-        self.stats['lin_anae_te'] = lin_anae_te.item()
-        self.stats['pred_anae_te'] = pred_anae_te.item()
-        self.stats['recon_loss_te'] = recon_loss_te.item()
-        self.stats['lin_loss_te'] = lin_loss_te.item()
-        self.stats['pred_loss_te'] = pred_loss_te.item()
-        self.stats['loss_te'] = loss_te.item()
 
-        with open(self.log_file, 'a') as lf:
-            lf.write(f"\nTest ANAEs: Reconstruction = {recon_anae_te.item()}, Linearity = {lin_anae_te.item()}, Prediction = {pred_anae_te.item()}\nTest losses: Reconstruction = {recon_loss_te.item()}, Linearity = {lin_loss_te.item()}, Prediction = {pred_loss_te.item()}, Total = {loss_te.item()}\n")
+            anaes_te = errors.overall(X=self.dh.Xte, Y=Yte, Xr=Xrte, Ypred=Ypredte, Xpred=Xpredte)
+            self._update_stats(anaes_te, 'anae_te')
+            
+            losses_te = losses.overall(X=self.dh.Xte, Y=Yte, Xr=Xrte, Ypred=Ypredte, Xpred=Xpredte, decoder_loss_weight=self.decoder_loss_weight)
+            self._update_stats(losses_te, 'loss_te')
+
+        self._write_to_log_file('_te')
 
 
     def predict_new(self, t) -> torch.Tensor:

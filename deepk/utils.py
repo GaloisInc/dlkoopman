@@ -87,17 +87,15 @@ def plot_stats(dk, perfs=['pred_anae'], start_epoch=1, fontsize=12):
             va_data = dk.stats[perf+'_va'][start_epoch-1:]
             tr_data = tr_data[:len(va_data)] # va_data should normally have size equal to tr_data, but will have lesser size if some error occurred during training. This slicing ensures that only that portion of tr_data is considered which corresponds to va_data.
         epoch_range = range(start_epoch,start_epoch+len(tr_data))
-        
+
         plt.figure()
         if dk.stats[perf+'_te']:
-            plt.suptitle(f"Test performance = {dk.stats[perf+'_te']}" + (' %' if is_anae else ''), fontsize=fontsize)
-        
-        if perf == 'loss':
-            plt.plot(epoch_range, dk.stats['loss_before_K_reg_tr'][start_epoch-1:], c='DarkSlateBlue', label='Training, before K_reg')
+            plt.suptitle(f"Test performance = {dk.stats[perf+'_te'][-1]}" + (' %' if is_anae else ''), fontsize=fontsize)
+
         plt.plot(epoch_range, dk.stats[perf+'_tr'][start_epoch-1:], c='MediumBlue', label='Training')
         if dk.stats[perf+'_va']:
             plt.plot(epoch_range, dk.stats[perf+'_va'][start_epoch-1:], c='DeepPink', label='Validation')
-        
+
         if is_anae:
             ylim_anae = plt.gca().get_ylim()
             plt.ylim(max(0,ylim_anae[0]), min(100,ylim_anae[1])) # keep ANAE limits between [0,100]
@@ -105,7 +103,7 @@ def plot_stats(dk, perfs=['pred_anae'], start_epoch=1, fontsize=12):
         plt.ylabel(perf + (' (%)' if is_anae else ''), fontsize=fontsize)
         plt.xticks(fontsize=fontsize-2)
         plt.yticks(fontsize=fontsize-2)
-        
+
         plt.grid()
         plt.legend(fontsize=fontsize)
 

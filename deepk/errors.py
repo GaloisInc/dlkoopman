@@ -46,7 +46,7 @@ def _naae(ref, new) -> torch.Tensor:
     return 100.*torch.mean(torch.abs(ref-new))/torch.mean(torch.abs(ref))
 
 
-def overall(X, Y, Xr, Ypred, Xpred, func=anae) -> tuple[torch.Tensor, torch.Tensor, torch.Tensor]:
+def overall(X, Y, Xr, Ypred, Xpred) -> dict[str, torch.Tensor]:
     """Computes overall error for the DeepK neural net.
     
     ## Parameters
@@ -63,13 +63,13 @@ def overall(X, Y, Xr, Ypred, Xpred, func=anae) -> tuple[torch.Tensor, torch.Tens
     - **func** (*function*) - Which error function to use. See error functions above.
 
     ## Returns
-    - **recon** - Reconstruction error between `X` and `Xr`.
-
-    - **lin** - Linearity error between `Y` and `Ypred`.
-
-    - **pred** - Prediction error between `X` and `Xpred`.
+    **anaes** (*dict[str, torch.Tensor]*)
+        - Key **'recon'**: (*torch.Tensor, scalar*) - Reconstruction error between `X` and `Xr`.
+        - Key **'lin'**: (*torch.Tensor, scalar*) - Linearity error between `Y` and `Ypred`.
+        - Key **'pred'**: (*torch.Tensor, scalar*) - Prediction error between `X` and `Xpred`.
     """
-    recon = func(ref=X, new=Xr)
-    lin = func(ref=Y, new=Ypred)
-    pred = func(ref=X, new=Xpred)
-    return recon, lin, pred
+    return {
+        'recon': anae(ref=X, new=Xr),
+        'lin': anae(ref=Y, new=Ypred),
+        'pred': anae(ref=X, new=Xpred)
+    }
