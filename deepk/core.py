@@ -164,7 +164,7 @@ class DeepKoopman:
             eigvecs: First 'rank' exact eigenvectors of the full (i.e. not tilde) system. Shape = (num_encoded_states, rank).
             coeffs: Coefficients of the linear combination. Shape = (rank,).
         """
-        Lambda, Wtilde = torch.linalg.eig(Ktilde) #shapes: Lambda = (rank,), Wtilde is (rank, rank)
+        Lambda, eigvecstilde = torch.linalg.eig(Ktilde) #shapes: Lambda = (rank,), eigvecstilde is (rank, rank)
         
         # Eigenvalues
         with open(self.log_file, 'a') as lf:
@@ -173,7 +173,7 @@ class DeepKoopman:
         #NOTE: We can do a check if any pair (or more) of consecutive eigenvalues are so close that their difference is less than some threshold, since this will lead to very large / nan values during backprop. But doing this check requires looping over the Omega tensor (time complexity = O(len(Omega))) and is not worth it.
         
         # Eigenvectors
-        eigvecs = interm.to(cfg._CTYPE) @ Wtilde #shape = (num_encoded_states, rank)
+        eigvecs = interm.to(cfg._CTYPE) @ eigvecstilde #shape = (num_encoded_states, rank)
         S,s = torch.linalg.norm(eigvecs,2), torch.linalg.norm(eigvecs,-2)
         cond = S/s
         if cond > cond_threshold:
