@@ -9,20 +9,20 @@ from deepk import utils
 
 
 class DataHandler:
-    """Data handler for input data to DeepKoopman.
+    """Handler class for providing data to train (and optionally validate and test) DeepKoopman's neural net.
 
     ## Parameters
-    - **'Xtr'**: Training data (*torch.Tensor, shape=(num_training_samples, num_input_states)*). The `AutoEncoder` inside `DeepKoopman` will have `num_input_states` matching this.
-    
-    - **'ttr'**: Training indices (*torch.Tensor, shape=(num_training_samples,)*). Must be in ascending order and should ideally be equally spaced. Small deviations are okay, e.g. `[100, 203, 298, 400, 500]` will become `[100, 200, 300, 400, 500]`, but larger deviations that cannot be unambiguously rounded will lead to errors.
-    
-    - **'Xva'** (*optional*): Validation data (*torch.Tensor, shape=(num_validation_samples, num_input_states)*).
+    - **'Xtr'**: Training data. Can be any data type that can be expressed as a 2D structure of *shape=(num_training_samples, num_input_states)*, for example, *numpy.array*, *torch.Tensor*, *list[list]* where all inner lists have same size, etc.
 
-    - **'tva'** (*optional*): Validation indices (*torch.Tensor, shape=(num_validation_samples,)*). The restrictions on `ttr` do *not* apply. These indices can be anything.
+    - **'ttr'**: Training indices. Can be any data type that can be expressed as a 1D structure of *shape=(num_training_samples)*, for example, *numpy.array*, *torch.Tensor*, *list*, *range*, etc. **Must be in ascending order and should ideally be equally spaced**. Small deviations are okay, e.g. `[100, 203, 298, 400, 500]` will become `[100, 200, 300, 400, 500]`, but larger deviations that cannot be unambiguously rounded will lead to errors.
+
+    - **'Xva'** (*optional*): Validation data. Same data type requirements as `Xtr`, *shape=(num_validation_samples, num_input_states)*.
+
+    - **'tva'** (*optional*): Validation indices. Same data type requirements as `ttr`, *shape=(num_validation_samples)*. The order and spacing restrictions on `ttr` do *not* apply. The values of these indices can be anything.
         
-    - **'Xte'** (*optional*): Test data (*torch.Tensor, shape=(num_test_samples, num_input_states)*).
+    - **'Xte'** (*optional*): Test data. Same data type requirements as `Xtr`, *shape=(num_test_samples, num_input_states)*.
 
-    - **'tte'** (*optional*): Test indices (*torch.Tensor, shape=(num_test_samples,)*). The restrictions on `ttr` do *not* apply. These indices can be anything.
+    - **'tte'** (*optional*): Test indices. Same data type requirements as `ttr`, *shape=(num_test_samples)*. The order and spacing restrictions on `ttr` do *not* apply. The values of these indices can be anything.
     """
 
     def __init__(self, Xtr, ttr, Xva=None, tva=None, Xte=None, tte=None):
@@ -32,6 +32,11 @@ class DataHandler:
         self.ttr = utils._tensorize(ttr, dtype=cfg._RTYPE, device=cfg._DEVICE)
         self.tva = utils._tensorize(tva, dtype=cfg._RTYPE, device=cfg._DEVICE)
         self.tte = utils._tensorize(tte, dtype=cfg._RTYPE, device=cfg._DEVICE)
+
+        ## Check sizes
+        assert len(self.Xtr) == len(self.ttr), f"Expected 'Xtr' and 'ttr' to have same length of 1st dimension, instead found {len(self.Xtr)} and {len(self.ttr)}"
+        assert len(self.Xva) == len(self.tva), f"Expected 'Xva' and 'tva' to have same length of 1st dimension, instead found {len(self.Xva)} and {len(self.tva)}"
+        assert len(self.Xte) == len(self.tte), f"Expected 'Xte' and 'tte' to have same length of 1st dimension, instead found {len(self.Xte)} and {len(self.tte)}"
 
         ## Define Xscale, and normalize X data if applicable
         self.Xscale = torch.max(torch.abs(self.Xtr)).item()
