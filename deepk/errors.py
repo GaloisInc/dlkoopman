@@ -64,9 +64,9 @@ def overall(X, Y, Xr, Ypred, Xpred) -> dict[str, torch.Tensor]:
 
     ## Returns
     **anaes** (*dict[str, torch.Tensor]*)
-        - Key **'recon'**: (*torch.Tensor, scalar*) - Reconstruction error between `X` and `Xr`.
-        - Key **'lin'**: (*torch.Tensor, scalar*) - Linearity error between `Y` and `Ypred`.
-        - Key **'pred'**: (*torch.Tensor, scalar*) - Prediction error between `X` and `Xpred`.
+        - Key **'recon'**: (*torch scalar*) - Reconstruction error between `X` and `Xr`.
+        - Key **'lin'**: (*torch scalar*) - Linearity error between `Y` and `Ypred`.
+        - Key **'pred'**: (*torch scalar*) - Prediction error between `X` and `Xpred`.
     """
     return {
         'recon': anae(ref=X, new=Xr),

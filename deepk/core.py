@@ -391,19 +391,25 @@ class DeepKoopman:
         ## Effects
         - self.stats is populated further.
         """
-        self.net.eval()
-        with torch.no_grad():
-            Yte, Xrte = self.net(self.dh.Xte)
-            Ypredte = self._dmd_predict(t=self.dh.tte, Omega=self.Omega, eigvecs=self.eigvecs, coeffs=self.coeffs)
-            Xpredte = self.net.decoder(Ypredte)
+        do_test = len(self.dh.Xte) > 0
 
-            anaes_te = errors.overall(X=self.dh.Xte, Y=Yte, Xr=Xrte, Ypred=Ypredte, Xpred=Xpredte)
-            self._update_stats(anaes_te, 'anae_te')
-            
-            losses_te = losses.overall(X=self.dh.Xte, Y=Yte, Xr=Xrte, Ypred=Ypredte, Xpred=Xpredte, decoder_loss_weight=self.decoder_loss_weight)
-            self._update_stats(losses_te, 'loss_te')
+        if not do_test:
+            print("WARNING: You have called 'test_net()', but there is no test data. Please pass a 'DataHandler' object containing 'Xte' and 'Yte'.")
 
-        self._write_to_log_file('_te')
+        else:
+            self.net.eval()
+            with torch.no_grad():
+                Yte, Xrte = self.net(self.dh.Xte)
+                Ypredte = self._dmd_predict(t=self.dh.tte, Omega=self.Omega, eigvecs=self.eigvecs, coeffs=self.coeffs)
+                Xpredte = self.net.decoder(Ypredte)
+
+                anaes_te = errors.overall(X=self.dh.Xte, Y=Yte, Xr=Xrte, Ypred=Ypredte, Xpred=Xpredte)
+                self._update_stats(anaes_te, 'anae_te')
+                
+                losses_te = losses.overall(X=self.dh.Xte, Y=Yte, Xr=Xrte, Ypred=Ypredte, Xpred=Xpredte, decoder_loss_weight=self.decoder_loss_weight)
+                self._update_stats(losses_te, 'loss_te')
+
+            self._write_to_log_file('_te')
 
 
     def predict_new(self, t) -> torch.Tensor:

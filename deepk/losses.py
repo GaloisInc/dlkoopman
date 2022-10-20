@@ -22,10 +22,10 @@ def overall(X, Y, Xr, Ypred, Xpred, decoder_loss_weight) -> dict[str, torch.Tens
 
     ## Returns
     **losses** (*dict[str, torch.Tensor]*)
-        - Key **'recon'**: (*torch.Tensor, scalar*) - Reconstruction loss between `X` and `Xr`.
-        - Key **'lin'**: (*torch.Tensor, scalar*) - Linearity loss between `Y` and `Ypred`.
-        - Key **'pred'**: (*torch.Tensor, scalar*) - Prediction loss between `X` and `Xpred`.
-        - Key **'total'**: (*torch.Tensor, scalar*) - Total loss = `lin + decoder_loss_weight*(recon+pred)`
+        - Key **'recon'**: (*torch scalar*) - Reconstruction loss between `X` and `Xr`.
+        - Key **'lin'**: (*torch scalar*) - Linearity loss between `Y` and `Ypred`.
+        - Key **'pred'**: (*torch scalar*) - Prediction loss between `X` and `Xpred`.
+        - Key **'total'**: (*torch scalar*) - Total loss = `lin + decoder_loss_weight*(recon+pred)`
     """
     losses = {
         'recon': torch.nn.MSELoss(reduction='mean')(X, Xr),

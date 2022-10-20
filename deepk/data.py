@@ -1,3 +1,6 @@
+"""Handle and process input data to DeepKoopman."""
+
+
 from collections import defaultdict
 import torch
 
@@ -6,6 +9,22 @@ from deepk import utils
 
 
 class DataHandler:
+    """Data handler for input data to DeepKoopman.
+
+    ## Parameters
+    - **'Xtr'**: Training data (*torch.Tensor, shape=(num_training_samples, num_input_states)*). The `AutoEncoder` inside `DeepKoopman` will have `num_input_states` matching this.
+    
+    - **'ttr'**: Training indices (*torch.Tensor, shape=(num_training_samples,)*). Must be in ascending order and should ideally be equally spaced. Small deviations are okay, e.g. `[100, 203, 298, 400, 500]` will become `[100, 200, 300, 400, 500]`, but larger deviations that cannot be unambiguously rounded will lead to errors.
+    
+    - **'Xva'** (*optional*): Validation data (*torch.Tensor, shape=(num_validation_samples, num_input_states)*).
+
+    - **'tva'** (*optional*): Validation indices (*torch.Tensor, shape=(num_validation_samples,)*). The restrictions on `ttr` do *not* apply. These indices can be anything.
+        
+    - **'Xte'** (*optional*): Test data (*torch.Tensor, shape=(num_test_samples, num_input_states)*).
+
+    - **'tte'** (*optional*): Test indices (*torch.Tensor, shape=(num_test_samples,)*). The restrictions on `ttr` do *not* apply. These indices can be anything.
+    """
+
     def __init__(self, Xtr, ttr, Xva=None, tva=None, Xte=None, tte=None):
         self.Xtr = utils._tensorize(Xtr, dtype=cfg._RTYPE, device=cfg._DEVICE)
         self.Xva = utils._tensorize(Xva, dtype=cfg._RTYPE, device=cfg._DEVICE)
@@ -15,7 +34,7 @@ class DataHandler:
         self.tte = utils._tensorize(tte, dtype=cfg._RTYPE, device=cfg._DEVICE)
 
         ## Define Xscale, and normalize X data if applicable
-        self.Xscale = torch.max(torch.abs(self.Xtr))
+        self.Xscale = torch.max(torch.abs(self.Xtr)).item()
         if cfg.normalize_Xdata:
             self.Xtr = utils._scale(self.Xtr, scale=self.Xscale)
             self.Xva = utils._scale(self.Xva, scale=self.Xscale)
