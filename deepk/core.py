@@ -75,7 +75,7 @@ class DeepKoopman:
         self.rank = full_rank if (rank==0 or rank>=full_rank) else rank
 
         ## Define results
-        self.stats = defaultdict(lambda: [])
+        self.stats = defaultdict(list)
 
         ## Define error flag
         self.error_flag = False
@@ -452,7 +452,7 @@ class DeepKoopman:
 
     def predict_new(self, t) -> torch.Tensor:
         """Use the trained Deep Koopman model to predict the X values for new indices.
-        
+
         This is different from testing because the ground truth values are not present, thus losses and errors are not computed. This method can be used to make predictions for interpolated and extrapolated indices.
 
         ## Parameters
@@ -464,14 +464,19 @@ class DeepKoopman:
         _t = utils._tensorize(t, dtype=cfg._RTYPE, device=cfg._DEVICE)
         _t = utils._shift(_t, shift=self.dh.tshift)
         _t = utils._scale(_t, scale=self.dh.tscale)
+
+        self.net.eval()
         with torch.no_grad():
             Ypred = self._dmd_predict(t=_t, y0=self.y0, Omega=self.Omega, eigvecs=self.eigvecs)
             Xpred = self.net.decoder(Ypred)
+
             if cfg.normalize_Xdata:
-                Xpred = utils._scale(Xpred, scale=1/self.dh.Xscale) # inverse operation, hence 1/
+                Xpred = utils._scale(Xpred, scale=1/self.dh.Xscale) # unscale back to original domain
+
         with open(self.log_file, 'a') as lf:
             lf.write("\nNew predictions:\n")
             for i in range(len(t)):
                 lf.write(f'Independent variable = {t[i]}, Dependent variable =\n')
                 lf.write(f'{Xpred[i]}\n')
+
         return Xpred
