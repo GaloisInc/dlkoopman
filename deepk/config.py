@@ -24,7 +24,7 @@ use_cuda = True
 """
 
 normalize_Xdata = True
-"""If `True`, all input data (training, validation, test) are divided by the maximum absolute value in the training data.
+"""If `True`, all input states (training, validation, test) are divided by the maximum absolute value in the training data.
 
 **Options**: `True` / `False`
 
@@ -34,7 +34,7 @@ normalize_Xdata = True
 
 Normalizing data is a generally good technique for deep learning, and is normally done for each feature \\(f\\) in the input data as
 $$X_f = \\frac{X_f-\\text{offset}_f}{\\text{scale}_f}$$
-(where offset and scale are mean and standard deviation for Gaussian normalization, or minimum value and range for Minmax normalization.) However, *this messes up the spectral techniques such as singular value and eigen value decomposition required in Deep Koopman*. Hence, setting `normalize_Xdata=True` will just use a single scale value for normalizing the whole data to get
+(where offset and scale are mean and standard deviation for Gaussian normalization, or minimum value and range for Minmax normalization.) However, *this messes up the spectral techniques such as singular value and eigen value decomposition required in Koopman theory*. Hence, setting `normalize_Xdata=True` will just use a single scale value for normalizing the whole data to get
 $$X = \\frac{X}{\\text{scale}}$$
 This results in the singular and eigen vectors remaining the same.
 
@@ -42,19 +42,8 @@ This results in the singular and eigen vectors remaining the same.
 Setting this to `normalize_Xdata=False` may end the run by leading to imaginary parts of tensors reaching values where the loss function depends on the phase (in `torch >= 1.11`, this leads to `"RuntimeError: linalg_eig_backward: The eigenvectors in the complex case are specified up to multiplication by e^{i phi}. The specified loss function depends on this quantity, so it is ill-defined"`). The only benefit to setting this to `False` is that if the run successfully completes, the final error metrics such as ANAE are slightly more accurate since they are reported on the un-normalized data values.
 """
 
-use_custom_stable_svd = True
-"""The singular value decomposition used is `utils.stable_svd` if `True`, and `torch.linalg.svd` if `False`.
-
-**Options**: `True` / `False`
-
-**Default**: `True`
-
-## Caution
-Setting this to `False` may end the run due to encountering NaNs in gradients, as explained [here](https://pytorch.org/docs/stable/generated/torch.linalg.svd.html).
-"""
-
 use_exact_eigenvectors = True
-"""If `True`, the exact eigenvectors of the Koopman matrix are used, if `False`, the projected eigenvectors are used.
+"""If `True`, the exact eigenvectors of the Koopman matrix are used in `StatePredictor`, if `False`, the projected eigenvectors are used.
 
 **Options**: `True` / `False`
 
@@ -66,7 +55,7 @@ For a discussion on exact and projected eigenvectors, see [Tu et al](https://arx
 """
 
 sigma_threshold = 1e-25
-"""Any singular value lower than this will be reported when in debug mode, since this is a possible cause of unstable gradients.
+"""When computing the SVD in `StatePredictor`, singular values lower than this will be reported, since they can be a possible cause of unstable gradients.
 
 **Options**: Any numerical value.
 
@@ -92,11 +81,6 @@ except AssertionError as e:
     _error = True
 try:
     assert normalize_Xdata in [True, False], '`normalize_Xdata` must be either True or False'
-except AssertionError as e:
-    print(f'Config Validation Error: {e}')
-    _error = True
-try:
-    assert use_custom_stable_svd in [True, False], '`use_custom_stable_svd` must be either True or False'
 except AssertionError as e:
     print(f'Config Validation Error: {e}')
     _error = True

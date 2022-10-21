@@ -21,7 +21,7 @@ def test_run_hyp_search(get_data):
         data = data,
         hyp_options = {
             'rank': [6,8],
-            'num_encoded_states': 50,
+            'encoded_size': 50,
             'encoder_hidden_layers': [[100,100],[200,100,50]],
             'numepochs': [50],
             'early_stopping': 5,

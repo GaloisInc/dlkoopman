@@ -8,15 +8,15 @@ def overall(X, Y, Xr, Ypred, Xpred, decoder_loss_weight) -> dict[str, torch.Tens
     """Computes overall loss for the DeepK neural net.
     
     ## Parameters
-    - **X** (*torch.Tensor, shape=(\\*,num_input_states)*) - Input data.
+    - **X** (*torch.Tensor, shape=(\\*, input_size)*) - Input states, i.e. input to encoder.
 
-    - **Y** (*torch.Tensor, shape=(\\*,num_encoded_states)*) - Encoded data, i.e. output from encoder, input to decoder.
+    - **Y** (*torch.Tensor, shape=(\\*, encoded_size)*) - Encoded states, i.e. output from encoder, input to decoder.
 
-    - **Xr** (*torch.Tensor, shape=(\\*,num_input_states)*) - Reconstructed data, i.e. output of decoder.
+    - **Xr** (*torch.Tensor, shape=(\\*, input_size)*) - Reconstructed states, i.e. output of decoder.
 
-    - **Ypred** (*torch.Tensor, shape=(\\*,num_encoded_states)*) - DeepK-predicted encoded data.
+    - **Ypred** (*torch.Tensor, shape=(\\*, encoded_size)*) - Predicted encoded states obtained from evolving baseline encoded state.
 
-    - **Xpred** (*torch.Tensor, shape=(\\*,num_input_states)*) - DeepK-predicted encoded data passed through decoder.
+    - **Xpred** (*torch.Tensor, shape=(\\*, input_size)*) - Predicted input states, which are predicted encoded states passed through decoder.
 
     - **decoder_loss_weight** (*float, optional*) - Weight the losses between decoder outputs (`recon` and `pred`) by this number. This is to account for the scaling effect of the decoder.
 

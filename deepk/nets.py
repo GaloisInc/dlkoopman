@@ -4,7 +4,7 @@
 import torch
 
 
-class MLP(torch.nn.Module):
+class _MLP(torch.nn.Module):
     """Multi-layer perceptron neural net.
 
     ## Parameters
@@ -46,25 +46,25 @@ class MLP(torch.nn.Module):
 
 
 class AutoEncoder(torch.nn.Module):
-    """AutoEncoder neural net. Contains an encoder MLP connected to a decoder MLP.
+    """AutoEncoder neural net. Contains an encoder connected to a decoder, both are multi-layer perceptrons
 
     ## Parameters
-    - **num_input_states** (*int*) - Number of dimensions in original data (`X`) and reconstructed data (`Xr`).
+    - **input_size** (*int*) - Number of dimensions in original data (encoder input) and reconstructed data (decoder output).
 
-    - **num_encoded_states** (*int*) - Number of dimensions in encoded data (`Y`).
+    - **encoded_size** (*int*) - Number of dimensions in encoded data (encoder output and decoder input).
 
-    - **encoder_hidden_layers** (*list[int], optional*) - Encoder will have layers = `[num_input_states, *encoder_hidden_layers, num_encoded_states]`. If not set, defaults to reverse of `decoder_hidden_layers`. If that is also not set, defaults to `[]`.
+    - **encoder_hidden_layers** (*list[int], optional*) - Encoder will have layers = `[input_size, *encoder_hidden_layers, encoded_size]`. If not set, defaults to reverse of `decoder_hidden_layers`. If that is also not set, defaults to `[]`.
 
-    - **decoder_hidden_layers** (*list[int], optional*) - Decoder has layers = `[num_encoded_states, *decoder_hidden_layers, num_input_states]`. If not set, defaults to reverse of `encoder_hidden_layers`. If that is also not set, defaults to `[]`.
+    - **decoder_hidden_layers** (*list[int], optional*) - Decoder has layers = `[encoded_size, *decoder_hidden_layers, input_size]`. If not set, defaults to reverse of `encoder_hidden_layers`. If that is also not set, defaults to `[]`.
 
     - **batch_norm** (*bool, optional*): Whether to use batch normalization.
 
     ## Attributes
-    - **encoder** (*MLP*) - Encoder neural net.
+    - **encoder** - Encoder neural net.
 
-    - **decoder** (*MLP*) - Decoder neural net.
+    - **decoder** - Decoder neural net.
     """
-    def __init__(self, num_input_states, num_encoded_states, encoder_hidden_layers=[], decoder_hidden_layers=[], batch_norm=False):
+    def __init__(self, input_size, encoded_size, encoder_hidden_layers=[], decoder_hidden_layers=[], batch_norm=False):
         """ """
         super().__init__()
 
@@ -73,16 +73,16 @@ class AutoEncoder(torch.nn.Module):
         elif not encoder_hidden_layers and decoder_hidden_layers:
             encoder_hidden_layers = decoder_hidden_layers[::-1]
 
-        self.encoder = MLP(
-            input_size = num_input_states,
-            output_size = num_encoded_states,
+        self.encoder = _MLP(
+            input_size = input_size,
+            output_size = encoded_size,
             hidden_sizes = encoder_hidden_layers,
             batch_norm = batch_norm
         )
 
-        self.decoder = MLP(
-            input_size = num_encoded_states,
-            output_size = num_input_states,
+        self.decoder = _MLP(
+            input_size = encoded_size,
+            output_size = input_size,
             hidden_sizes = decoder_hidden_layers,
             batch_norm = batch_norm
         )
@@ -91,12 +91,12 @@ class AutoEncoder(torch.nn.Module):
         """Forward propagation of neural net.
 
         ## Parameters
-        - **X** (*torch.Tensor, shape=(\\*,num_input_states)*) - Input data to encoder.
+        - **X** (*torch.Tensor, shape=(\\*,input_size)*) - Input data to encoder.
 
         ## Returns 
-        - **Y** (*torch.Tensor, shape=(\\*,num_encoded_states)*) - Encoded data, i.e. output from encoder, input to decoder.
+        - **Y** (*torch.Tensor, shape=(\\*,encoded_size)*) - Encoded data, i.e. output from encoder, input to decoder.
 
-        - **Xr** (*torch.Tensor, shape=(\\*,num_input_states)*) - Reconstructed data, i.e. output of decoder.
+        - **Xr** (*torch.Tensor, shape=(\\*,input_size)*) - Reconstructed data, i.e. output of decoder.
         """
         Y = self.encoder(X) # encoder complete output
         Xr = self.decoder(Y) # final reconstructed output

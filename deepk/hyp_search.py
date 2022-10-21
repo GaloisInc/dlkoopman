@@ -11,7 +11,7 @@ import random
 import shortuuid
 from tqdm import tqdm
 
-from deepk.core import DeepKoopman
+from deepk.state_predictor import StatePredictor
 
 
 def run_hyp_search(data, hyp_options, numruns=None, avg_ignore_initial_epochs=100, sort_key='avg_pred_anae_va') -> str:
@@ -44,16 +44,16 @@ def run_hyp_search(data, hyp_options, numruns=None, avg_ignore_initial_epochs=10
     ```python
     hyp_options = {
         'rank': [6,8],
-        'num_encoded_states': 50, # this input stays constant across runs
+        'encoded_size': 50, # this input stays constant across runs
         'encoder_hidden_layers': [[100,100],[200,100,50]]
         # other inputs to DeepKoopman not defined here are set to default values
     }
     
     # this results in 4 possible runs:
-    DeepKoopman(rank=6, num_encoded_states=50, encoder_hidden_layers=[100,100])
-    DeepKoopman(rank=6, num_encoded_states=50, encoder_hidden_layers=[200,100,50])
-    DeepKoopman(rank=8, num_encoded_states=50, encoder_hidden_layers=[100,100])
-    DeepKoopman(rank=8, num_encoded_states=50, encoder_hidden_layers=[200,100,50])
+    DeepKoopman(rank=6, encoded_size=50, encoder_hidden_layers=[100,100])
+    DeepKoopman(rank=6, encoded_size=50, encoder_hidden_layers=[200,100,50])
+    DeepKoopman(rank=8, encoded_size=50, encoder_hidden_layers=[100,100])
+    DeepKoopman(rank=8, encoded_size=50, encoder_hidden_layers=[200,100,50])
     ```
 
     - **numruns** (*int, optional*) - The total number of possible DeepKoopman runs is \\(N =\\) the number of elements in the Cartesian product of the values of `hyp_options` (in the above example, this is \\(2\\times1\\times2 = 4\\)). If `numruns` is `None` or \\(>N\\), run \\(N\\) runs, otherwise run `numruns` runs.<br>Since each run takes time, it is recommended to set `numruns` to a reasonably smaller value when \\(N\\) is large.
@@ -75,7 +75,7 @@ def run_hyp_search(data, hyp_options, numruns=None, avg_ignore_initial_epochs=10
     ```
     """
     ## Pre-process hyp options
-    POSSIBLE_KEYS = [arg for arg in inspect.getfullargspec(DeepKoopman).args if arg not in ['self', 'data']]
+    POSSIBLE_KEYS = [arg for arg in inspect.getfullargspec(StatePredictor).args if arg not in ['self', 'data']]
     ignore_hyps = []
     for k,v in hyp_options.items():
         if k not in POSSIBLE_KEYS:
@@ -143,7 +143,7 @@ def run_hyp_search(data, hyp_options, numruns=None, avg_ignore_initial_epochs=10
             print(f'Hyperparameters: {hyps}')
             
             try:
-                dk = DeepKoopman(
+                dk = StatePredictor(
                     data = data,
                     **hyps,
                     **hyp_constants
