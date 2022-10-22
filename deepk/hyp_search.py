@@ -1,7 +1,7 @@
-"""Run hyperparameter search across inputs to DeepKoopman.""" 
+"""Run hyperparameter search.""" 
 
 import csv
-import inspect
+from collections import OrderedDict
 import itertools
 import numpy as np
 import os
@@ -9,13 +9,59 @@ import pandas as pd
 from pathlib import Path
 import random
 import shortuuid
+import sys
 from tqdm import tqdm
 
-from deepk.state_predictor import StatePredictor
+from deepk.state_predictor import StatePredictor, StatePredictor_DataHandler
+from deepk.trajectory_predictor import TrajectoryPredictor, TrajectoryPredictor_DataHandler
 
 
-def run_hyp_search(data, hyp_options, numruns=None, avg_ignore_initial_epochs=100, sort_key='avg_pred_anae_va') -> str:
-    """Perform hyperparameter search by running DeepKoopman multiple times on given data, and save the loss and ANAE statistics for each run.
+def _gen_colnames(perf) -> tuple[str, str, str, str, str]:
+    """
+    Inputs:
+        perf (str) - Either of <recon/lin/pred>_<loss/anae> or total_loss
+    
+    Return a list of strings that are column names of output CSV - see code for details
+    """
+    return (
+        f'avg_{perf}_tr',
+        f'final_{perf}_tr',
+        f'avg_{perf}_va',
+        f'best_{perf}_va',
+        f'bestep_{perf}_va'
+    )
+
+def _compute_stats(stats, perf, avg_ignore_initial_epochs=0) -> tuple[float, float, float, float, float]:
+    """
+    Inputs:
+        stats - A MODEL_CLASS.stats object
+        perf (str) - Either of <recon/lin/pred>_<loss/anae> or total_loss
+        avg_ignore_initial_epochs (bool) - See doc of run_hyp_search()
+    
+    Return:
+        avg(perf_tr)
+        last(perf_tr)
+        avg(perf_va)
+        best(perf_va)
+        bestep(perf_va)
+    """
+    return (
+        np.mean(stats[f'{perf}_tr'][avg_ignore_initial_epochs:]),
+        stats[f'{perf}_tr'][-1],
+        np.mean(stats[f'{perf}_va'][avg_ignore_initial_epochs:]),
+        np.min(stats[f'{perf}_va']),
+        np.argmin(stats[f'{perf}_va'])+1
+    )
+
+
+
+def run_hyp_search(
+    dh, hyp_options,
+    numruns=None, avg_ignore_initial_epochs=0, sort_key='avg_pred_anae_va'
+) -> Path:
+    """Perform many runs of a type of predictor model (either `StatePredictor` or `TrajectoryPredictor`) with different configurations on given data, and save the loss and ANAE statistics for each run.
+
+    Use the results to pick a good predictor configuration.
 
     **The method can be interrupted at any time and the intermediate results will be saved**.
 
@@ -25,7 +71,7 @@ def run_hyp_search(data, hyp_options, numruns=None, avg_ignore_initial_epochs=10
     - 'recon_loss', 'recon_anae' - Reconstruction loss and ANAE.
     - 'lin_loss', 'lin_anae' - Linearity loss and ANAE.
     - 'pred_loss', 'pred_anae' - Predicton loss and ANAE.
-    - 'loss' - Total loss.
+    - 'total_loss' - Total loss.
 
     save the following statistics:
 
@@ -38,32 +84,37 @@ def run_hyp_search(data, hyp_options, numruns=None, avg_ignore_initial_epochs=10
     For more details, refer to [losses](https://galoisinc.github.io/deep-koopman/losses.html) and [ANAEs](https://galoisinc.github.io/deep-koopman/errors.html).
 
     ## Parameters
-    - **data** (*dict[str,torch.Tensor]*) - Data to be used for all runs. Same format as `data` for the [`DeepKoopman` class](https://galoisinc.github.io/deep-koopman/core.html#deepk.core.DeepKoopman).
+    - **dh** (*StatePredictor_DataHandler, TrajectoryPredictor_DataHandler*) - Data handler providing data. **Model to be run is inferred from data, i.e. either `StatePredictor` or `TrajectoryPredictor`.**
     
-    - **hyp_options** (*dict[str,list]*) - Input hyperparameters to `DeepKoopman` will be swept over these values across runs. Set a key to have a single value to keep it constant across runs. Possible keys are any input to [`DeepKoopman`](https://galoisinc.github.io/deep-koopman/core.html) except for `data`. Example:
+    - **hyp_options** (*dict[str,list]*) - Input arguments to model and its methods will be swept over these values across runs. Set a key to have a single value to keep it constant across runs. As an example, when `dh` is a `StatePredictor_DataHandler`:
     ```python
     hyp_options = {
-        'rank': [6,8],
-        'encoded_size': 50, # this input stays constant across runs
+        ## arguments to __init__()
+        'rank': [6,8], # must be provided since it's a required argument
+        'encoded_size': 50, # must be provided since it's a required argument; this input stays constant across runs
         'encoder_hidden_layers': [[100,100],[200,100,50]]
-        # other inputs to DeepKoopman not defined here are set to default values
+        
+        ## arguments to train_net()
+        'numepochs': list(range(100,501,100)), # ranges must be provided as lists
+        'clip_grad_norm': 5 # this input stays constant across runs
     }
     
-    # this results in 4 possible runs:
-    DeepKoopman(rank=6, encoded_size=50, encoder_hidden_layers=[100,100])
-    DeepKoopman(rank=6, encoded_size=50, encoder_hidden_layers=[200,100,50])
-    DeepKoopman(rank=8, encoded_size=50, encoder_hidden_layers=[100,100])
-    DeepKoopman(rank=8, encoded_size=50, encoder_hidden_layers=[200,100,50])
+    # this results in \\(2\\times2\\times5 = 20\\) possible runs:
     ```
 
-    - **numruns** (*int, optional*) - The total number of possible DeepKoopman runs is \\(N =\\) the number of elements in the Cartesian product of the values of `hyp_options` (in the above example, this is \\(2\\times1\\times2 = 4\\)). If `numruns` is `None` or \\(>N\\), run \\(N\\) runs, otherwise run `numruns` runs.<br>Since each run takes time, it is recommended to set `numruns` to a reasonably smaller value when \\(N\\) is large.
+    - **numruns** (*int, optional*) - The total number of possible DeepKoopman runs is \\(N =\\) the number of elements in the Cartesian product of the values of `hyp_options` (in the above example, this is 20). If `numruns` is `None` or \\(>N\\), run \\(N\\) runs, otherwise run `numruns` runs.<br>Since each run takes time, it is recommended to set `numruns` to a reasonably smaller value when \\(N\\) is large.
 
     - **avg_ignore_initial_epochs** (*int, optional*) - When collecting average statistics across epochs, ignore this many initial epochs. This is useful because the loss / ANAE values can be quite high early on, which can skew the averages and make it meaningless to compare runs based on the averages.
 
     - **sort_key** (*str, optional*) - Results in the final CSV will be sorted in ascending order of this column. For possible options, see **Saved statistics**. Note that sorting only happens at the end, and thus will not take place if execution is interrupted. Set to `None` to skip sorting.
 
     ## Returns
-    **output_csv_path** (*Path*) - The path to a newly created results CSV file = `hyp_search_<uuid>.csv`. This contains results in the format: 
+    **output_folder** (*Path*) - The path to a newly created folder containing:
+        - Results CSV file = `hyp_search_results.csv`
+        - Log file = `hyp_search_log.log`
+        - If any of the individual model runs resulted in errors, their log files will be stored as well so that you can take a closer look at what went wrong.
+
+    The results CSV contains:
     ```
     -------------------------------------------------------------------------
     | UUID | <hyperparameters swept over> | <loss results> | <anae results> |
@@ -74,159 +125,157 @@ def run_hyp_search(data, hyp_options, numruns=None, avg_ignore_initial_epochs=10
     -------------------------------------------------------------------------
     ```
     """
-    ## Pre-process hyp options
-    POSSIBLE_KEYS = [arg for arg in inspect.getfullargspec(StatePredictor).args if arg not in ['self', 'data']]
-    ignore_hyps = []
-    for k,v in hyp_options.items():
-        if k not in POSSIBLE_KEYS:
-            print(f"Key '{k}' in `hyp_options` is not a valid input that can be swept for DeepKoopman. This key will be ignored. Keys must be in {POSSIBLE_KEYS}.")
-            ignore_hyps.append(k)
-        if type(v) not in [list,set,tuple]:
-            hyp_options[k] = [v]
-    
-    ## Ignore early stopping metric if early_stopping=False
-    if not hyp_options.get('early_stopping', [False])[0] and 'early_stopping_metric' in hyp_options:
-        del hyp_options['early_stopping_metric']
-    
-    ## Get hyp variables and constants
-    hyp_variables = {k:v for k,v in hyp_options.items() if k not in ignore_hyps and len(v)>1}
-    hyp_constants = {k:v[0] for k,v in hyp_options.items() if k not in ignore_hyps and len(v)==1}
+    ## Define perfs
+    PERFS = [
+        'recon_loss', 'lin_loss', 'pred_loss', 'total_loss',
+        'recon_anae', 'lin_anae', 'pred_anae'
+    ]
+
+    ## Define possible hyp options and MODEL_CLASS
+    if isinstance(dh, StatePredictor_DataHandler):
+        REQD_CLASS_KEYS = ['rank', 'encoded_size']
+        CLASS_KEYS = ['rank', 'encoded_size', 'encoder_hidden_layers', 'decoder_hidden_layers', 'batch_norm']
+        TRAIN_KEYS = ['numepochs', 'early_stopping', 'early_stopping_metric', 'lr', 'weight_decay', 'decoder_loss_weight', 'Kreg', 'cond_threshold', 'clip_grad_norm', 'clip_grad_value']
+        MODEL_CLASS = StatePredictor
+    elif isinstance(dh, TrajectoryPredictor_DataHandler):
+        REQD_CLASS_KEYS = ['encoded_size']
+        CLASS_KEYS = ['encoded_size', 'encoder_hidden_layers', 'decoder_hidden_layers', 'batch_norm']
+        TRAIN_KEYS = ['numepochs', 'batch_size', 'early_stopping', 'early_stopping_metric', 'lr', 'weight_decay', 'decoder_loss_weight', 'clip_grad_norm', 'clip_grad_value']
+        MODEL_CLASS = TrajectoryPredictor
+    else:
+        raise ValueError(f"Invalid 'dh' of type {type(dh)}")
+    ALL_KEYS = CLASS_KEYS + TRAIN_KEYS
+
+    ## Check that required hyp options are provided
+    msg = ""
+    for k in REQD_CLASS_KEYS:
+        if k not in hyp_options:
+            msg += f"'{k}' is a required argument to {MODEL_CLASS.__name__}, so 'hyp_options' must include a key-value pair for {{'{k}': <{k}_values>}}"
+    if msg: 
+        raise ValueError(msg)
+
+    ## Order key-value pairs into a new dict where CLASS_KEYS comes first, then TRAIN_KEYS
+    hyp_options_ordered = OrderedDict()
+
+    USED_CLASS_KEYS = []
+    for k in CLASS_KEYS:
+        if k in hyp_options:
+            USED_CLASS_KEYS.append(k)
+            v = hyp_options[k]
+            hyp_options_ordered[k] = [v] if type(v) not in [list,set,tuple] else v
+
+    USED_TRAIN_KEYS = []
+    for k in TRAIN_KEYS:
+        if k in hyp_options:
+            USED_TRAIN_KEYS.append(k)
+            v = hyp_options[k]
+            hyp_options_ordered[k] = [v] if type(v) not in [list,set,tuple] else v
+
+    ## Report invalid hyps
+    invalid_hyps = set(hyp_options.keys()).difference(set(hyp_options_ordered.keys()))
+    for k in invalid_hyps:
+        print(f"WARNING: Key '{k}' in 'hyp_options' is not a valid argument to {MODEL_CLASS.__name__} or any of its methods. This key will be ignored. Keys must be in {ALL_KEYS}.")
+
+    ## Delete hyp_options as workflow has completely moved over to hyp_options_ordered
     del hyp_options
 
+    ## Ignore early stopping metric if early stopping is only False
+    if hyp_options_ordered.get('early_stopping', [0]) == [0] and 'early_stopping_metric' in hyp_options_ordered:
+        del hyp_options_ordered['early_stopping_metric']
+        USED_TRAIN_KEYS.remove('early_stopping_metric')
+
     ## Get hyps_list_all
-    hyps_list_all = list(itertools.product(*[hyp_variables[key] for key in hyp_variables.keys()]))
+    hyps_list_all = list(itertools.product(*[hyp_options_ordered[key] for key in hyp_options_ordered]))
     if numruns and len(hyps_list_all) > numruns:
         hyps_list_all = random.sample(hyps_list_all, numruns)
 
-    ## Get results file path
-    output_csv_path = Path(f'./hyp_search_{shortuuid.uuid()}.csv').resolve()
+    ## Process results folder and its files
+    output_folder = Path(f'./hyp_search_{shortuuid.uuid()}').resolve()
+    output_folder.mkdir()
+    results_file = output_folder.joinpath('hyp_search_results.csv')
+    log_file = output_folder.joinpath('hyp_search_log.log')
 
     ## Print initial info
-    print('********************************************************************************')
-    print('********************************************************************************')
-    print(f'Starting DeepKoopman hyperparameter search. Results will be stored in {output_csv_path}.')
-    print()
-    print(f'Performing total {len(hyps_list_all)} runs. You can interrupt the script at any time (e.g. Ctrl+C), and intermediate results will be available in the above file.')
-    print()
-    print('Hyperparameters swept over:')
-    for k,v in hyp_variables.items():
+    print('\n********************************************************************************')
+    print(f'Starting {MODEL_CLASS.__name__} hyperparameter search. Results will be stored in {results_file}.\n')
+    print(f'Performing total {len(hyps_list_all)} runs. You can interrupt the script at any time (e.g. Ctrl+C), and intermediate results will be available in the above file.\n')
+    print(f'Log of the entire hyperpaameter search, as well as logs of failed {MODEL_CLASS.__name__} runs will also be stored in the same folder.\n')
+    print("Hyperparameters' sweep ranges:")
+    for k,v in hyp_options_ordered.items():
         print(f"{k} : {', '.join([str(vv) for vv in v])}")
-    print()
-    print('Constant hyperparameters:')
-    for k,v in hyp_constants.items():
-        print(f"{k} : {v}")
-    print()
-    print('Other hyperparameters have default values, see https://galoisinc.github.io/deep-koopman/core.html')
-    print('********************************************************************************')
-    print('********************************************************************************')
-    print()
+    print('********************************************************************************\n')
+
+    ## Change directory
+    original_cwd = os.getcwd()
+    os.chdir(output_folder)
+
+    ## Write outputs to log file from here on
+    original_stdout = sys.stdout
+    sys.stdout = open(log_file, 'w')
 
     ## Open CSV and write header row
-    with open(output_csv_path, 'w') as csvfile:
+    with open(results_file, 'w') as csvfile:
         csvwriter = csv.writer(csvfile)
         header_row = [
             'UUID',
-            *list(hyp_variables.keys()), # columns will only be created for inputs that vary, because it doesn't make sense to have a constant column
-            'avg_recon_loss_tr', 'final_recon_loss_tr', 'avg_recon_loss_va', 'best_recon_loss_va', 'bestep_recon_loss_va',
-            'avg_lin_loss_tr', 'final_lin_loss_tr', 'avg_lin_loss_va', 'best_lin_loss_va', 'bestep_lin_loss_va',
-            'avg_pred_loss_tr', 'final_pred_loss_tr', 'avg_pred_loss_va', 'best_pred_loss_va', 'bestep_pred_loss_va',
-            'avg_loss_tr', 'final_loss_tr', 'avg_loss_va', 'best_loss_va', 'bestep_loss_va',
-            'avg_recon_anae_tr', 'final_recon_anae_tr', 'avg_recon_anae_va', 'best_recon_anae_va', 'bestep_recon_anae_va',
-            'avg_lin_anae_tr', 'final_lin_anae_tr', 'avg_lin_anae_va', 'best_lin_anae_va', 'bestep_lin_anae_va',
-            'avg_pred_anae_tr', 'final_pred_anae_tr', 'avg_pred_anae_va', 'best_pred_anae_va', 'bestep_pred_anae_va',
+            *list(hyp_options_ordered.keys())
         ]
+        for perf in PERFS:
+            header_row += list(_gen_colnames(perf))
         csvwriter.writerow(header_row)
 
-        ## Do DK runs
+        ## Do runs
         for hyps_list in tqdm(hyps_list_all):
-            hyps = dict(zip(hyp_variables.keys(),hyps_list))
-            print(f'Hyperparameters: {hyps}')
-            
-            try:
-                dk = StatePredictor(
-                    data = data,
-                    **hyps,
-                    **hyp_constants
-                )
-            
-            except AssertionError as e:
-                print(f'Encountered error, skipping this run\n"{e}"')
-            
+            class_hyps = OrderedDict(zip(USED_CLASS_KEYS, hyps_list[:len(USED_CLASS_KEYS)]))
+            train_hyps = OrderedDict(zip(USED_TRAIN_KEYS, hyps_list[len(USED_CLASS_KEYS):]))
+            all_hyps = {**class_hyps, **train_hyps}
+            print(f'Hyperparameters: {all_hyps}')
+
+            model = MODEL_CLASS(
+                dh = dh,
+                **class_hyps
+            )
+
+            row = [
+                model.uuid,
+                *list(class_hyps.values()),
+                *list(train_hyps.values()),
+            ]
+
+            model.train_net(**train_hyps)
+
+            if model.error_flag:
+                row += (len(header_row)-len(row))*[np.nan]
+                print('WARNING: Encountered error. The log file of this model will be saved for you to take a closer look.')
+
             else:
-                row = [
-                    dk.uuid,
-                    *[hyps[key] for key in hyps.keys()]
-                ]
-                
-                dk.train_net()
-                
-                if dk.error_flag:
-                    row += (len(header_row)-len(row))*[np.nan]
-                    #TODO have a way of signaling this to user?
+                if avg_ignore_initial_epochs >= len(model.stats['total_loss_tr']): # can pick any key
+                    print(f"WARNING: The value of `avg_ignore_initial_epochs` = {avg_ignore_initial_epochs} is greater than the actual number of epochs for which the current model instance has run for = {len(model.stats['total_loss_tr'])}. Thus, 'avg' statistics will be equal to the last epoch's value.")
+                    _avg_ignore_initial_epochs = len(model.stats['total_loss_tr'])-1
                 else:
-                    if avg_ignore_initial_epochs >= len(dk.stats['loss_tr']): # can pick any key
-                        print(f"WARNING: The value of `avg_ignore_initial_epochs` = {avg_ignore_initial_epochs} is greater than the actual number of epochs for which the current DeepKoopman instance has run for = {len(dk.stats['loss_tr'])}. Thus, 'avg' statistics will be equal to the last epoch's value.")
-                        _avg_ignore_initial_epochs = len(dk.stats['loss_tr'])-1
-                    else:
-                        _avg_ignore_initial_epochs = avg_ignore_initial_epochs
-                    row += [
-                        np.mean(dk.stats['recon_loss_tr'][_avg_ignore_initial_epochs:]),
-                        dk.stats['recon_loss_tr'][-1],
-                        np.mean(dk.stats['recon_loss_va'][_avg_ignore_initial_epochs:]),
-                        np.min(dk.stats['recon_loss_va']),
-                        np.argmin(dk.stats['recon_loss_va'])+1,
+                    _avg_ignore_initial_epochs = avg_ignore_initial_epochs
+                for perf in PERFS:
+                    row += list(_compute_stats(model.stats, perf, _avg_ignore_initial_epochs))
+                os.system(f"rm -rf {model.log_file}")
 
-                        np.mean(dk.stats['lin_loss_tr'][_avg_ignore_initial_epochs:]),
-                        dk.stats['lin_loss_tr'][-1],
-                        np.mean(dk.stats['lin_loss_va'][_avg_ignore_initial_epochs:]),
-                        np.min(dk.stats['lin_loss_va']),
-                        np.argmin(dk.stats['lin_loss_va'])+1,
+            csvwriter.writerow(row)
+            print()
 
-                        np.mean(dk.stats['pred_loss_tr'][_avg_ignore_initial_epochs:]),
-                        dk.stats['pred_loss_tr'][-1],
-                        np.mean(dk.stats['pred_loss_va'][_avg_ignore_initial_epochs:]),
-                        np.min(dk.stats['pred_loss_va']),
-                        np.argmin(dk.stats['pred_loss_va'])+1,
+    ## Back to writing in terminal
+    sys.stdout = original_stdout
 
-                        np.mean(dk.stats['loss_tr'][_avg_ignore_initial_epochs:]),
-                        dk.stats['loss_tr'][-1],
-                        np.mean(dk.stats['loss_va'][_avg_ignore_initial_epochs:]),
-                        np.min(dk.stats['loss_va']),
-                        np.argmin(dk.stats['loss_va'])+1,
-
-                        np.mean(dk.stats['recon_anae_tr'][_avg_ignore_initial_epochs:]),
-                        dk.stats['recon_anae_tr'][-1],
-                        np.mean(dk.stats['recon_anae_va'][_avg_ignore_initial_epochs:]),
-                        np.min(dk.stats['recon_anae_va']),
-                        np.argmin(dk.stats['recon_anae_va'])+1,
-
-                        np.mean(dk.stats['lin_anae_tr'][_avg_ignore_initial_epochs:]),
-                        dk.stats['lin_anae_tr'][-1],
-                        np.mean(dk.stats['lin_anae_va'][_avg_ignore_initial_epochs:]),
-                        np.min(dk.stats['lin_anae_va']),
-                        np.argmin(dk.stats['lin_anae_va'])+1,
-
-                        np.mean(dk.stats['pred_anae_tr'][_avg_ignore_initial_epochs:]),
-                        dk.stats['pred_anae_tr'][-1],
-                        np.mean(dk.stats['pred_anae_va'][_avg_ignore_initial_epochs:]),
-                        np.min(dk.stats['pred_anae_va']),
-                        np.argmin(dk.stats['pred_anae_va'])+1
-                    ]
-
-                csvwriter.writerow(row)
-
-                os.system(f"rm -rf {dk.log_file}")
-            
-            finally:
-                print('\n\n')
-
-    ## Sort results
+    ## Delete constant columns and sort results
+    df = pd.read_csv(results_file)
+    df.drop(columns = [k for k,v in hyp_options_ordered.items() if len(v)==1], inplace=True)
+    
     if sort_key:
-        df = pd.read_csv(output_csv_path)
         try:
             df.sort_values(sort_key, ascending=True, inplace=True)
         except KeyError:
-            print(f"WARNING: `sort_key` = '{sort_key}' not found among the columns of the output CSV '{output_csv_path}'. Results will be unsorted.")
-        df.to_csv(output_csv_path, index=False)
+            print(f"WARNING: `sort_key` = '{sort_key}' not found among the columns of the output CSV '{results_file}'. Results will be unsorted.")
+        df.to_csv(results_file, index=False)
 
-    return output_csv_path
+    ## Change back to original directory
+    os.chdir(original_cwd)
+
+    return output_folder

@@ -23,7 +23,7 @@ def get_data():
 
 @pytest.fixture
 def get_ref_dk_stats_rounded3():
-    with open(os.path.join(os.path.dirname(os.path.realpath(__file__)), 'ref_dk_stats.pkl'), 'rb') as f:
+    with open(os.path.join(os.path.dirname(os.path.realpath(__file__)), 'ref_sp_stats.pkl'), 'rb') as f:
         stats = pickle.load(f)
     return round3(stats)
 
