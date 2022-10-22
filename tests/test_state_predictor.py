@@ -22,7 +22,7 @@ def get_data():
     return data
 
 @pytest.fixture
-def get_ref_dk_stats_rounded3():
+def get_ref_stats_rounded3():
     with open(os.path.join(os.path.dirname(os.path.realpath(__file__)), 'ref_sp_stats.pkl'), 'rb') as f:
         stats = pickle.load(f)
     return round3(stats)
@@ -52,7 +52,7 @@ def test_StatePredictor_DataHandler(get_data):
     assert torch.equal(dh.tte, torch.tensor([]))
 
 
-def test_StatePredictor(get_data, get_ref_dk_stats_rounded3):
+def test_StatePredictor(get_data, get_ref_stats_rounded3):
     data = get_data
     dh = StatePredictor_DataHandler(
         Xtr=data['Xtr'], ttr=data['ttr'],
@@ -60,7 +60,7 @@ def test_StatePredictor(get_data, get_ref_dk_stats_rounded3):
         Xte=data['Xte'], tte=data['tte']
     )
 
-    ref_stats = get_ref_dk_stats_rounded3
+    ref_stats = get_ref_stats_rounded3
 
     utils.set_seed(10)
 

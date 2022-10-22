@@ -1,4 +1,4 @@
-"""**The core DeepKoopman class**""" 
+"""**StatePredictor class, including its DataHandler**"""
 
 
 from collections import defaultdict
@@ -84,6 +84,7 @@ class StatePredictor:
     """StatePredictor class to learn the Koopman matrix of a system from its input states at given indexes, then predict its states at unknown indexes.
 
     ## Parameters
+    - **dh** (*StatePredictor_DataHandler*) - Data handler that feeds data.
 
     - **rank** (*int*) - Rank of SVD operation to compute Koopman matrix. Use `0` for full rank. Will be set to `min(encoded_size, num_training_indexes-1)` if the provided value is greater.
 
@@ -99,8 +100,6 @@ class StatePredictor:
     ## Attributes
     - **uuid** (*str*) - Unique ID assigned to this instance. Results will include `uuid` in their filename.
     - **log_file** (*Path*) - Path to log file = `./log_<uuid>.log`.
-
-    - **dh** (*StatePredictor_DataHandler*) - Data handler that feeds data to the `StatePredictor`.
 
     - **input_size** (*int*) - Dimensionality of input states. Inferred from `dh.Xtr`.
     - **encoded_size** (*int*) - Dimensionality of encoded states. As given in input.
