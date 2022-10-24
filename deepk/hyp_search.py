@@ -16,48 +16,57 @@ from deepk.state_predictor import StatePredictor, StatePredictor_DataHandler
 from deepk.trajectory_predictor import TrajectoryPredictor, TrajectoryPredictor_DataHandler
 
 
-def _gen_colnames(perf) -> tuple[str, str, str, str, str]:
+def _gen_colnames(perf, do_val=True) -> list[str]:
     """
     Inputs:
         perf (str) - Either of <recon/lin/pred>_<loss/anae> or total_loss
     
     Return a list of strings that are column names of output CSV - see code for details
     """
-    return (
+    ret = [
         f'avg_{perf}_tr',
-        f'final_{perf}_tr',
-        f'avg_{perf}_va',
-        f'best_{perf}_va',
-        f'bestep_{perf}_va'
-    )
+        f'final_{perf}_tr'
+    ]
+    if do_val:
+        ret.extend([
+            f'avg_{perf}_va',
+            f'best_{perf}_va',
+            f'bestep_{perf}_va'
+        ])
+    return ret
 
-def _compute_stats(stats, perf, avg_ignore_initial_epochs=0) -> tuple[float, float, float, float, float]:
+def _compute_stats(stats, perf, do_val=True, avg_ignore_initial_epochs=0) -> list[float]:
     """
     Inputs:
         stats - A MODEL_CLASS.stats object
         perf (str) - Either of <recon/lin/pred>_<loss/anae> or total_loss
+        do_val (bool) - Whether to return validation stats or not
         avg_ignore_initial_epochs (bool) - See doc of run_hyp_search()
     
     Return:
         avg(perf_tr)
         last(perf_tr)
-        avg(perf_va)
-        best(perf_va)
-        bestep(perf_va)
+        avg(perf_va) (if do_val is True)
+        best(perf_va) (if do_val is True)
+        bestep(perf_va) (if do_val is True)
     """
-    return (
+    ret = [
         np.mean(stats[f'{perf}_tr'][avg_ignore_initial_epochs:]),
-        stats[f'{perf}_tr'][-1],
-        np.mean(stats[f'{perf}_va'][avg_ignore_initial_epochs:]),
-        np.min(stats[f'{perf}_va']),
-        np.argmin(stats[f'{perf}_va'])+1
-    )
+        stats[f'{perf}_tr'][-1]
+    ]
+    if do_val:
+        ret.extend([
+            np.mean(stats[f'{perf}_va'][avg_ignore_initial_epochs:]),
+            np.min(stats[f'{perf}_va']),
+            np.argmin(stats[f'{perf}_va'])+1
+    ])
+    return ret
 
 
 
 def run_hyp_search(
     dh, hyp_options,
-    numruns=None, avg_ignore_initial_epochs=0, sort_key='avg_pred_anae_va'
+    numruns=None, avg_ignore_initial_epochs=0, sort_key='avg_total_loss_va'
 ) -> Path:
     """Perform many runs of a type of predictor model (either `StatePredictor` or `TrajectoryPredictor`) with different configurations on given data, and save the loss and ANAE statistics for each run.
 
@@ -75,11 +84,14 @@ def run_hyp_search(
 
     save the following statistics:
 
-    - `avg_<x>_tr` - Average training `<x>` across all epochs.
-    - `final_<x>_tr` - Final training `<x>` after last epoch.
-    - `avg_<x>_va` - Average validation `<x>` across all epochs.
-    - `best_<x>_va` - Best validation `<x>` across epochs.
-    - `bestep_<x>_va` - Epoch number after which best validation `<x>` was achieved.
+    If only training data is provided:
+        - `avg_<x>_tr` - Average training `<x>` across all epochs.
+        - `final_<x>_tr` - Final training `<x>` after last epoch.
+
+    If both training and validation data is provided (recommended):
+        - `avg_<x>_va` - Average validation `<x>` across all epochs.
+        - `best_<x>_va` - Best validation `<x>` across epochs.
+        - `bestep_<x>_va` - Epoch number after which best validation `<x>` was achieved.
 
     For more details, refer to [losses](https://galoisinc.github.io/deep-koopman/losses.html) and [ANAEs](https://galoisinc.github.io/deep-koopman/errors.html).
 
@@ -125,6 +137,9 @@ def run_hyp_search(
     -------------------------------------------------------------------------
     ```
     """
+    ## Define do_val
+    do_val = len(dh.Xva) > 0
+    
     ## Define perfs
     PERFS = [
         'recon_loss', 'lin_loss', 'pred_loss', 'total_loss',
@@ -221,7 +236,7 @@ def run_hyp_search(
             *list(hyp_options_ordered.keys())
         ]
         for perf in PERFS:
-            header_row += list(_gen_colnames(perf))
+            header_row += _gen_colnames(perf=perf, do_val=do_val)
         csvwriter.writerow(header_row)
 
         ## Do runs
@@ -255,7 +270,7 @@ def run_hyp_search(
                 else:
                     _avg_ignore_initial_epochs = avg_ignore_initial_epochs
                 for perf in PERFS:
-                    row += list(_compute_stats(model.stats, perf, _avg_ignore_initial_epochs))
+                    row += _compute_stats(stats=model.stats, perf=perf, do_val=do_val, avg_ignore_initial_epochs=_avg_ignore_initial_epochs)
                 os.system(f"rm -rf {model.log_file}")
 
             csvwriter.writerow(row)

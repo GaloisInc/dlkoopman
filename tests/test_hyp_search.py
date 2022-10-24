@@ -16,8 +16,7 @@ def test_run_hyp_search():
         data = pickle.load(f)
     dh = StatePredictor_DataHandler(
         Xtr=data['Xtr'], ttr=data['ttr'],
-        Xva=data['Xva'], tva=data['tva'],
-        Xte=data['Xte'], tte=data['tte']
+        Xva=data['Xva'], tva=data['tva']
     )
 
     output_folder = run_hyp_search(
