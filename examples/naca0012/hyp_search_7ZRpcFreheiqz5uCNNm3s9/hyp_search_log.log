@@ -1,0 +1,24 @@
+Hyperparameters: {'rank': 4, 'encoded_size': 50, 'encoder_hidden_layers': [100, 100], 'numepochs': 200, 'weight_decay': 1e-05}
+Log file = /Users/sourya/work/Essence/deep-koopman/examples/naca0012/hyp_search_7ZRpcFreheiqz5uCNNm3s9/log_CXfk3ortuV4H34GZtwFokj.log
+
+Hyperparameters: {'rank': 4, 'encoded_size': 50, 'encoder_hidden_layers': [100, 100], 'numepochs': 300, 'weight_decay': 1e-05}
+Log file = /Users/sourya/work/Essence/deep-koopman/examples/naca0012/hyp_search_7ZRpcFreheiqz5uCNNm3s9/log_6G7DaVmgShvtVRDLFATh43.log
+
+Hyperparameters: {'rank': 4, 'encoded_size': 50, 'encoder_hidden_layers': [200, 100, 50], 'numepochs': 200, 'weight_decay': 1e-05}
+Log file = /Users/sourya/work/Essence/deep-koopman/examples/naca0012/hyp_search_7ZRpcFreheiqz5uCNNm3s9/log_CnZUnqCdUoEQUe6uufboMU.log
+
+Hyperparameters: {'rank': 4, 'encoded_size': 50, 'encoder_hidden_layers': [200, 100, 50], 'numepochs': 300, 'weight_decay': 1e-05}
+Log file = /Users/sourya/work/Essence/deep-koopman/examples/naca0012/hyp_search_7ZRpcFreheiqz5uCNNm3s9/log_3TQ9TdBQdd8jTmRRvLwf8t.log
+
+Hyperparameters: {'rank': 6, 'encoded_size': 50, 'encoder_hidden_layers': [100, 100], 'numepochs': 200, 'weight_decay': 1e-05}
+Log file = /Users/sourya/work/Essence/deep-koopman/examples/naca0012/hyp_search_7ZRpcFreheiqz5uCNNm3s9/log_TYFa8RS67ruDfYWMJdQGDo.log
+
+Hyperparameters: {'rank': 6, 'encoded_size': 50, 'encoder_hidden_layers': [100, 100], 'numepochs': 300, 'weight_decay': 1e-05}
+Log file = /Users/sourya/work/Essence/deep-koopman/examples/naca0012/hyp_search_7ZRpcFreheiqz5uCNNm3s9/log_AtKrYVSMoD4Sb5HKxUm6tV.log
+
+Hyperparameters: {'rank': 6, 'encoded_size': 50, 'encoder_hidden_layers': [200, 100, 50], 'numepochs': 200, 'weight_decay': 1e-05}
+Log file = /Users/sourya/work/Essence/deep-koopman/examples/naca0012/hyp_search_7ZRpcFreheiqz5uCNNm3s9/log_XsJXrJkS3KisaHfGYPyTef.log
+
+Hyperparameters: {'rank': 6, 'encoded_size': 50, 'encoder_hidden_layers': [200, 100, 50], 'numepochs': 300, 'weight_decay': 1e-05}
+Log file = /Users/sourya/work/Essence/deep-koopman/examples/naca0012/hyp_search_7ZRpcFreheiqz5uCNNm3s9/log_YsK4UnnK9LB3axZfUYi9Tu.log
+

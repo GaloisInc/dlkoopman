@@ -1,0 +1,15 @@
+Hyperparameters: {'rank': 6, 'encoded_size': 50, 'encoder_hidden_layers': [100, 100], 'numepochs': 200, 'weight_decay': 1e-05}
+Log file = /Users/sourya/work/Essence/deep-koopman/examples/naca0012/hyp_search_92e7KQjuvk26VyqHGpZG3v/log_heN5sJ88d3HBXWugmPct93.log
+
+Hyperparameters: {'rank': 6, 'encoded_size': 50, 'encoder_hidden_layers': [200, 100, 50], 'numepochs': 200, 'weight_decay': 1e-05}
+Log file = /Users/sourya/work/Essence/deep-koopman/examples/naca0012/hyp_search_92e7KQjuvk26VyqHGpZG3v/log_32Nmh7kCVhABBzKDr6vBKx.log
+
+Hyperparameters: {'rank': 4, 'encoded_size': 50, 'encoder_hidden_layers': [200, 100, 50], 'numepochs': 200, 'weight_decay': 1e-05}
+Log file = /Users/sourya/work/Essence/deep-koopman/examples/naca0012/hyp_search_92e7KQjuvk26VyqHGpZG3v/log_UkiyaQJPTjcaJ8gZ2Unipn.log
+
+Hyperparameters: {'rank': 4, 'encoded_size': 50, 'encoder_hidden_layers': [200, 100, 50], 'numepochs': 300, 'weight_decay': 1e-05}
+Log file = /Users/sourya/work/Essence/deep-koopman/examples/naca0012/hyp_search_92e7KQjuvk26VyqHGpZG3v/log_dduKEkGqWx5dYax36QWHpD.log
+
+Hyperparameters: {'rank': 4, 'encoded_size': 50, 'encoder_hidden_layers': [100, 100], 'numepochs': 200, 'weight_decay': 1e-05}
+Log file = /Users/sourya/work/Essence/deep-koopman/examples/naca0012/hyp_search_92e7KQjuvk26VyqHGpZG3v/log_BhmsbPXrJxuzVnC8Q7BUpK.log
+
