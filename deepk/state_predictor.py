@@ -9,7 +9,7 @@ import torch
 from tqdm import tqdm
 
 from deepk import config as cfg
-from deepk import utils, losses, errors, nets
+from deepk import utils, metrics, nets
 
 import warnings
 warnings.filterwarnings("ignore", category=UserWarning)
@@ -403,11 +403,11 @@ class StatePredictor:
 
             # ANAEs
             with torch.no_grad():
-                anaes_tr = errors.overall(X=self.dh.Xtr[1:], Y=Ytr[1:], Xr=Xrtr[1:], Ypred=Ypredtr, Xpred=Xpredtr)
+                anaes_tr = metrics.overall_anae(X=self.dh.Xtr[1:], Y=Ytr[1:], Xr=Xrtr[1:], Ypred=Ypredtr, Xpred=Xpredtr)
             self._update_stats(anaes_tr, 'anae_tr')
 
             # Losses
-            losses_tr = losses.overall(X=self.dh.Xtr[1:], Y=Ytr[1:], Xr=Xrtr[1:], Ypred=Ypredtr, Xpred=Xpredtr, decoder_loss_weight = self.decoder_loss_weight)
+            losses_tr = metrics.overall_loss(X=self.dh.Xtr[1:], Y=Ytr[1:], Xr=Xrtr[1:], Ypred=Ypredtr, Xpred=Xpredtr, decoder_loss_weight = self.decoder_loss_weight)
             losses_tr['Kreg'] = Kreg*torch.sum(torch.abs(Ktilde))/torch.numel(Ktilde) # this is unique to training
             losses_tr['total'] += losses_tr['Kreg']
             self._update_stats(losses_tr, 'loss_tr')
@@ -457,10 +457,10 @@ class StatePredictor:
                     Ypredva = self._dmd_predict(t=self.dh.tva, y0=self.y0, Omega=Omega, eigvecs=eigvecs)
                     Xpredva = self.ae.decoder(Ypredva)
 
-                    anaes_va = errors.overall(X=self.dh.Xva, Y=Yva, Xr=Xrva, Ypred=Ypredva, Xpred=Xpredva)
+                    anaes_va = metrics.overall_anae(X=self.dh.Xva, Y=Yva, Xr=Xrva, Ypred=Ypredva, Xpred=Xpredva)
                     self._update_stats(anaes_va, 'anae_va')
 
-                    losses_va = losses.overall(X=self.dh.Xva, Y=Yva, Xr=Xrva, Ypred=Ypredva, Xpred=Xpredva, decoder_loss_weight=self.decoder_loss_weight)
+                    losses_va = metrics.overall_loss(X=self.dh.Xva, Y=Yva, Xr=Xrva, Ypred=Ypredva, Xpred=Xpredva, decoder_loss_weight=self.decoder_loss_weight)
                     self._update_stats(losses_va, 'loss_va')
 
                 self._write_to_log_file('_va')
@@ -509,10 +509,10 @@ class StatePredictor:
                 Ypredte = self._dmd_predict(t=self.dh.tte, y0=self.y0, Omega=self.Omega, eigvecs=self.eigvecs)
                 Xpredte = self.ae.decoder(Ypredte)
 
-                anaes_te = errors.overall(X=self.dh.Xte, Y=Yte, Xr=Xrte, Ypred=Ypredte, Xpred=Xpredte)
+                anaes_te = metrics.overall_anae(X=self.dh.Xte, Y=Yte, Xr=Xrte, Ypred=Ypredte, Xpred=Xpredte)
                 self._update_stats(anaes_te, 'anae_te')
                 
-                losses_te = losses.overall(X=self.dh.Xte, Y=Yte, Xr=Xrte, Ypred=Ypredte, Xpred=Xpredte, decoder_loss_weight=self.decoder_loss_weight)
+                losses_te = metrics.overall_loss(X=self.dh.Xte, Y=Yte, Xr=Xrte, Ypred=Ypredte, Xpred=Xpredte, decoder_loss_weight=self.decoder_loss_weight)
                 self._update_stats(losses_te, 'loss_te')
 
             self._write_to_log_file('_te')

@@ -17,7 +17,7 @@ def round3(stats):
 
 @pytest.fixture
 def get_data():
-    with open(os.path.join(os.path.dirname(os.path.dirname(os.path.realpath(__file__))), 'examples/naca0012/data.pkl'), 'rb') as f:
+    with open(os.path.join(os.path.dirname(os.path.dirname(os.path.realpath(__file__))), 'examples/state_predictor_naca0012/data.pkl'), 'rb') as f:
         data = pickle.load(f)
     return data
 

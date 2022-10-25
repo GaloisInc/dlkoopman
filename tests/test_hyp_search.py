@@ -12,7 +12,7 @@ def test_run_hyp_search():
     ref_df = pd.read_csv(os.path.join(os.path.dirname(os.path.realpath(__file__)), 'ref_hyp_search_results.csv'))
     ref_df.drop(columns=['UUID'], inplace=True)
 
-    with open(os.path.join(os.path.dirname(os.path.dirname(os.path.realpath(__file__))), 'examples/naca0012/data.pkl'), 'rb') as f:
+    with open(os.path.join(os.path.dirname(os.path.dirname(os.path.realpath(__file__))), 'examples/state_predictor_naca0012/data.pkl'), 'rb') as f:
         data = pickle.load(f)
     dh = StatePredictor_DataHandler(
         Xtr=data['Xtr'], ttr=data['ttr'],

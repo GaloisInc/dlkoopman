@@ -6,12 +6,12 @@ Tutorials are in the form of Jupyter notebooks. You can view them online. If you
 
 You are now ready to go!
 
-## NACA0012
-The folder [`naca0012`](./state_predictor_naca0012/) contains tutorials on:
+## State Predictor (on NACA0012 data)
+The folder [`state_predictor_naca0012`](./state_predictor_naca0012/) contains tutorials on:
 1. [Running `StatePredictor`](./state_predictor_naca0012/run.ipynb).
 2. [Performing hyperparameter search](./state_predictor_naca0012/hyp_search.ipynb).
 
-## Discrete spectrum
-The folder [`discrete_spectrum`](./trajectory_predictor_discrete_spectrum/) contains tutorials on:
-1. [Running `TrajectoryPredictor`](./trajectory_predictor_discrete_spectrum/run.ipynb). Do this first.
+## Trajectory Predictor (on discrete spectrum data)
+The folder [`trajectory_predictor_discrete_spectrum`](./trajectory_predictor_discrete_spectrum/) contains tutorials on:
+1. [Running `TrajectoryPredictor`](./trajectory_predictor_discrete_spectrum/run.ipynb).
 2. [Performing hyperparameter search](./trajectory_predictor_discrete_spectrum/hyp_search.ipynb).

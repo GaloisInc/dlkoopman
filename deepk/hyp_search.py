@@ -114,7 +114,7 @@ def run_hyp_search(
     # this results in \\(2\\times2\\times5 = 20\\) possible runs:
     ```
 
-    - **numruns** (*int, optional*) - The total number of possible DeepKoopman runs is \\(N =\\) the number of elements in the Cartesian product of the values of `hyp_options` (in the above example, this is 20). If `numruns` is `None` or \\(>N\\), run \\(N\\) runs, otherwise run `numruns` runs.<br>Since each run takes time, it is recommended to set `numruns` to a reasonably smaller value when \\(N\\) is large.
+    - **numruns** (*int, optional*) - The total number of possible model runs is \\(N =\\) the number of elements in the Cartesian product of the values of `hyp_options` (in the above example, this is 20). If `numruns` is `None` or \\(>N\\), run \\(N\\) runs, otherwise run `numruns` runs.<br>Since each run takes time, it is recommended to set `numruns` to a reasonably smaller value when \\(N\\) is large.
 
     - **avg_ignore_initial_epochs** (*int, optional*) - When collecting average statistics across epochs, ignore this many initial epochs. This is useful because the loss / ANAE values can be quite high early on, which can skew the averages and make it meaningless to compare runs based on the averages.
 

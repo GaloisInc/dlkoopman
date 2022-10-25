@@ -9,7 +9,7 @@ import torch
 from tqdm import tqdm
 
 from deepk import config as cfg
-from deepk import utils, losses, errors, nets
+from deepk import utils, metrics, nets
 
 import warnings
 warnings.filterwarnings("ignore", category=UserWarning)
@@ -101,13 +101,10 @@ class TrajectoryPredictor:
         self.ae.to(dtype=cfg._RTYPE, device=cfg._DEVICE)
 
         ## Define linear layer
-        self.Knet = torch.nn.Linear(
-            in_features = encoded_size,
-            out_features = encoded_size,
-            bias = False,
-            dtype = cfg._RTYPE,
-            device = cfg._DEVICE
+        self.Knet = nets.Knet(
+            size = encoded_size
         )
+        self.Knet.to(dtype=cfg._RTYPE, device=cfg._DEVICE)
 
         ## Define params
         self.params = list(self.ae.parameters()) + list(self.Knet.parameters())
@@ -249,11 +246,11 @@ class TrajectoryPredictor:
 
                 # ANAEs
                 with torch.no_grad():
-                    batch_anaes_tr = errors.overall(X = self.dh.Xtr[batch*batch_size : (batch+1)*batch_size, 1:], Y=Ytr[:,1:], Xr=Xrtr[:,1:], Ypred=Ypredtr[:,1:], Xpred=Xpredtr[:,1:])
+                    batch_anaes_tr = metrics.overall_anae(X = self.dh.Xtr[batch*batch_size : (batch+1)*batch_size, 1:], Y=Ytr[:,1:], Xr=Xrtr[:,1:], Ypred=Ypredtr[:,1:], Xpred=Xpredtr[:,1:])
                 self._update_epoch_stats(anaes_tr, batch_anaes_tr)
 
                 # Losses
-                batch_losses_tr = losses.overall(X = self.dh.Xtr[batch*batch_size : (batch+1)*batch_size, 1:], Y=Ytr[:,1:], Xr=Xrtr[:,1:], Ypred=Ypredtr[:,1:], Xpred=Xpredtr[:,1:], decoder_loss_weight = self.decoder_loss_weight)
+                batch_losses_tr = metrics.overall_loss(X = self.dh.Xtr[batch*batch_size : (batch+1)*batch_size, 1:], Y=Ytr[:,1:], Xr=Xrtr[:,1:], Ypred=Ypredtr[:,1:], Xpred=Xpredtr[:,1:], decoder_loss_weight = self.decoder_loss_weight)
                 self._update_epoch_stats(losses_tr, batch_losses_tr)
 
                 # Backprop
@@ -308,10 +305,10 @@ class TrajectoryPredictor:
                     Ypredva = self._evolve(Yva[:,0,:]) # shape = (num_va_trajectories, num_indexes, encoded_size)
                     Xpredva = self.ae.decoder(Ypredva) # shape = (num_va_trajectories, num_indexes, input_size)
 
-                    anaes_va = errors.overall(X=self.dh.Xva[:,1:], Y=Yva[:,1:], Xr=Xrva[:,1:], Ypred=Ypredva[:,1:], Xpred=Xpredva[:,1:])
+                    anaes_va = metrics.overall_anae(X=self.dh.Xva[:,1:], Y=Yva[:,1:], Xr=Xrva[:,1:], Ypred=Ypredva[:,1:], Xpred=Xpredva[:,1:])
                     self._update_stats(anaes_va, 'anae_va')
 
-                    losses_va = losses.overall(X=self.dh.Xva[:,1:], Y=Yva[:,1:], Xr=Xrva[:,1:], Ypred=Ypredva[:,1:], Xpred=Xpredva[:,1:], decoder_loss_weight=self.decoder_loss_weight)
+                    losses_va = metrics.overall_loss(X=self.dh.Xva[:,1:], Y=Yva[:,1:], Xr=Xrva[:,1:], Ypred=Ypredva[:,1:], Xpred=Xpredva[:,1:], decoder_loss_weight=self.decoder_loss_weight)
                     self._update_stats(losses_va, 'loss_va')
 
                 self._write_to_log_file('_va')
@@ -362,10 +359,10 @@ class TrajectoryPredictor:
                 Ypredte = self._evolve(Yte[:,0,:]) # shape = (num_te_trajectories, num_indexes, encoded_size)
                 Xpredte = self.ae.decoder(Ypredte) # shape = (num_te_trajectories, num_indexes, input_size)
 
-                anaes_te = errors.overall(X=self.dh.Xte[:,1:], Y=Yte[:,1:], Xr=Xrte[:,1:], Ypred=Ypredte[:,1:], Xpred=Xpredte[:,1:])
+                anaes_te = metrics.overall_anae(X=self.dh.Xte[:,1:], Y=Yte[:,1:], Xr=Xrte[:,1:], Ypred=Ypredte[:,1:], Xpred=Xpredte[:,1:])
                 self._update_stats(anaes_te, 'anae_te')
 
-                losses_te = losses.overall(X=self.dh.Xte[:,1:], Y=Yte[:,1:], Xr=Xrte[:,1:], Ypred=Ypredte[:,1:], Xpred=Xpredte[:,1:], decoder_loss_weight=self.decoder_loss_weight)
+                losses_te = metrics.overall_loss(X=self.dh.Xte[:,1:], Y=Yte[:,1:], Xr=Xrte[:,1:], Ypred=Ypredte[:,1:], Xpred=Xpredte[:,1:], decoder_loss_weight=self.decoder_loss_weight)
                 self._update_stats(losses_te, 'loss_te')
 
             self._write_to_log_file('_te')

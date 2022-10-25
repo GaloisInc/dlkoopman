@@ -1,4 +1,4 @@
-"""Neural nets used inside DeepKoopman."""
+"""Neural nets used inside the models."""
 
 
 import torch
@@ -101,3 +101,35 @@ class AutoEncoder(torch.nn.Module):
         Y = self.encoder(X) # encoder complete output
         Xr = self.decoder(Y) # final reconstructed output
         return Y, Xr
+
+
+class Knet(torch.nn.Module):
+    """Neural net to approximate the Koopman matrix.
+    
+    Contains identically sized input and output layers, no hidden layers, and no bias vector.
+
+    ## Parameters
+    - **size** (*int*) - Dimension of the input and output layer.
+
+    ## Attributes
+    - **net** (*torch.nn.ModuleList*) - The neural net.
+    """
+    def __init__(self, size):
+        """ """
+        super().__init__()
+        self.net = torch.nn.Linear(
+            in_features = size,
+            out_features = size,
+            bias = False
+        )
+
+    def forward(self, X) -> torch.Tensor:
+        """Forward propagation of neural net.
+
+        ## Parameters
+        - **X** (*torch.Tensor, shape=(\\*, size)*) - Input data to net.
+
+        ## Returns 
+        - **X** (*torch.Tensor, shape=(\\*, size)*) - Output data from net.
+        """
+        return self.net(X)

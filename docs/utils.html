@@ -42,20 +42,20 @@
 <p><strong>x</strong> (<em>torch.Tensor</em>) - Matrix whose SVD will be computed. Assume shape to be (m,n).</p>
 <h2 id="returns">Returns</h2>
 <ul>
-<li><strong>U</strong> (<em>torch.Tensor, shape=(m,min(m,n))</em>)</li>
+<li><strong>U</strong> (<em>torch.Tensor, shape=(m, min(m,n))</em>)</li>
 <li><strong>Sigma</strong> (<em>torch.Tensor, shape=(min(m,n),)</em>)</li>
-<li><strong>V</strong> (<em>torch.Tensor, shape=(n,min(m,n))</em>)</li>
+<li><strong>V</strong> (<em>torch.Tensor, shape=(n, min(m,n))</em>)</li>
 </ul></div>
 </dd>
 <dt id="deepk.utils.plot_stats"><code class="name flex">
-<span>def <span class="ident">plot_stats</span></span>(<span>dk, perfs=['pred_anae'], start_epoch=1, fontsize=12)</span>
+<span>def <span class="ident">plot_stats</span></span>(<span>model, perfs=['pred_anae'], start_epoch=1, fontsize=12)</span>
 </code></dt>
 <dd>
-<div class="desc"><p>Plot stats from a DeepKoopman run.</p>
+<div class="desc"><p>Plot stats from a model.</p>
 <h2 id="parameters">Parameters</h2>
 <ul>
 <li>
-<p><strong>dk</strong> (<em>core.DeepKoopman</em>) - A DeepKoopman object with <code>stats</code> populated.</p>
+<p><strong>model</strong> (<em>StatePredictor</em> or <em>TrajectoryPredictor</em>) - A model with <code>stats</code> populated.</p>
 </li>
 <li>
 <p><strong>perfs</strong> (<em>list[str]</em>) - Which variables from <code>stats</code> to plot. For each variable, training data and validation data stats are plotted vs epochs, and the title of the plot is the test data stats value.</p>
@@ -68,7 +68,7 @@
 </li>
 </ul>
 <h2 id="effects">Effects</h2>
-<p>Creates plots for each <code>perf</code> and saves their png file(s) to <code>"./dk_&lt;dk.uuid&gt;_&lt;perf&gt;.png"</code>.</p></div>
+<p>Creates plots for each <code>perf</code> and saves their png file(s) to <code>"./plot_&lt;model.uuid&gt;_&lt;perf&gt;.png"</code>.</p></div>
 </dd>
 <dt id="deepk.utils.set_seed"><code class="name flex">
 <span>def <span class="ident">set_seed</span></span>(<span>seed)</span>

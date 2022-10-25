@@ -1,0 +1,270 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
+<meta name="generator" content="pdoc 0.10.0" />
+<title>deepk.state_predictor API documentation</title>
+<meta name="description" content="**StatePredictor class, including its DataHandler**" />
+<link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/sanitize.min.css" integrity="sha256-PK9q560IAAa6WVRRh76LtCaI8pjTJ2z11v0miyNNjrs=" crossorigin>
+<link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/typography.min.css" integrity="sha256-7l/o7C8jubJiy74VsKTidCy1yBkRtiUGbVkYBylBqUg=" crossorigin>
+<link rel="stylesheet preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/styles/github.min.css" crossorigin>
+<style>:root{--highlight-color:#fe9}.flex{display:flex !important}body{line-height:1.5em}#content{padding:20px}#sidebar{padding:30px;overflow:hidden}#sidebar > *:last-child{margin-bottom:2cm}.http-server-breadcrumbs{font-size:130%;margin:0 0 15px 0}#footer{font-size:.75em;padding:5px 30px;border-top:1px solid #ddd;text-align:right}#footer p{margin:0 0 0 1em;display:inline-block}#footer p:last-child{margin-right:30px}h1,h2,h3,h4,h5{font-weight:300}h1{font-size:2.5em;line-height:1.1em}h2{font-size:1.75em;margin:1em 0 .50em 0}h3{font-size:1.4em;margin:25px 0 10px 0}h4{margin:0;font-size:105%}h1:target,h2:target,h3:target,h4:target,h5:target,h6:target{background:var(--highlight-color);padding:.2em 0}a{color:#058;text-decoration:none;transition:color .3s ease-in-out}a:hover{color:#e82}.title code{font-weight:bold}h2[id^="header-"]{margin-top:2em}.ident{color:#900}pre code{background:#f8f8f8;font-size:.8em;line-height:1.4em}code{background:#f2f2f1;padding:1px 4px;overflow-wrap:break-word}h1 code{background:transparent}pre{background:#f8f8f8;border:0;border-top:1px solid #ccc;border-bottom:1px solid #ccc;margin:1em 0;padding:1ex}#http-server-module-list{display:flex;flex-flow:column}#http-server-module-list div{display:flex}#http-server-module-list dt{min-width:10%}#http-server-module-list p{margin-top:0}.toc ul,#index{list-style-type:none;margin:0;padding:0}#index code{background:transparent}#index h3{border-bottom:1px solid #ddd}#index ul{padding:0}#index h4{margin-top:.6em;font-weight:bold}@media (min-width:200ex){#index .two-column{column-count:2}}@media (min-width:300ex){#index .two-column{column-count:3}}dl{margin-bottom:2em}dl dl:last-child{margin-bottom:4em}dd{margin:0 0 1em 3em}#header-classes + dl > dd{margin-bottom:3em}dd dd{margin-left:2em}dd p{margin:10px 0}.name{background:#eee;font-weight:bold;font-size:.85em;padding:5px 10px;display:inline-block;min-width:40%}.name:hover{background:#e0e0e0}dt:target .name{background:var(--highlight-color)}.name > span:first-child{white-space:nowrap}.name.class > span:nth-child(2){margin-left:.4em}.inherited{color:#999;border-left:5px solid #eee;padding-left:1em}.inheritance em{font-style:normal;font-weight:bold}.desc h2{font-weight:400;font-size:1.25em}.desc h3{font-size:1em}.desc dt code{background:inherit}.source summary,.git-link-div{color:#666;text-align:right;font-weight:400;font-size:.8em;text-transform:uppercase}.source summary > *{white-space:nowrap;cursor:pointer}.git-link{color:inherit;margin-left:1em}.source pre{max-height:500px;overflow:auto;margin:0}.source pre code{font-size:12px;overflow:visible}.hlist{list-style:none}.hlist li{display:inline}.hlist li:after{content:',\2002'}.hlist li:last-child:after{content:none}.hlist .hlist{display:inline;padding-left:1em}img{max-width:100%}td{padding:0 .5em}.admonition{padding:.1em .5em;margin-bottom:1em}.admonition-title{font-weight:bold}.admonition.note,.admonition.info,.admonition.important{background:#aef}.admonition.todo,.admonition.versionadded,.admonition.tip,.admonition.hint{background:#dfd}.admonition.warning,.admonition.versionchanged,.admonition.deprecated{background:#fd4}.admonition.error,.admonition.danger,.admonition.caution{background:lightpink}</style>
+<style media="screen and (min-width: 700px)">@media screen and (min-width:700px){#sidebar{width:30%;height:100vh;overflow:auto;position:sticky;top:0}#content{width:70%;max-width:100ch;padding:3em 4em;border-left:1px solid #ddd}pre code{font-size:1em}.item .name{font-size:1em}main{display:flex;flex-direction:row-reverse;justify-content:flex-end}.toc ul ul,#index ul{padding-left:1.5em}.toc > ul > li{margin-top:.5em}}</style>
+<style media="print">@media print{#sidebar h1{page-break-before:always}.source{display:none}}@media print{*{background:transparent !important;color:#000 !important;box-shadow:none !important;text-shadow:none !important}a[href]:after{content:" (" attr(href) ")";font-size:90%}a[href][title]:after{content:none}abbr[title]:after{content:" (" attr(title) ")"}.ir a:after,a[href^="javascript:"]:after,a[href^="#"]:after{content:""}pre,blockquote{border:1px solid #999;page-break-inside:avoid}thead{display:table-header-group}tr,img{page-break-inside:avoid}img{max-width:100% !important}@page{margin:0.5cm}p,h2,h3{orphans:3;widows:3}h1,h2,h3,h4,h5,h6{page-break-after:avoid}}</style>
+<script async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS_CHTML" integrity="sha256-kZafAc6mZvK3W3v1pHOcUix30OHQN6pU/NO2oFkqZVw=" crossorigin></script>
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/highlight.min.js" integrity="sha256-Uv3H6lx7dJmRfRvH8TH6kJD1TSK1aFcwgx+mdg3epi8=" crossorigin></script>
+<script>window.addEventListener('DOMContentLoaded', () => hljs.initHighlighting())</script>
+</head>
+<body>
+<main>
+<article id="content">
+<header>
+<h1 class="title">Module <code>deepk.state_predictor</code></h1>
+</header>
+<section id="section-intro">
+<p><strong>StatePredictor class, including its DataHandler</strong></p>
+</section>
+<section>
+</section>
+<section>
+</section>
+<section>
+</section>
+<section>
+<h2 class="section-title" id="header-classes">Classes</h2>
+<dl>
+<dt id="deepk.state_predictor.StatePredictor_DataHandler"><code class="flex name class">
+<span>class <span class="ident">StatePredictor_DataHandler</span></span>
+<span>(</span><span>Xtr, ttr, Xva=None, tva=None, Xte=None, tte=None)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Handler class for providing data to train (and optionally validate and test) the <code><a title="deepk.state_predictor.StatePredictor" href="#deepk.state_predictor.StatePredictor">StatePredictor</a></code> model.</p>
+<h2 id="parameters">Parameters</h2>
+<ul>
+<li>
+<p><strong>'Xtr'</strong> (<em>Array[float], shape=(num_training_indexes, input_size)</em>) - Input states to be used as training data. <em>Array</em> can be any data type such as <em>numpy.array</em>, <em>torch.Tensor</em>, <em>list</em> etc.</p>
+</li>
+<li>
+<p><strong>'ttr'</strong> (<em>Array[int,float], shape=(num_training_indexes,)</em>) - Indexes of the states in <code>Xtr</code>. <em>Array</em> can be any data type such as <em>numpy.array</em>, <em>torch.Tensor</em>, <em>list</em>, <em>range</em>, etc.</p>
+<ul>
+<li><strong><code>ttr</code> must be in ascending order and should ideally be equally spaced</strong>. The 1st value of <code>ttr</code> will be used as the <em>baseline index</em>.</li>
+<li>Small deviations are okay, e.g. <code>[100, 203, 298, 400, 500]</code> will become <code>[100, 200, 300, 400, 500]</code>, but larger deviations that cannot be unambiguously rounded will lead to errors.</li>
+</ul>
+</li>
+<li>
+<p><strong>'Xva'</strong> (<em>Array[float], shape=(num_validation_indexes, input_size), optional</em>) - Input states to be used as validation data. Same data type requirements as <code>Xtr</code>.</p>
+</li>
+<li>
+<p><strong>'tva'</strong> (<em>Array[int,float], shape=(num_validation_indexes,), optional</em>): Indexes of the states in <code>Xva</code>. Same data type requirements as <code>ttr</code>.</p>
+<ul>
+<li>The order and spacing restrictions on <code>ttr</code> do <em>not</em> apply. The values of these indexes can be anything.</li>
+</ul>
+</li>
+<li>
+<p><strong>'Xte'</strong> (<em>Array[float], shape=(num_test_indexes, input_size), optional</em>) - Input states to be used as test data. Same data type requirements as <code>Xtr</code>.</p>
+</li>
+<li>
+<p><strong>'tte'</strong> (<em>Array[int,float], shape=(num_test_indexes,), optional</em>): Indexes of the states in <code>Xte</code>. Same data type requirements as <code>ttr</code>.</p>
+<ul>
+<li>The order and spacing restrictions on <code>ttr</code> do <em>not</em> apply. The values of these indexes can be anything.</li>
+</ul>
+</li>
+</ul></div>
+</dd>
+<dt id="deepk.state_predictor.StatePredictor"><code class="flex name class">
+<span>class <span class="ident">StatePredictor</span></span>
+<span>(</span><span>dh, rank, encoded_size, encoder_hidden_layers=[100], decoder_hidden_layers=[], batch_norm=False)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>StatePredictor class to learn the Koopman matrix of a system from its input states at given indexes, then predict its states at unknown indexes.</p>
+<h2 id="parameters">Parameters</h2>
+<ul>
+<li>
+<p><strong>dh</strong> (<em>StatePredictor_DataHandler</em>) - Data handler that feeds data.</p>
+</li>
+<li>
+<p><strong>rank</strong> (<em>int</em>) - Rank of SVD operation to compute Koopman matrix. Use <code>0</code> for full rank. Will be set to <code>min(encoded_size, num_training_indexes-1)</code> if the provided value is greater.</p>
+</li>
+<li>
+<p>Parameters required by <a href="https://galoisinc.github.io/deep-koopman/nets.html#deepk.nets.AutoEncoder">AutoEncoder</a>:</p>
+<ul>
+<li>
+<p><strong>encoded_size</strong> (<em>int</em>).</p>
+</li>
+<li>
+<p><strong>encoder_hidden_layers</strong> (<em>list[int], optional</em>).</p>
+</li>
+<li>
+<p><strong>decoder_hidden_layers</strong> (<em>list[int], optional</em>).</p>
+</li>
+<li>
+<p><strong>batch_norm</strong> (<em>bool, optional</em>).</p>
+</li>
+</ul>
+</li>
+</ul>
+<h2 id="attributes">Attributes</h2>
+<ul>
+<li><strong>uuid</strong> (<em>str</em>) - Unique ID assigned to this instance. Results will include <code>uuid</code> in their filename.</li>
+<li>
+<p><strong>log_file</strong> (<em>Path</em>) - Path to log file = <code>./log_&lt;uuid&gt;.log</code>.</p>
+</li>
+<li>
+<p><strong>input_size</strong> (<em>int</em>) - Dimensionality of input states. Inferred from <code>dh.Xtr</code>.</p>
+</li>
+<li>
+<p><strong>encoded_size</strong> (<em>int</em>) - Dimensionality of encoded states. As given in input.</p>
+</li>
+<li>
+<p><strong>ae</strong> (<em>nets.AutoEncoder</em>) - AutoEncoder neural network to encode input states into a linearizable domain where the Koopman matrix can be learnt, then decode them back into original domain.</p>
+</li>
+<li>
+<p><strong>Omega</strong> (<em>torch.Tensor</em>), <strong>eigvecs</strong> (<em>torch.Tensor</em>), <strong>y0</strong> (<em>torch.Tensor</em>) - Used to make predictions using a trained model.</p>
+<ul>
+<li><code>Omega</code> - Continuous time eigenvalues of Koopman matrix.</li>
+<li><code>eigvecs</code> - Eigenvectors of Koopman matrix.</li>
+<li><code>y0</code> - Encoded state at the baseline index, which is evolved to get predictions for any index.</li>
+</ul>
+</li>
+<li>
+<p><strong>stats</strong> (<em>dict[list]</em>) - Stores different metrics from training and testing. Useful for checking performance.</p>
+</li>
+<li>
+<p><strong>error_flag</strong> (<em>bool</em>) - Signals if any error has occurred in training.</p>
+</li>
+</ul></div>
+<h3>Instance variables</h3>
+<dl>
+<dt id="deepk.state_predictor.StatePredictor.decoder_loss_weight"><code class="name">var <span class="ident">decoder_loss_weight</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="deepk.state_predictor.StatePredictor.cond_threshold"><code class="name">var <span class="ident">cond_threshold</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="deepk.state_predictor.StatePredictor.Omega"><code class="name">var <span class="ident">Omega</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="deepk.state_predictor.StatePredictor.eigvecs"><code class="name">var <span class="ident">eigvecs</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="deepk.state_predictor.StatePredictor.y0"><code class="name">var <span class="ident">y0</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+</dl>
+<h3>Methods</h3>
+<dl>
+<dt id="deepk.state_predictor.StatePredictor.train_net"><code class="name flex">
+<span>def <span class="ident">train_net</span></span>(<span>self, numepochs=500, early_stopping=0, early_stopping_metric='pred_anae', lr=0.001, weight_decay=0.0, decoder_loss_weight=0.01, Kreg=0.001, cond_threshold=100.0, clip_grad_norm=None, clip_grad_value=None)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Train the model using <code>dh.Xtr</code> and <code>dh.ttr</code>, and validate it on <code>dh.Xva</code> and <code>dh.tva</code>.</p>
+<h2 id="parameters">Parameters</h2>
+<ul>
+<li>
+<p><strong>numepochs</strong> (<em>int, optional</em>) - Number of epochs for which to train. Each epoch uses the complete training data to learn the Koopman matrix.</p>
+</li>
+<li>
+<p><strong>early_stopping</strong> (<em>int/float, optional</em>) - Whether to terminate training early due to no improvement in validation metric.</p>
+<ul>
+<li>If <code>0</code>, no early stopping. The model will run for the complete <code>numepochs</code> epochs.</li>
+<li>If an integer, early stop if validation metric doesn't improve for that many epochs.</li>
+<li>If a float, early stop if validation performance doesn't improve for that fraction of epochs, rounded up.</li>
+</ul>
+</li>
+<li>
+<p><strong>early_stopping_metric</strong> (<em>str, optional</em>) - Which validation metric to use for early stopping. Ignored if <code>early_stopping=False</code>. Possible metrics are <code>'&lt;recon/lin/pred/total&gt;_loss'</code>, and <code>'&lt;recon/lin/pred&gt;_anae'</code>.</p>
+</li>
+<li>
+<p><strong>lr</strong> (<em>float, optional</em>) - Learning rate for optimizer.</p>
+</li>
+<li>
+<p><strong>weight_decay</strong> (<em>float, optional</em>) - L2 coefficient for weights of the neural nets.</p>
+</li>
+<li>
+<p><strong>decoder_loss_weight</strong> (<em>float, optional</em>) - Weight the losses between autoencoder decoder outputs (<code>recon</code> and <code>pred</code>) by this number. This is to account for the scaling effect of the decoder.</p>
+</li>
+<li>
+<p><strong>Kreg</strong> (<em>float, optional</em>) - L1 penalty for the Ktilde matrix.</p>
+</li>
+<li>
+<p><strong>cond_threshold</strong> (<em>float, optional</em>) - Condition number of the eigenvector matrix greater than this will be reported, and singular values smaller than this fraction of the largest will be ignored for the pseudo-inverse operation.</p>
+</li>
+<li>
+<p><strong>clip_grad_norm</strong> (<em>float, optional</em>) - If not None, clip the norm of gradients to this value.</p>
+</li>
+<li><strong>clip_grad_value</strong> (<em>float, optional</em>) - If not None, clip the values of gradients to [-<code>clip_grad_value</code>,<code>clip_grad_value</code>].</li>
+</ul>
+<h2 id="effects">Effects</h2>
+<ul>
+<li><code>self.stats</code> is populated.</li>
+<li><code>self.Omega</code> and <code>self.eigvecs</code> hold the eigendecomposition of the trained learnt Koopman matrix, which can be used ti predict any state by evolving <code>self.y0</code>.</li>
+</ul></div>
+</dd>
+<dt id="deepk.state_predictor.StatePredictor.test_net"><code class="name flex">
+<span>def <span class="ident">test_net</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Run the trained model on test data - <code>dh.Xte</code> and <code>dh.tte</code>.</p>
+<h2 id="effects">Effects</h2>
+<ul>
+<li><code>self.stats</code> is populated further.</li>
+</ul></div>
+</dd>
+<dt id="deepk.state_predictor.StatePredictor.predict_new"><code class="name flex">
+<span>def <span class="ident">predict_new</span></span>(<span>self, t) ‑> torch.Tensor</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Use the trained model to predict the states for new indexes that are unknown.</p>
+<p>This is different from testing because the ground truth values are not present, thus losses and errors are not computed. This method can be used to make predictions for interpolated and extrapolated indexes.</p>
+<h2 id="parameters">Parameters</h2>
+<ul>
+<li><strong>'t'</strong> (<em>Array[int,float], shape=(num_new_indexes,)</em>) - Indexes for which unknown states should be predicted. <em>Array</em> can be any data type such as <em>numpy.array</em>, <em>torch.Tensor</em>, <em>list</em>, <em>range</em>, etc.</li>
+</ul>
+<h2 id="returns">Returns</h2>
+<p><strong>Xpred</strong> (<em>torch.Tensor, shape=(len(t), input_size)</em>) - Predicted states for the new indexes.</p></div>
+</dd>
+</dl>
+</dd>
+</dl>
+</section>
+</article>
+<nav id="sidebar">
+<h1>Index</h1>
+<div class="toc">
+<ul></ul>
+</div>
+<ul id="index">
+<li><h3>Super-module</h3>
+<ul>
+<li><code><a title="deepk" href="index.html">deepk</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-classes">Classes</a></h3>
+<ul>
+<li>
+<h4><code><a title="deepk.state_predictor.StatePredictor_DataHandler" href="#deepk.state_predictor.StatePredictor_DataHandler">StatePredictor_DataHandler</a></code></h4>
+</li>
+<li>
+<h4><code><a title="deepk.state_predictor.StatePredictor" href="#deepk.state_predictor.StatePredictor">StatePredictor</a></code></h4>
+<ul class="">
+<li><code><a title="deepk.state_predictor.StatePredictor.train_net" href="#deepk.state_predictor.StatePredictor.train_net">train_net</a></code></li>
+<li><code><a title="deepk.state_predictor.StatePredictor.test_net" href="#deepk.state_predictor.StatePredictor.test_net">test_net</a></code></li>
+<li><code><a title="deepk.state_predictor.StatePredictor.predict_new" href="#deepk.state_predictor.StatePredictor.predict_new">predict_new</a></code></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</nav>
+</main>
+<footer id="footer">
+<p>Generated by <a href="https://pdoc3.github.io/pdoc" title="pdoc: Python API documentation generator"><cite>pdoc</cite> 0.10.0</a>.</p>
+</footer>
+</body>
+</html>

@@ -1,4 +1,4 @@
-"""Error functions used to report how well a DeepKoopman neural net has performed in a more human-readable way than loss."""
+"""Loss and error functions, used to optimize models and report their performance."""
 
 
 import torch
@@ -46,8 +46,8 @@ def _naae(ref, new) -> torch.Tensor:
     return 100.*torch.mean(torch.abs(ref-new))/torch.mean(torch.abs(ref))
 
 
-def overall(X, Y, Xr, Ypred, Xpred) -> dict[str, torch.Tensor]:
-    """Computes overall error for the DeepK neural net.
+def overall_anae(X, Y, Xr, Ypred, Xpred) -> dict[str, torch.Tensor]:
+    """Computes overall ANAE for a model.
     
     ## Parameters
     - **X** (*torch.Tensor, shape=(\\*, input_size)*) - Input states, i.e. input to encoder.
@@ -71,3 +71,35 @@ def overall(X, Y, Xr, Ypred, Xpred) -> dict[str, torch.Tensor]:
         'lin': anae(ref=Y, new=Ypred),
         'pred': anae(ref=X, new=Xpred)
     }
+
+
+def overall_loss(X, Y, Xr, Ypred, Xpred, decoder_loss_weight) -> dict[str, torch.Tensor]:
+    """Computes overall loss for a model.
+    
+    ## Parameters
+    - **X** (*torch.Tensor, shape=(\\*, input_size)*) - Input states, i.e. input to encoder.
+
+    - **Y** (*torch.Tensor, shape=(\\*, encoded_size)*) - Encoded states, i.e. output from encoder, input to decoder.
+
+    - **Xr** (*torch.Tensor, shape=(\\*, input_size)*) - Reconstructed states, i.e. output of decoder.
+
+    - **Ypred** (*torch.Tensor, shape=(\\*, encoded_size)*) - Predicted encoded states obtained from evolving baseline encoded state.
+
+    - **Xpred** (*torch.Tensor, shape=(\\*, input_size)*) - Predicted input states, which are predicted encoded states passed through decoder.
+
+    - **decoder_loss_weight** (*float, optional*) - Weight the losses between decoder outputs (`recon` and `pred`) by this number. This is to account for the scaling effect of the decoder.
+
+    ## Returns
+    **losses** (*dict[str, torch.Tensor]*)
+        - Key **'recon'**: (*torch scalar*) - Reconstruction loss between `X` and `Xr`.
+        - Key **'lin'**: (*torch scalar*) - Linearity loss between `Y` and `Ypred`.
+        - Key **'pred'**: (*torch scalar*) - Prediction loss between `X` and `Xpred`.
+        - Key **'total'**: (*torch scalar*) - Total loss = `lin + decoder_loss_weight*(recon+pred)`
+    """
+    losses = {
+        'recon': torch.nn.MSELoss(reduction='mean')(X, Xr),
+        'lin': torch.nn.MSELoss(reduction='mean')(Y, Ypred),
+        'pred': torch.nn.MSELoss(reduction='mean')(X, Xpred)
+    }
+    losses['total'] = losses['lin'] + decoder_loss_weight * (losses['recon'] + losses['pred'])
+    return losses

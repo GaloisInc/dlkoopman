@@ -46,29 +46,21 @@
 </dd>
 <dt id="deepk.config.normalize_Xdata"><code class="name">var <span class="ident">normalize_Xdata</span></code></dt>
 <dd>
-<div class="desc"><p>If <code>True</code>, all input data (training, validation, test) are divided by the maximum absolute value in the training data.</p>
+<div class="desc"><p>If <code>True</code>, all input states (training, validation, test) are divided by the maximum absolute value in the training data.</p>
 <p><strong>Options</strong>: <code>True</code> / <code>False</code></p>
 <p><strong>Default</strong>: <code>True</code></p>
 <h2 id="notes">Notes</h2>
 <p>Normalizing data is a generally good technique for deep learning, and is normally done for each feature <span><span class="MathJax_Preview">f</span><script type="math/tex">f</script></span> in the input data as
 <span><span class="MathJax_Preview">X_f = \frac{X_f-\text{offset}_f}{\text{scale}_f}</span><script type="math/tex; mode=display">X_f = \frac{X_f-\text{offset}_f}{\text{scale}_f}</script></span>
-(where offset and scale are mean and standard deviation for Gaussian normalization, or minimum value and range for Minmax normalization.) However, <em>this messes up the spectral techniques such as singular value and eigen value decomposition required in Deep Koopman</em>. Hence, setting <code>normalize_Xdata=True</code> will just use a single scale value for normalizing the whole data to get
+(where offset and scale are mean and standard deviation for Gaussian normalization, or minimum value and range for Minmax normalization.) However, <em>this messes up the spectral techniques such as singular value and eigen value decomposition required in Koopman theory</em>. Hence, setting <code>normalize_Xdata=True</code> will just use a single scale value for normalizing the whole data to get
 <span><span class="MathJax_Preview">X = \frac{X}{\text{scale}}</span><script type="math/tex; mode=display">X = \frac{X}{\text{scale}}</script></span>
 This results in the singular and eigen vectors remaining the same.</p>
 <h2 id="caution">Caution</h2>
 <p>Setting this to <code>normalize_Xdata=False</code> may end the run by leading to imaginary parts of tensors reaching values where the loss function depends on the phase (in <code>torch &gt;= 1.11</code>, this leads to <code>"RuntimeError: linalg_eig_backward: The eigenvectors in the complex case are specified up to multiplication by e^{i phi}. The specified loss function depends on this quantity, so it is ill-defined"</code>). The only benefit to setting this to <code>False</code> is that if the run successfully completes, the final error metrics such as ANAE are slightly more accurate since they are reported on the un-normalized data values.</p></div>
 </dd>
-<dt id="deepk.config.use_custom_stable_svd"><code class="name">var <span class="ident">use_custom_stable_svd</span></code></dt>
-<dd>
-<div class="desc"><p>The singular value decomposition used is <code>utils.stable_svd</code> if <code>True</code>, and <code>torch.linalg.svd</code> if <code>False</code>.</p>
-<p><strong>Options</strong>: <code>True</code> / <code>False</code></p>
-<p><strong>Default</strong>: <code>True</code></p>
-<h2 id="caution">Caution</h2>
-<p>Setting this to <code>False</code> may end the run due to encountering NaNs in gradients, as explained <a href="https://pytorch.org/docs/stable/generated/torch.linalg.svd.html">here</a>.</p></div>
-</dd>
 <dt id="deepk.config.use_exact_eigenvectors"><code class="name">var <span class="ident">use_exact_eigenvectors</span></code></dt>
 <dd>
-<div class="desc"><p>If <code>True</code>, the exact eigenvectors of the Koopman matrix are used, if <code>False</code>, the projected eigenvectors are used.</p>
+<div class="desc"><p>If <code>True</code>, the exact eigenvectors of the Koopman matrix are used in <code>StatePredictor</code>, if <code>False</code>, the projected eigenvectors are used.</p>
 <p><strong>Options</strong>: <code>True</code> / <code>False</code></p>
 <p><strong>Default</strong>: <code>True</code></p>
 <h2 id="notes">Notes</h2>
@@ -76,7 +68,7 @@ This results in the singular and eigen vectors remaining the same.</p>
 </dd>
 <dt id="deepk.config.sigma_threshold"><code class="name">var <span class="ident">sigma_threshold</span></code></dt>
 <dd>
-<div class="desc"><p>Any singular value lower than this will be reported when in debug mode, since this is a possible cause of unstable gradients.</p>
+<div class="desc"><p>When computing the SVD in <code>StatePredictor</code>, singular values lower than this will be reported, since they can be a possible cause of unstable gradients.</p>
 <p><strong>Options</strong>: Any numerical value.</p>
 <p><strong>Default</strong>: <code>1e-25</code></p></div>
 </dd>
@@ -103,7 +95,6 @@ This results in the singular and eigen vectors remaining the same.</p>
 <li><code><a title="deepk.config.precision" href="#deepk.config.precision">precision</a></code></li>
 <li><code><a title="deepk.config.use_cuda" href="#deepk.config.use_cuda">use_cuda</a></code></li>
 <li><code><a title="deepk.config.normalize_Xdata" href="#deepk.config.normalize_Xdata">normalize_Xdata</a></code></li>
-<li><code><a title="deepk.config.use_custom_stable_svd" href="#deepk.config.use_custom_stable_svd">use_custom_stable_svd</a></code></li>
 <li><code><a title="deepk.config.use_exact_eigenvectors" href="#deepk.config.use_exact_eigenvectors">use_exact_eigenvectors</a></code></li>
 <li><code><a title="deepk.config.sigma_threshold" href="#deepk.config.sigma_threshold">sigma_threshold</a></code></li>
 </ul>
