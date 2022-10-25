@@ -66,7 +66,7 @@ def _compute_stats(stats, perf, do_val=True, avg_ignore_initial_epochs=0) -> lis
 
 def run_hyp_search(
     dh, hyp_options,
-    numruns=None, avg_ignore_initial_epochs=0, sort_key='avg_total_loss_va'
+    numruns=None, avg_ignore_initial_epochs=0, sort_key='avg_pred_anae_va'
 ) -> Path:
     """Perform many runs of a type of predictor model (either `StatePredictor` or `TrajectoryPredictor`) with different configurations on given data, and save the loss and ANAE statistics for each run.
 
@@ -214,7 +214,7 @@ def run_hyp_search(
     print('\n********************************************************************************')
     print(f'Starting {MODEL_CLASS.__name__} hyperparameter search. Results will be stored in {results_file}.\n')
     print(f'Performing total {len(hyps_list_all)} runs. You can interrupt the script at any time (e.g. Ctrl+C), and intermediate results will be available in the above file.\n')
-    print(f'Log of the entire hyperpaameter search, as well as logs of failed {MODEL_CLASS.__name__} runs will also be stored in the same folder.\n')
+    print(f'Log of the entire hyperparameter search, as well as logs of failed {MODEL_CLASS.__name__} runs will also be stored in the same folder.\n')
     print("Hyperparameters' sweep ranges:")
     for k,v in hyp_options_ordered.items():
         print(f"{k} : {', '.join([str(vv) for vv in v])}")

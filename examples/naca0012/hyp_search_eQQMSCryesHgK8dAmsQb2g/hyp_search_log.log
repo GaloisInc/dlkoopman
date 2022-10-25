@@ -1,0 +1,36 @@
+Hyperparameters: {'rank': 6, 'encoded_size': 50, 'encoder_hidden_layers': [200, 200], 'numepochs': 200, 'clip_grad_value': 2.0}
+Log file = /Users/sourya/work/Essence/deep-koopman/examples/naca0012/hyp_search_eQQMSCryesHgK8dAmsQb2g/log_MH6xbDboCVR8BsYpdhKrBW.log
+
+Hyperparameters: {'rank': 6, 'encoded_size': 50, 'encoder_hidden_layers': [200, 200], 'numepochs': 300, 'clip_grad_value': 2.0}
+Log file = /Users/sourya/work/Essence/deep-koopman/examples/naca0012/hyp_search_eQQMSCryesHgK8dAmsQb2g/log_RPdKrYMQkS5nR7UMadXvMw.log
+
+Hyperparameters: {'rank': 6, 'encoded_size': 50, 'encoder_hidden_layers': [200, 200], 'numepochs': 400, 'clip_grad_value': 2.0}
+Log file = /Users/sourya/work/Essence/deep-koopman/examples/naca0012/hyp_search_eQQMSCryesHgK8dAmsQb2g/log_8WYzHjuRf4Y2DCJVHu6CUE.log
+
+Hyperparameters: {'rank': 6, 'encoded_size': 50, 'encoder_hidden_layers': [300, 200, 100], 'numepochs': 200, 'clip_grad_value': 2.0}
+Log file = /Users/sourya/work/Essence/deep-koopman/examples/naca0012/hyp_search_eQQMSCryesHgK8dAmsQb2g/log_CA89Gdv3GUhYqaiV4mRNnW.log
+
+Hyperparameters: {'rank': 6, 'encoded_size': 50, 'encoder_hidden_layers': [300, 200, 100], 'numepochs': 300, 'clip_grad_value': 2.0}
+Log file = /Users/sourya/work/Essence/deep-koopman/examples/naca0012/hyp_search_eQQMSCryesHgK8dAmsQb2g/log_W549mYDrwssTZzxd66ayS4.log
+
+Hyperparameters: {'rank': 6, 'encoded_size': 50, 'encoder_hidden_layers': [300, 200, 100], 'numepochs': 400, 'clip_grad_value': 2.0}
+Log file = /Users/sourya/work/Essence/deep-koopman/examples/naca0012/hyp_search_eQQMSCryesHgK8dAmsQb2g/log_hf988EGYmkY3EbWLXmohdp.log
+
+Hyperparameters: {'rank': 6, 'encoded_size': 100, 'encoder_hidden_layers': [200, 200], 'numepochs': 200, 'clip_grad_value': 2.0}
+Log file = /Users/sourya/work/Essence/deep-koopman/examples/naca0012/hyp_search_eQQMSCryesHgK8dAmsQb2g/log_bj8rHjrKTSh6ucX9ZSe6Tz.log
+
+Hyperparameters: {'rank': 6, 'encoded_size': 100, 'encoder_hidden_layers': [200, 200], 'numepochs': 300, 'clip_grad_value': 2.0}
+Log file = /Users/sourya/work/Essence/deep-koopman/examples/naca0012/hyp_search_eQQMSCryesHgK8dAmsQb2g/log_DjGdDi7W49csgWhmAbFquD.log
+
+Hyperparameters: {'rank': 6, 'encoded_size': 100, 'encoder_hidden_layers': [200, 200], 'numepochs': 400, 'clip_grad_value': 2.0}
+Log file = /Users/sourya/work/Essence/deep-koopman/examples/naca0012/hyp_search_eQQMSCryesHgK8dAmsQb2g/log_7DBY9yCvbEwHrNmr9AoL9k.log
+
+Hyperparameters: {'rank': 6, 'encoded_size': 100, 'encoder_hidden_layers': [300, 200, 100], 'numepochs': 200, 'clip_grad_value': 2.0}
+Log file = /Users/sourya/work/Essence/deep-koopman/examples/naca0012/hyp_search_eQQMSCryesHgK8dAmsQb2g/log_HG9aQSZxsuPrNfLwJrAeNF.log
+
+Hyperparameters: {'rank': 6, 'encoded_size': 100, 'encoder_hidden_layers': [300, 200, 100], 'numepochs': 300, 'clip_grad_value': 2.0}
+Log file = /Users/sourya/work/Essence/deep-koopman/examples/naca0012/hyp_search_eQQMSCryesHgK8dAmsQb2g/log_X522xZGQv2HiAYJnWiKPhk.log
+
+Hyperparameters: {'rank': 6, 'encoded_size': 100, 'encoder_hidden_layers': [300, 200, 100], 'numepochs': 400, 'clip_grad_value': 2.0}
+Log file = /Users/sourya/work/Essence/deep-koopman/examples/naca0012/hyp_search_eQQMSCryesHgK8dAmsQb2g/log_jnFy2xEJkn7J57WJjnBoeE.log
+
