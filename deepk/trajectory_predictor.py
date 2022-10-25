@@ -83,7 +83,7 @@ class TrajectoryPredictor:
         ## Define UUID and log file
         self.uuid = shortuuid.uuid()
         self.log_file = Path(f'./log_{self.uuid}.log').resolve()
-        print(f'Deep Koopman log file = {self.log_file}')
+        print(f'Log file = {self.log_file}')
 
         ## Get data handler and sizes
         self.dh = dh
@@ -168,7 +168,7 @@ class TrajectoryPredictor:
 
 
     def train_net(self,
-        numepochs=500, batch_size=0, early_stopping=0, early_stopping_metric='pred_anae',
+        numepochs=10, batch_size=250, early_stopping=0, early_stopping_metric='total_loss',
         lr=1e-3, weight_decay=0., decoder_loss_weight=1e-2,
         clip_grad_norm=None, clip_grad_value=None
     ):

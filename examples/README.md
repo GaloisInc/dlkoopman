@@ -8,5 +8,10 @@ You are now ready to go!
 
 ## NACA0012
 The folder [`naca0012`](./naca0012/) contains tutorials on:
-- Running DeepKoopman – [Notebook](./naca0012/run.ipynb). Do this first.
-- Performing hyperparameter search – [Notebook](./naca0012/hyp_search.ipynb).
+1. [Running `StatePredictor`](./naca0012/run.ipynb).
+2. [Performing hyperparameter search](./naca0012/hyp_search.ipynb).
+
+## Discrete spectrum
+The folder [`discrete_spectrum`](./discrete_spectrum/) contains tutorials on:
+1. [Running `TrajectoryPredictor`](./discrete_spectrum/run.ipynb). Do this first.
+2. [Performing hyperparameter search](./discrete_spectrum/hyp_search.ipynb).
