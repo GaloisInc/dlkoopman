@@ -11,7 +11,7 @@ The folder [`state_predictor_naca0012`](./state_predictor_naca0012/) contains tu
 1. [Running `StatePredictor`](./state_predictor_naca0012/run.ipynb).
 2. [Performing hyperparameter search](./state_predictor_naca0012/hyp_search.ipynb).
 
-## Trajectory Predictor (on discrete spectrum data)
-The folder [`trajectory_predictor_discrete_spectrum`](./trajectory_predictor_discrete_spectrum/) contains tutorials on:
-1. [Running `TrajectoryPredictor`](./trajectory_predictor_discrete_spectrum/run.ipynb).
-2. [Performing hyperparameter search](./trajectory_predictor_discrete_spectrum/hyp_search.ipynb).
+## Trajectory Predictor (on polynomial manifold data)
+The folder [`trajectory_predictor_polynomial_manifold`](./trajectory_predictor_polynomial_manifold/) contains tutorials on:
+1. [Running `TrajectoryPredictor`](./trajectory_predictor_polynomial_manifold/run.ipynb).
+2. [Performing hyperparameter search](./trajectory_predictor_polynomial_manifold/hyp_search.ipynb).

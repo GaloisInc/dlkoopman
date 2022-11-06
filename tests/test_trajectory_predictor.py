@@ -17,7 +17,7 @@ def round3(stats):
 
 @pytest.fixture
 def get_data():
-    with open(os.path.join(os.path.dirname(os.path.dirname(os.path.realpath(__file__))), 'examples/trajectory_predictor_discrete_spectrum/data.pkl'), 'rb') as f:
+    with open(os.path.join(os.path.dirname(os.path.dirname(os.path.realpath(__file__))), 'examples/trajectory_predictor_polynomial_manifold/data.pkl'), 'rb') as f:
         data = pickle.load(f)
     return data
 
