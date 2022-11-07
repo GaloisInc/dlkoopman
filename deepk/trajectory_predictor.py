@@ -1,6 +1,6 @@
 """**TrajectoryPredictor class, including its DataHandler**"""
 
-
+#TODO change ttr, etc to itr, etc
 from collections import defaultdict
 import numpy as np
 from pathlib import Path
@@ -117,6 +117,9 @@ class TrajectoryPredictor:
 
         ## Define other attributes to be used later (getter/setters should exist for each of these)
         self.decoder_loss_weight = None
+        # TODO define these on linear layer weights, i.e. the Koopman matrix. These are for record keeping.
+        self.Omega = None
+        self.eigvecs = None
 
 
     @property
@@ -128,29 +131,6 @@ class TrajectoryPredictor:
     @decoder_loss_weight.setter
     def decoder_loss_weight(self, val):
         self._decoder_loss_weight = val
-
-
-    def _update_stats(self, comps, suffix):
-        for comp,val in comps.items():
-            try:
-                _val = val.item()
-            except (AttributeError, ValueError):
-                _val = val
-            self.stats[f'{comp}_{suffix}'].append(_val)
-
-    def _write_to_log_file(self, suffix):
-        with open(self.log_file, 'a') as lf:
-            lf.write(', '.join([f'{k} = {v[-1]}' for k,v in self.stats.items() if k.endswith(suffix)]) + '\n')
-
-    @staticmethod
-    def _update_epoch_stats(d_ref, d_new):
-        for k,v in d_new.items():
-            try:
-                _v = v.item()
-            except (AttributeError, ValueError):
-                _v = v
-            d_ref[k] += _v
-        return d_ref
 
 
     def _evolve(self, Y0) -> torch.Tensor:
@@ -247,11 +227,15 @@ class TrajectoryPredictor:
                 # ANAEs
                 with torch.no_grad():
                     batch_anaes_tr = metrics.overall_anae(X = self.dh.Xtr[batch*batch_size : (batch+1)*batch_size, 1:], Y=Ytr[:,1:], Xr=Xrtr[:,1:], Ypred=Ypredtr[:,1:], Xpred=Xpredtr[:,1:])
-                self._update_epoch_stats(anaes_tr, batch_anaes_tr)
 
                 # Losses
                 batch_losses_tr = metrics.overall_loss(X = self.dh.Xtr[batch*batch_size : (batch+1)*batch_size, 1:], Y=Ytr[:,1:], Xr=Xrtr[:,1:], Ypred=Ypredtr[:,1:], Xpred=Xpredtr[:,1:], decoder_loss_weight = self.decoder_loss_weight)
-                self._update_epoch_stats(losses_tr, batch_losses_tr)
+
+                # Collect batch training stats
+                for k,v in batch_anaes_tr.items():
+                    anaes_tr[k] += utils._extract_item(v)
+                for k,v in batch_losses_tr.items():
+                    losses_tr[k] += utils._extract_item(v)
 
                 # Backprop
                 loss_tr = batch_losses_tr['total']
@@ -287,13 +271,14 @@ class TrajectoryPredictor:
                 # Update
                 opt.step()
 
-            anaes_tr = {k: v/numbatches for k,v in anaes_tr.items()}
-            losses_tr = {k: v/numbatches for k,v in losses_tr.items()}
-            self._update_stats(anaes_tr, 'anae_tr')
-            self._update_stats(losses_tr, 'loss_tr')
+            # Collect epoch training stats and record
+            for k,v in anaes_tr.items():
+                self.stats[f'{k}_anae_tr'].append(utils._extract_item(v/numbatches))
+            for k,v in losses_tr.items():
+                self.stats[f'{k}_loss_tr'].append(utils._extract_item(v/numbatches))
+            with open(self.log_file, 'a') as lf:
+                lf.write(', '.join([f'{k} = {v[-1]}' for k,v in self.stats.items() if k.endswith('_tr')]) + '\n')
 
-            # Record
-            self._write_to_log_file('_tr')
 
             ## Validation ##
             if do_val:
@@ -306,12 +291,16 @@ class TrajectoryPredictor:
                     Xpredva = self.ae.decoder(Ypredva) # shape = (num_va_trajectories, num_indexes, input_size)
 
                     anaes_va = metrics.overall_anae(X=self.dh.Xva[:,1:], Y=Yva[:,1:], Xr=Xrva[:,1:], Ypred=Ypredva[:,1:], Xpred=Xpredva[:,1:])
-                    self._update_stats(anaes_va, 'anae_va')
 
                     losses_va = metrics.overall_loss(X=self.dh.Xva[:,1:], Y=Yva[:,1:], Xr=Xrva[:,1:], Ypred=Ypredva[:,1:], Xpred=Xpredva[:,1:], decoder_loss_weight=self.decoder_loss_weight)
-                    self._update_stats(losses_va, 'loss_va')
 
-                self._write_to_log_file('_va')
+                # Collect epoch validation stats and record
+                for k,v in anaes_va.items():
+                    self.stats[f'{k}_anae_va'].append(utils._extract_item(v))
+                for k,v in losses_va.items():
+                    self.stats[f'{k}_loss_va'].append(utils._extract_item(v))
+                with open(self.log_file, 'a') as lf:
+                    lf.write(', '.join([f'{k} = {v[-1]}' for k,v in self.stats.items() if k.endswith('_va')]) + '\n')
 
                 # Early stopping
                 if early_stopping:
@@ -360,12 +349,16 @@ class TrajectoryPredictor:
                 Xpredte = self.ae.decoder(Ypredte) # shape = (num_te_trajectories, num_indexes, input_size)
 
                 anaes_te = metrics.overall_anae(X=self.dh.Xte[:,1:], Y=Yte[:,1:], Xr=Xrte[:,1:], Ypred=Ypredte[:,1:], Xpred=Xpredte[:,1:])
-                self._update_stats(anaes_te, 'anae_te')
 
                 losses_te = metrics.overall_loss(X=self.dh.Xte[:,1:], Y=Yte[:,1:], Xr=Xrte[:,1:], Ypred=Ypredte[:,1:], Xpred=Xpredte[:,1:], decoder_loss_weight=self.decoder_loss_weight)
-                self._update_stats(losses_te, 'loss_te')
 
-            self._write_to_log_file('_te')
+            # Collect test stats and record
+            for k,v in anaes_te.items():
+                self.stats[f'{k}_anae_te'].append(utils._extract_item(v))
+            for k,v in losses_te.items():
+                self.stats[f'{k}_loss_te'].append(utils._extract_item(v))
+            with open(self.log_file, 'a') as lf:
+                lf.write(', '.join([f'{k} = {v[-1]}' for k,v in self.stats.items() if k.endswith('_te')]) + '\n')
 
 
     def predict_new(self, X0) -> torch.Tensor:

@@ -313,19 +313,6 @@ class StatePredictor:
         return torch.abs(Ypred)
 
 
-    def _update_stats(self, comps, suffix):
-        for comp,val in comps.items():
-            try:
-                _val = val.item()
-            except (AttributeError, ValueError):
-                _val = val
-            self.stats[f'{comp}_{suffix}'].append(_val)
-
-    def _write_to_log_file(self, suffix):
-        with open(self.log_file, 'a') as lf:
-            lf.write(', '.join([f'{k} = {v[-1]}' for k,v in self.stats.items() if k.endswith(suffix)]) + '\n')
-
-
     def train_net(self,
         numepochs=500, early_stopping=0, early_stopping_metric='pred_anae',
         lr=1e-3, weight_decay=0., decoder_loss_weight=1e-2, Kreg=1e-3,
@@ -404,16 +391,19 @@ class StatePredictor:
             # ANAEs
             with torch.no_grad():
                 anaes_tr = metrics.overall_anae(X=self.dh.Xtr[1:], Y=Ytr[1:], Xr=Xrtr[1:], Ypred=Ypredtr, Xpred=Xpredtr)
-            self._update_stats(anaes_tr, 'anae_tr')
 
             # Losses
             losses_tr = metrics.overall_loss(X=self.dh.Xtr[1:], Y=Ytr[1:], Xr=Xrtr[1:], Ypred=Ypredtr, Xpred=Xpredtr, decoder_loss_weight = self.decoder_loss_weight)
             losses_tr['Kreg'] = Kreg*torch.sum(torch.abs(Ktilde))/torch.numel(Ktilde) # this is unique to training
             losses_tr['total'] += losses_tr['Kreg']
-            self._update_stats(losses_tr, 'loss_tr')
 
-            # Record
-            self._write_to_log_file('_tr')
+            # Collect epoch training stats and record
+            for k,v in anaes_tr.items():
+                self.stats[f'{k}_anae_tr'].append(utils._extract_item(v))
+            for k,v in losses_tr.items():
+                self.stats[f'{k}_loss_tr'].append(utils._extract_item(v))
+            with open(self.log_file, 'a') as lf:
+                lf.write(', '.join([f'{k} = {v[-1]}' for k,v in self.stats.items() if k.endswith('_tr')]) + '\n')
 
             # Backprop
             loss_tr = losses_tr['total']
@@ -458,12 +448,16 @@ class StatePredictor:
                     Xpredva = self.ae.decoder(Ypredva)
 
                     anaes_va = metrics.overall_anae(X=self.dh.Xva, Y=Yva, Xr=Xrva, Ypred=Ypredva, Xpred=Xpredva)
-                    self._update_stats(anaes_va, 'anae_va')
 
                     losses_va = metrics.overall_loss(X=self.dh.Xva, Y=Yva, Xr=Xrva, Ypred=Ypredva, Xpred=Xpredva, decoder_loss_weight=self.decoder_loss_weight)
-                    self._update_stats(losses_va, 'loss_va')
 
-                self._write_to_log_file('_va')
+                # Collect epoch validation stats and record
+                for k,v in anaes_va.items():
+                    self.stats[f'{k}_anae_va'].append(utils._extract_item(v))
+                for k,v in losses_va.items():
+                    self.stats[f'{k}_loss_va'].append(utils._extract_item(v))
+                with open(self.log_file, 'a') as lf:
+                    lf.write(', '.join([f'{k} = {v[-1]}' for k,v in self.stats.items() if k.endswith('_va')]) + '\n')
 
                 # Early stopping
                 if early_stopping:
@@ -510,12 +504,16 @@ class StatePredictor:
                 Xpredte = self.ae.decoder(Ypredte)
 
                 anaes_te = metrics.overall_anae(X=self.dh.Xte, Y=Yte, Xr=Xrte, Ypred=Ypredte, Xpred=Xpredte)
-                self._update_stats(anaes_te, 'anae_te')
                 
                 losses_te = metrics.overall_loss(X=self.dh.Xte, Y=Yte, Xr=Xrte, Ypred=Ypredte, Xpred=Xpredte, decoder_loss_weight=self.decoder_loss_weight)
-                self._update_stats(losses_te, 'loss_te')
 
-            self._write_to_log_file('_te')
+            # Collect test stats and record
+            for k,v in anaes_te.items():
+                self.stats[f'{k}_anae_te'].append(utils._extract_item(v))
+            for k,v in losses_te.items():
+                self.stats[f'{k}_loss_te'].append(utils._extract_item(v))
+            with open(self.log_file, 'a') as lf:
+                lf.write(', '.join([f'{k} = {v[-1]}' for k,v in self.stats.items() if k.endswith('_te')]) + '\n')
 
 
     def predict_new(self, t) -> torch.Tensor:

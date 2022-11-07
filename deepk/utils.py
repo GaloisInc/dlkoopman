@@ -126,10 +126,19 @@ def set_seed(seed):
 
 
 def _tensorize(arg, dtype, device) -> Any:
-    return torch.as_tensor(arg, dtype=dtype, device=device) if arg is not None else torch.tensor([])
+    return torch.as_tensor(arg, dtype=dtype, device=device) if arg is not None else torch.tensor([], dtype=dtype, device=device)
 
 def _scale(arg, scale) -> Any:
     return arg/scale
 
 def _shift(arg, shift) -> Any:
     return arg-shift
+
+
+def _extract_item(v) -> Any:
+    """ Given input, return its `.item()` if it can be extracted, otherwise return input. """
+    try:
+        ret = v.item()
+    except (AttributeError, ValueError):
+        ret = v
+    return ret

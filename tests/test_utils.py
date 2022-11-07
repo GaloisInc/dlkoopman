@@ -1,5 +1,6 @@
 import torch
 from deepk.utils import *
+from deepk.utils import _extract_item
 
 
 def test_stable_svd():
@@ -22,3 +23,14 @@ def test_stable_svd():
         x,
         atol=1e-6
     ))
+
+
+def test_extract_item():
+    assert _extract_item(torch.tensor(3.)) == 3.
+    assert _extract_item(torch.tensor([3.])) == 3.
+    assert torch.equal(
+        _extract_item(torch.tensor([[1,2],[3,4]])),
+        torch.tensor([[1,2],[3,4]])
+    )
+    assert _extract_item(3.) == 3.
+    assert _extract_item([3.]) == [3.]
