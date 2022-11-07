@@ -1,6 +1,5 @@
 """**TrajectoryPredictor class, including its DataHandler**"""
 
-#TODO change ttr, etc to itr, etc
 from collections import defaultdict
 import numpy as np
 from pathlib import Path
