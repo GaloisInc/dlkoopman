@@ -71,6 +71,10 @@ class TrajectoryPredictor:
     
     - **Knet** (*nets.Knet*) - Linear layer to approximate the Koopman matrix. This is used to evolve states in the encoded domain so as to generate their trajectories.
 
+    - **Lambda** (*torch.Tensor*), **eigvecs** (*torch.Tensor*) - Eigendecomposition of Koopman matrix `Knet`. These are not used in computations, instead they are calculated to characterize the system.
+        - `Lambda` - Discrete index eigenvalues of Koopman matrix.
+        - `eigvecs` - Eigenvectors of Koopman matrix.
+
     - **stats** (*dict[list]*) - Stores different metrics from training and testing. Useful for checking performance.
 
     - **error_flag** (*bool*) - Signals if any error has occurred in training.
@@ -117,8 +121,7 @@ class TrajectoryPredictor:
 
         ## Define other attributes to be used later (getter/setters should exist for each of these)
         self.decoder_loss_weight = None
-        # TODO define these on linear layer weights, i.e. the Koopman matrix. These are for record keeping.
-        self.Omega = None
+        self.Lambda = None
         self.eigvecs = None
 
 
@@ -131,6 +134,26 @@ class TrajectoryPredictor:
     @decoder_loss_weight.setter
     def decoder_loss_weight(self, val):
         self._decoder_loss_weight = val
+
+    @property
+    def Lambda(self):
+        if self._Lambda is None:
+            raise ValueError("'Lambda' is not set. Please call 'train_net()' first.")
+        return self._Lambda
+
+    @Lambda.setter
+    def Lambda(self, val):
+        self._Lambda = val
+
+    @property
+    def eigvecs(self):
+        if self._eigvecs is None:
+            raise ValueError("'eigvecs' is not set. Please call 'train_net()' first.")
+        return self._eigvecs
+
+    @eigvecs.setter
+    def eigvecs(self, val):
+        self._eigvecs = val
 
 
     def _evolve(self, Y0) -> torch.Tensor:
@@ -197,16 +220,22 @@ class TrajectoryPredictor:
         else:
             numbatches = int(np.ceil(self.dh.Xtr.shape[0]/batch_size))
 
-        # Start epochs
         with open(self.log_file, 'a') as lf:
             lf.write("\nStarting training ...\n")
 
+        # Start epochs
         for epoch in tqdm(range(numepochs)):
             with open(self.log_file, 'a') as lf:
                 lf.write(f"\nEpoch {epoch+1}\n")
 
             anaes_tr = defaultdict(float)
             losses_tr = defaultdict(float)
+
+            # Get current snapshot of Lambda and eigvecs (for record-keeping only, these are not used in any computations since linear layer directly does all computation)
+            with torch.no_grad():
+                self.Lambda, self.eigvecs = torch.linalg.eig(self.Knet.net.weight)
+            with open(self.log_file, 'a') as lf:
+                lf.write(f"Largest magnitude among eigenvalues = {torch.max(torch.abs(self.Lambda))}\n")
 
             # Shuffle
             self.dh.Xtr = self.dh.Xtr[torch.randperm(self.dh.Xtr.shape[0])]
@@ -215,6 +244,7 @@ class TrajectoryPredictor:
             self.ae.train()
             self.Knet.train()
 
+            # Start batches
             for batch in range(numbatches):
                 opt.zero_grad()
 

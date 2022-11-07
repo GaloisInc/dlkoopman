@@ -107,7 +107,7 @@ class StatePredictor:
     - **ae** (*nets.AutoEncoder*) - AutoEncoder neural network to encode input states into a linearizable domain where the Koopman matrix can be learnt, then decode them back into original domain.
 
     - **Omega** (*torch.Tensor*), **eigvecs** (*torch.Tensor*), **y0** (*torch.Tensor*) - Used to make predictions using a trained model.
-        - `Omega` - Continuous time eigenvalues of Koopman matrix.
+        - `Omega` - Continuous index eigenvalues of Koopman matrix.
         - `eigvecs` - Eigenvectors of Koopman matrix.
         - `y0` - Encoded state at the baseline index, which is evolved to get predictions for any index.
 
@@ -360,14 +360,15 @@ class StatePredictor:
         # Define optimizer
         opt = torch.optim.Adam(self.ae.parameters(), lr=lr, weight_decay=weight_decay)
 
-        # Start epochs
         with open(self.log_file, 'a') as lf:
             lf.write("\nStarting training ...\n")
+
+        # Start epochs
         for epoch in tqdm(range(numepochs)):
-            # NOTE: Do not do any kind of shuffling before/after epochs. The samples dimension is typically shuffled for standard classification problems, but here that corresponds to the index (such as time), which should be ordered.
-            
             with open(self.log_file, 'a') as lf:
                 lf.write(f"\nEpoch {epoch+1}\n")
+
+            # NOTE: Do not do any kind of shuffling before/after epochs. The samples dimension is typically shuffled for standard classification problems, but here that corresponds to the index (such as time), which should be ordered.
             
             ## Training ##
             self.ae.train()
