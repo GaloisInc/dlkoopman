@@ -15,6 +15,15 @@ import warnings
 warnings.filterwarnings("ignore", category=UserWarning)
 
 
+__pdoc__ = {
+    'StatePredictor.decoder_loss_weight': False,
+    'StatePredictor.cond_threshold': False,
+    'StatePredictor.Omega': False,
+    'StatePredictor.eigvecs': False,
+    'StatePredictor.y0': False,
+}
+
+
 class StatePredictor_DataHandler:
     """Handler class for providing data to train (and optionally validate and test) the `StatePredictor` model.
 

@@ -14,6 +14,13 @@ import warnings
 warnings.filterwarnings("ignore", category=UserWarning)
 
 
+__pdoc__ = {
+    'TrajectoryPredictor.decoder_loss_weight': False,
+    'TrajectoryPredictor.Lambda': False,
+    'TrajectoryPredictor.eigvecs': False
+}
+
+
 class TrajectoryPredictor_DataHandler:
     """Handler class for providing data to train (and optionally validate and test) the `TrajectoryPredictor` model.
 
