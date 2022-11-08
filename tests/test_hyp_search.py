@@ -1,9 +1,9 @@
 import pickle
 import os
 import shutil
-from deepk.hyp_search import *
-from deepk.state_predictor import StatePredictor_DataHandler
-from deepk import utils
+from dlkoopman.hyp_search import *
+from dlkoopman.state_predictor import StatePredictor_DataHandler
+from dlkoopman import utils
 
 
 def test_run_hyp_search():

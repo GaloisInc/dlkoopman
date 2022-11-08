@@ -8,8 +8,8 @@ import shortuuid
 import torch
 from tqdm import tqdm
 
-from deepk import config as cfg
-from deepk import utils, metrics, nets
+from dlkoopman import config as cfg
+from dlkoopman import utils, metrics, nets
 
 import warnings
 warnings.filterwarnings("ignore", category=UserWarning)
@@ -88,7 +88,7 @@ class StatePredictor:
 
     - **rank** (*int*) - Rank of SVD operation to compute Koopman matrix. Use `0` for full rank. Will be set to `min(encoded_size, num_training_indexes-1)` if the provided value is greater.
 
-    - Parameters required by [AutoEncoder](https://galoisinc.github.io/deep-koopman/nets.html#deepk.nets.AutoEncoder):
+    - Parameters required by [AutoEncoder](https://galoisinc.github.io/deep-koopman/nets.html#dlkoopman.nets.AutoEncoder):
         - **encoded_size** (*int*).
 
         - **encoder_hidden_layers** (*list[int], optional*).

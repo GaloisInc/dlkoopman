@@ -2,8 +2,8 @@ import pytest
 import pickle
 import os
 import numpy as np
-from deepk.trajectory_predictor import *
-from deepk import utils
+from dlkoopman.trajectory_predictor import *
+from dlkoopman import utils
 
 
 def round3(stats):

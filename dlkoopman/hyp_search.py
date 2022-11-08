@@ -12,8 +12,8 @@ import shortuuid
 import sys
 from tqdm import tqdm
 
-from deepk.state_predictor import StatePredictor, StatePredictor_DataHandler
-from deepk.trajectory_predictor import TrajectoryPredictor, TrajectoryPredictor_DataHandler
+from dlkoopman.state_predictor import StatePredictor, StatePredictor_DataHandler
+from dlkoopman.trajectory_predictor import TrajectoryPredictor, TrajectoryPredictor_DataHandler
 
 
 def _gen_colnames(perf, do_val=True) -> list[str]:

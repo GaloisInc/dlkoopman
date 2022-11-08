@@ -7,8 +7,8 @@ import shortuuid
 import torch
 from tqdm import tqdm
 
-from deepk import config as cfg
-from deepk import utils, metrics, nets
+from dlkoopman import config as cfg
+from dlkoopman import utils, metrics, nets
 
 import warnings
 warnings.filterwarnings("ignore", category=UserWarning)
@@ -50,7 +50,7 @@ class TrajectoryPredictor:
     ## Parameters
     - **dh** (*StatePredictor_DataHandler*) - Data handler that feeds data.
 
-    - Parameters required by [AutoEncoder](https://galoisinc.github.io/deep-koopman/nets.html#deepk.nets.AutoEncoder):
+    - Parameters required by [AutoEncoder](https://galoisinc.github.io/deep-koopman/nets.html#dlkoopman.nets.AutoEncoder):
         - **encoded_size** (*int*).
 
         - **encoder_hidden_layers** (*list[int], optional*).

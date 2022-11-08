@@ -1,6 +1,6 @@
 import torch
-from deepk.metrics import *
-from deepk.metrics import _naae # must import this separately since _ prefixed identifiers are not imported
+from dlkoopman.metrics import *
+from dlkoopman.metrics import _naae
 
 
 def test_anae():

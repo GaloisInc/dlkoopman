@@ -1,6 +1,6 @@
 import torch
-from deepk.utils import *
-from deepk.utils import _extract_item
+from dlkoopman.utils import *
+from dlkoopman.utils import _extract_item
 
 
 def test_stable_svd():
