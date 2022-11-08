@@ -1,4 +1,7 @@
-"""**TrajectoryPredictor class, including its DataHandler**"""
+"""**TrajectoryPredictor class, including its DataHandler**.
+
+The TrajectoryPredictor can be used to train on given equal-length trajectories of a system, then predict unknown trajectories of the system starting from new initial states. See a specific example and tutorial [here](https://github.com/GaloisInc/dlkoopman/blob/main/examples/trajectory_predictor_polynomial_manifold/run.ipynb).
+"""
 
 from collections import defaultdict
 import numpy as np
@@ -30,6 +33,44 @@ class TrajectoryPredictor_DataHandler:
     - **'Xva'** (*Array[float], shape=(num_validation_trajectories, num_indexes, input_size), optional*) - Input trajectories to be used as validation data. Same data type requirements as `Xtr`.
 
     - **'Xte'** (*Array[float], shape=(num_test_trajectories, num_indexes, input_size), optional*) - Input trajectories to be used as test data. Same data type requirements as `Xtr`.
+
+    ## Example
+    ```python
+    # Provide data of a system with 2-dimensional states (i.e. input_size=3)
+    # containing trajectories of length 4 (i.e. num_indexes=3)
+    # Provide 3 trajectories for training, 1 for validation, and none for testing
+
+    dh = TrajectoryPredictor_DataHandler(
+        Xtr = numpy.array([
+            [ # 1st trajectory
+                [8.4, 6.7],
+                [4.2, 4.2],
+                [3.4, 4.6],
+                [7.7, 1.8]
+            ],
+            [ # 2nd trajectory
+                [5.9, 1.5],
+                [8.3, 5.1],
+                [9.9, 0.2],
+                [1.6, 7.2]
+            ],
+            [ # 3rd trajectory
+                [5.4, 9.8],
+                [2.4, 6.9],
+                [8.9, 0.5],
+                [9.3, 0.7]
+            ]
+        ]),
+        Xva = numpy.array([
+            [ # 1st trajectory
+                [4.7, 1.4],
+                [1.1, 6.2],
+                [7.8, 6.9],
+                [6.1, 8. ]
+            ]
+        ])
+    )
+    ```
     """
 
     def __init__(self, Xtr, Xva=None, Xte=None):
@@ -52,12 +93,12 @@ class TrajectoryPredictor_DataHandler:
 
 
 class TrajectoryPredictor:
-    """TrajectoryPredictor class to learn a linear layer approximating the dynamics of a system from given trajectories, then predict trajectories for new starting states.
+    """TrajectoryPredictor can be used to train on given equal-length trajectories of a system, then predict unknown trajectories of the system starting from new initial states.
 
     ## Parameters
-    - **dh** (*StatePredictor_DataHandler*) - Data handler that feeds data.
+    - **dh** (*TrajectoryPredictor_DataHandler*) - Data handler that feeds data.
 
-    - Parameters required by [AutoEncoder](https://galoisinc.github.io/deep-koopman/nets.html#dlkoopman.nets.AutoEncoder):
+    - Parameters for [AutoEncoder](https://galoisinc.github.io/dlkoopman/nets.html#dlkoopman.nets.AutoEncoder):
         - **encoded_size** (*int*).
 
         - **encoder_hidden_layers** (*list[int], optional*).
@@ -77,11 +118,9 @@ class TrajectoryPredictor:
     
     - **Knet** (*nets.Knet*) - Linear layer to approximate the Koopman matrix. This is used to evolve states in the encoded domain so as to generate their trajectories.
 
-    - **Lambda** (*torch.Tensor*), **eigvecs** (*torch.Tensor*) - Eigendecomposition of Koopman matrix `Knet`. These are not used in computations, instead they are calculated to characterize the system.
-        - `Lambda` - Discrete index eigenvalues of Koopman matrix.
-        - `eigvecs` - Eigenvectors of Koopman matrix.
+    - **Lambda** (*torch.Tensor*), **eigvecs** (*torch.Tensor*) - Eigenvalues, and eigenvectors of the trained Koopman matrix that characterizes the discrete index system \\(y_{i+1} = Ky_i\\). The system is discrete since specific trajectory indexes are not provided, so they are always assumed to be \\([0,1,2,\\cdots]\\). The eigendecomposition is not used in computations since the trained `Knet` layer performs all predictions, but is still calculated to characterize the system.
 
-    - **stats** (*dict[list]*) - Stores different metrics from training and testing. Useful for checking performance.
+    - **stats** (*dict[list]*) - Stores different metrics from training and testing. Useful for checking performance and [plotting](https://galoisinc.github.io/dlkoopman/utils.html#dlkoopman.utils.plot_stats).
 
     - **error_flag** (*bool*) - Signals if any error has occurred in training.
     """
@@ -183,7 +222,7 @@ class TrajectoryPredictor:
         ## Parameters
         - **numepochs** (*int, optional*) - Number of epochs for which to train. Each epoch uses the complete training data to learn the Koopman matrix.
 
-        - **batch_size** (*int, optional*) - How many trajectories to train on per batch. Set to 0 to train on all trajectories per batch.
+        - **batch_size** (*int, optional*) - How many trajectories to train on per batch. Set to 0 to train on all trajectories per batch (not recommended when number of training trajectories is large).
     
         - **early_stopping** (*int/float, optional*) - Whether to terminate training early due to no improvement in validation metric.
             - If `0`, no early stopping. The model will run for the complete `numepochs` epochs.
@@ -200,8 +239,8 @@ class TrajectoryPredictor:
 
         - **cond_threshold** (*float, optional*) - Condition number of the eigenvector matrix greater than this will be reported, and singular values smaller than this fraction of the largest will be ignored for the pseudo-inverse operation.
         
-        - **clip_grad_norm** (*float, optional*) - If not None, clip the norm of gradients to this value.
-        - **clip_grad_value** (*float, optional*) - If not None, clip the values of gradients to [-`clip_grad_value`,`clip_grad_value`].
+        - **clip_grad_norm** (*float, optional*) - If not `None`, clip the norm of gradients to this value.
+        - **clip_grad_value** (*float, optional*) - If not `None`, clip the values of gradients to [-`clip_grad_value`,`clip_grad_value`].
 
         ## Effects
         - `self.stats` is populated.

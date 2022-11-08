@@ -51,7 +51,7 @@ class _SVD(torch.autograd.Function):
 def stable_svd(x) -> tuple[torch.Tensor, torch.Tensor, torch.Tensor]:
     """Stable Singular Value Decomposition (courtesy [this](https://github.com/wangleiphy/tensorgrad/blob/master/tensornets/adlib/svd.py), in response to [this](https://github.com/google/jax/issues/2311#issuecomment-984131512)) alternative to [`torch.linalg.svd`](https://pytorch.org/docs/stable/generated/torch.linalg.svd.html), which may encounter NaNs in gradients.
 
-    The other alternative is to zero out the NaN gradients as described [here](https://github.com/tensorflow/tensorflow/issues/17476#issue-302663705), however, we don't use this technique.
+    The other solution is to zero out the NaN gradients as described [here](https://github.com/tensorflow/tensorflow/issues/17476#issue-302663705), however, we don't use this technique.
 
     ## Parameters
     **x** (*torch.Tensor*) - Matrix whose SVD will be computed. Assume shape to be (m,n).

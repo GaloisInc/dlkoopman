@@ -37,7 +37,7 @@
 </code></dt>
 <dd>
 <div class="desc"><p>Stable Singular Value Decomposition (courtesy <a href="https://github.com/wangleiphy/tensorgrad/blob/master/tensornets/adlib/svd.py">this</a>, in response to <a href="https://github.com/google/jax/issues/2311#issuecomment-984131512">this</a>) alternative to <a href="https://pytorch.org/docs/stable/generated/torch.linalg.svd.html"><code>torch.linalg.svd</code></a>, which may encounter NaNs in gradients.</p>
-<p>The other alternative is to zero out the NaN gradients as described <a href="https://github.com/tensorflow/tensorflow/issues/17476#issue-302663705">here</a>, however, we don't use this technique.</p>
+<p>The other solution is to zero out the NaN gradients as described <a href="https://github.com/tensorflow/tensorflow/issues/17476#issue-302663705">here</a>, however, we don't use this technique.</p>
 <h2 id="parameters">Parameters</h2>
 <p><strong>x</strong> (<em>torch.Tensor</em>) - Matrix whose SVD will be computed. Assume shape to be (m,n).</p>
 <h2 id="returns">Returns</h2>

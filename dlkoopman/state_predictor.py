@@ -1,4 +1,7 @@
-"""**StatePredictor class, including its DataHandler**"""
+"""**StatePredictor class, including its DataHandler**.
+
+The StatePredictor can be used to train on given states of a system at given indexes, then predict unknown states of the system at new indexes. See a specific example and tutorial [here](https://github.com/GaloisInc/dlkoopman/blob/main/examples/state_predictor_naca0012/run.ipynb).
+"""
 
 
 from collections import defaultdict
@@ -43,6 +46,32 @@ class StatePredictor_DataHandler:
 
     - **'tte'** (*Array[int,float], shape=(num_test_indexes,), optional*): Indexes of the states in `Xte`. Same data type requirements as `ttr`.
         - The order and spacing restrictions on `ttr` do *not* apply. The values of these indexes can be anything.
+
+    ## Example
+    ```python
+    # Provide data of a system with 3-dimensional states (i.e. input_size=3)
+    # Provide data at 4 indexes for training, and 2 indexes each for validation and testing
+
+    dh = StatePredictor_DataHandler(
+        ttr = [100, 203, 298, 400], # ascending order, (almost) equally spaced
+        Xtr = numpy.array([
+            [0.7, 2.1, 9.2], # state at index 100
+            [1.1, 5. , 6.1], # state at index 203
+            [4.3, 2. , 7.3], # state at index 298
+            [6.1, 4.2, 0.3]  # state at index 400
+        ]),
+        tva = [66, 238], # anything
+        Xva = numpy.array([
+            [3.8, 1.7, 0.4], # state at index 66
+            [7.6, 6.5, 9.3]  # state at index 238
+        ]),
+        tte = [-32, 784], # anything
+        Xte = numpy.array([
+            [9.8, 8.9, 0.2], # state at index -32
+            [7.3, 4.8, 7.5]  # state at index 784
+        ])
+    )
+    ```
     """
 
     def __init__(self, Xtr, ttr, Xva=None, tva=None, Xte=None, tte=None):
@@ -90,14 +119,14 @@ class StatePredictor_DataHandler:
 
 
 class StatePredictor:
-    """StatePredictor class to learn the Koopman matrix of a system from its input states at given indexes, then predict its states at unknown indexes.
+    """StatePredictor can be used to train on given states of a system at given indexes, then predict unknown states of the system at new indexes.
 
     ## Parameters
     - **dh** (*StatePredictor_DataHandler*) - Data handler that feeds data.
 
-    - **rank** (*int*) - Rank of SVD operation to compute Koopman matrix. Use `0` for full rank. Will be set to `min(encoded_size, num_training_indexes-1)` if the provided value is greater.
+    - **rank** (*int*) - Rank of SVD operation to compute Koopman matrix. Use `0` for full rank. Will be set to min(`encoded_size`, `num_training_indexes`-1) if the provided value is greater.
 
-    - Parameters required by [AutoEncoder](https://galoisinc.github.io/deep-koopman/nets.html#dlkoopman.nets.AutoEncoder):
+    - Parameters for [AutoEncoder](https://galoisinc.github.io/dlkoopman/nets.html#dlkoopman.nets.AutoEncoder):
         - **encoded_size** (*int*).
 
         - **encoder_hidden_layers** (*list[int], optional*).
@@ -115,12 +144,10 @@ class StatePredictor:
 
     - **ae** (*nets.AutoEncoder*) - AutoEncoder neural network to encode input states into a linearizable domain where the Koopman matrix can be learnt, then decode them back into original domain.
 
-    - **Omega** (*torch.Tensor*), **eigvecs** (*torch.Tensor*), **y0** (*torch.Tensor*) - Used to make predictions using a trained model.
-        - `Omega` - Continuous index eigenvalues of Koopman matrix.
-        - `eigvecs` - Eigenvectors of Koopman matrix.
-        - `y0` - Encoded state at the baseline index, which is evolved to get predictions for any index.
+    - **Omega** (*torch.Tensor*), **eigvecs** (*torch.Tensor*) - Eigenvalues, and eigenvectors of the trained Koopman matrix that characterizes the continuous index system \\(\\frac{dy}{di} = Ky_i\\). These are used to make predictions.
+    - **y0** (*torch.Tensor*) - Encoded state at the baseline index, which is evolved using `Omega` and `eigvecs` to get predictions for any index.
 
-    - **stats** (*dict[list]*) - Stores different metrics from training and testing. Useful for checking performance.
+    - **stats** (*dict[list]*) - Stores different metrics from training and testing. Useful for checking performance and [plotting](https://galoisinc.github.io/dlkoopman/utils.html#dlkoopman.utils.plot_stats).
 
     - **error_flag** (*bool*) - Signals if any error has occurred in training.
     """
@@ -168,10 +195,10 @@ class StatePredictor:
 
         ## Write info to log file
         with open(self.log_file, 'a') as lf:
-            lf.write("Timestamp difference | Frequency\n")
+            lf.write("Index difference | Frequency\n")
             for dt,freq in self.dh.dts.items():
                 lf.write(f"{dt} | {freq}\n")
-            lf.write(f"Using timestamp difference = {self.dh.tscale}. Training timestamp values not on this grid will be rounded.\n")
+            lf.write(f"Using index difference = {self.dh.tscale}. Training index values not on this grid will be rounded.\n")
 
 
     @property
@@ -278,7 +305,7 @@ class StatePredictor:
             interm: From _dmd_linearize(). Shape = (encoded_size, rank).
 
         Returns:
-            Omega: Eigenvalues of **continuous time** Ktilde. Shape = (rank, rank).
+            Omega: **Continuous index** eigenvalues of Ktilde. Shape = (rank, rank).
             eigvecs: First 'rank' exact eigenvectors of the full (i.e. not tilde) system. Shape = (encoded_size, rank).
         """
         Lambda, eigvecstilde = torch.linalg.eig(Ktilde) #shapes: Lambda = (rank,), eigvecstilde is (rank, rank)
@@ -305,14 +332,14 @@ class StatePredictor:
         Predict the dynamics of a system.
         
         Inputs:
-            t: Sequence of time steps for which dynamics are predicted. Shape = (num_samples,).
+            t: Sequence of index steps for which dynamics are predicted. Shape = (num_samples,).
             y0: Initial state of the system from which to make predictions. Shape = (encoded_size,).
             Omega: From _dmd_eigen(). Shape = (rank, rank).
             eigvecs: From _dmd_eigen(). Shape = (encoded_size, rank).
         Note: Omega,eigvecs can also be provided from outside for a new system.
         
         Returns:
-            Ypred: Predictions for all the timestamps in t. Shape (num_samples, encoded_size). Predictions may be complex, however they are converted to real by taking absolute value. This is fine because, if things are okay, the imaginary parts should be negligible (several orders of magnitude less) than the real parts.
+            Ypred: Predictions for all the indexes in t. Shape (num_samples, encoded_size). Predictions may be complex, however they are converted to real by taking absolute value. This is fine because, if things are okay, the imaginary parts should be negligible (several orders of magnitude less) than the real parts.
         """
         coeffs = torch.linalg.pinv(eigvecs, rtol=1./self.cond_threshold) @ y0.to(cfg._CTYPE) #shape = (rank,)
         Ypred = torch.tensor([])
@@ -348,12 +375,12 @@ class StatePredictor:
         
         - **cond_threshold** (*float, optional*) - Condition number of the eigenvector matrix greater than this will be reported, and singular values smaller than this fraction of the largest will be ignored for the pseudo-inverse operation.
         
-        - **clip_grad_norm** (*float, optional*) - If not None, clip the norm of gradients to this value.
-        - **clip_grad_value** (*float, optional*) - If not None, clip the values of gradients to [-`clip_grad_value`,`clip_grad_value`].
+        - **clip_grad_norm** (*float, optional*) - If not `None`, clip the norm of gradients to this value.
+        - **clip_grad_value** (*float, optional*) - If not `None`, clip the values of gradients to [-`clip_grad_value`,`clip_grad_value`].
 
         ## Effects
         - `self.stats` is populated.
-        - `self.Omega` and `self.eigvecs` hold the eigendecomposition of the trained learnt Koopman matrix, which can be used ti predict any state by evolving `self.y0`.
+        - `self.Omega` and `self.eigvecs` hold the eigendecomposition of the Koopman matrix learnt during training, which can be used to predict any state by evolving `self.y0`.
         """
         ## Define instance attributes for those inputs which are used in other methods
         self.decoder_loss_weight = decoder_loss_weight
@@ -532,7 +559,7 @@ class StatePredictor:
         This is different from testing because the ground truth values are not present, thus losses and errors are not computed. This method can be used to make predictions for interpolated and extrapolated indexes.
 
         ## Parameters
-        - **'t'** (*Array[int,float], shape=(num_new_indexes,)*) - Indexes for which unknown states should be predicted. *Array* can be any data type such as *numpy.array*, *torch.Tensor*, *list*, *range*, etc.
+        - **t** (*Array[int,float], shape=(num_new_indexes,)*) - Indexes for which unknown states should be predicted. *Array* can be any data type such as *numpy.array*, *torch.Tensor*, *list*, *range*, etc.
 
         ## Returns
         **Xpred** (*torch.Tensor, shape=(len(t), input_size)*) - Predicted states for the new indexes.

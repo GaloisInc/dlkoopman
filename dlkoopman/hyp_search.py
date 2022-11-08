@@ -1,4 +1,4 @@
-"""Run hyperparameter search.""" 
+"""Ready-to-use hyperparameter search module.""" 
 
 import csv
 from collections import OrderedDict
@@ -68,7 +68,7 @@ def run_hyp_search(
     dh, hyp_options,
     numruns=None, avg_ignore_initial_epochs=0, sort_key='avg_pred_anae_va'
 ) -> Path:
-    """Perform many runs of a type of predictor model (either `StatePredictor` or `TrajectoryPredictor`) with different configurations on given data, and save the loss and ANAE statistics for each run.
+    """Perform many runs of a type of predictor model (either `StatePredictor` or `TrajectoryPredictor`) with different configurations on given data, and save the metrics for each run.
 
     Use the results to pick a good predictor configuration.
 
@@ -85,20 +85,22 @@ def run_hyp_search(
     save the following statistics:
 
     If only training data is provided:
-        - `avg_<x>_tr` - Average training `<x>` across all epochs.
-        - `final_<x>_tr` - Final training `<x>` after last epoch.
 
-    If both training and validation data is provided (recommended):
-        - `avg_<x>_va` - Average validation `<x>` across all epochs.
-        - `best_<x>_va` - Best validation `<x>` across epochs.
-        - `bestep_<x>_va` - Epoch number after which best validation `<x>` was achieved.
+    - `avg_<x>_tr` - Average training `<x>` across all epochs.
+    - `final_<x>_tr` - Final training `<x>` after last epoch.
 
-    For more details, refer to [losses](https://galoisinc.github.io/deep-koopman/losses.html) and [ANAEs](https://galoisinc.github.io/deep-koopman/errors.html).
+    If both training and validation data is provided (recommended), save the above, and additionally:
+
+    - `avg_<x>_va` - Average validation `<x>` across all epochs.
+    - `best_<x>_va` - Best validation `<x>` across all epochs.
+    - `bestep_<x>_va` - Epoch number at which best validation `<x>` was achieved.
+
+    For more details on losses and ANAEs, refer to [metrics](https://galoisinc.github.io/dlkoopman/metrics.html).
 
     ## Parameters
-    - **dh** (*StatePredictor_DataHandler, TrajectoryPredictor_DataHandler*) - Data handler providing data. **Model to be run is inferred from data, i.e. either `StatePredictor` or `TrajectoryPredictor`.**
+    - **dh** (*StatePredictor_DataHandler, or TrajectoryPredictor_DataHandler*) - Data handler providing data. **Model to be run is inferred from data, i.e. either `StatePredictor` or `TrajectoryPredictor`.**
     
-    - **hyp_options** (*dict[str,list]*) - Input arguments to model and its methods will be swept over these values across runs. Set a key to have a single value to keep it constant across runs. As an example, when `dh` is a `StatePredictor_DataHandler`:
+    - **hyp_options** (*dict[str,list]*) - Input arguments to model and its methods will be swept over these values across runs. As an example, when `dh` is a `StatePredictor_DataHandler`:
     ```python
     hyp_options = {
         ## arguments to __init__()
@@ -111,7 +113,7 @@ def run_hyp_search(
         'clip_grad_norm': 5 # this input stays constant across runs
     }
     
-    # this results in \\(2\\times2\\times5 = 20\\) possible runs:
+    # this results in 2*2*5=20 possible runs
     ```
 
     - **numruns** (*int, optional*) - The total number of possible model runs is \\(N =\\) the number of elements in the Cartesian product of the values of `hyp_options` (in the above example, this is 20). If `numruns` is `None` or \\(>N\\), run \\(N\\) runs, otherwise run `numruns` runs.<br>Since each run takes time, it is recommended to set `numruns` to a reasonably smaller value when \\(N\\) is large.
@@ -122,9 +124,10 @@ def run_hyp_search(
 
     ## Returns
     **output_folder** (*Path*) - The path to a newly created folder containing:
-        - Results CSV file = `hyp_search_results.csv`
-        - Log file = `hyp_search_log.log`
-        - If any of the individual model runs resulted in errors, their log files will be stored as well so that you can take a closer look at what went wrong.
+    
+    - Results CSV file = `hyp_search_results.csv`
+    - Log file = `hyp_search_log.log`
+    - If any of the individual model runs resulted in errors, their log files will be stored as well so that you can take a closer look at what went wrong.
 
     The results CSV contains:
     ```

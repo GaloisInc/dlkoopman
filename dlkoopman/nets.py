@@ -46,7 +46,7 @@ class _MLP(torch.nn.Module):
 
 
 class AutoEncoder(torch.nn.Module):
-    """AutoEncoder neural net. Contains an encoder connected to a decoder, both are multi-layer perceptrons
+    """AutoEncoder neural net. Contains an encoder connected to a decoder, both are multi-layer perceptrons.
 
     ## Parameters
     - **input_size** (*int*) - Number of dimensions in original data (encoder input) and reconstructed data (decoder output).

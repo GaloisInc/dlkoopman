@@ -38,8 +38,11 @@
 <dd>
 <div class="desc"><p>Average Normalized Absolute Error (ANAE).</p>
 <p>ANAE first normalizes each absolute deviation by the corresponding absolute ground truth, then averages them. This is a useful thing to report since it tells us how much percentage deviation to expect for a new value. E.g. if prediction ANAE for a problem is around 10%, then one can expect a newly predicted value to have an error of around 10% from the actual.</p>
-<p>Example: Let <code>ref = torch.tensor([[-0.1,0.2,0],[100,200,300]]), new = torch.tensor([[-0.11,0.15,0.01],[105,210,285]])</code>.
-<span><span class="MathJax_Preview">ANAE = \text{Avg}\left(\frac{|-0.1-(-0.11)|}{|-0.1|}, \frac{|0.2-0.15|}{|0.15|}, \frac{|100-105|}{|100|}, \frac{|200-210|}{|200|}, \frac{|300-285|}{|300|}\right) = 10\%</span><script type="math/tex; mode=display">ANAE = \text{Avg}\left(\frac{|-0.1-(-0.11)|}{|-0.1|}, \frac{|0.2-0.15|}{|0.15|}, \frac{|100-105|}{|100|}, \frac{|200-210|}{|200|}, \frac{|300-285|}{|300|}\right) = 10\%</script></span>
+<p>Example: Let</p>
+<pre><code class="language-python">ref = torch.tensor([[-0.1,0.2,0],[100,200,300]])
+new = torch.tensor([[-0.11,0.15,0.01],[105,210,285]])
+</code></pre>
+<p><span><span class="MathJax_Preview">ANAE = \text{Avg}\left(\frac{|-0.1-(-0.11)|}{|-0.1|}, \frac{|0.2-0.15|}{|0.15|}, \frac{|100-105|}{|100|}, \frac{|200-210|}{|200|}, \frac{|300-285|}{|300|}\right) = 10\%</span><script type="math/tex; mode=display">ANAE = \text{Avg}\left(\frac{|-0.1-(-0.11)|}{|-0.1|}, \frac{|0.2-0.15|}{|0.15|}, \frac{|100-105|}{|100|}, \frac{|200-210|}{|200|}, \frac{|300-285|}{|300|}\right) = 10\%</script></span>
 Note that:</p>
 <ul>
 <li>
@@ -78,10 +81,12 @@ Note that:</p>
 </li>
 </ul>
 <h2 id="returns">Returns</h2>
-<p><strong>anaes</strong> (<em>dict[str, torch.Tensor]</em>)
-- Key <strong>'recon'</strong>: (<em>torch scalar</em>) - Reconstruction error between <code>X</code> and <code>Xr</code>.
-- Key <strong>'lin'</strong>: (<em>torch scalar</em>) - Linearity error between <code>Y</code> and <code>Ypred</code>.
-- Key <strong>'pred'</strong>: (<em>torch scalar</em>) - Prediction error between <code>X</code> and <code>Xpred</code>.</p></div>
+<p><strong>anaes</strong> (<em>dict[str, torch.Tensor]</em>)</p>
+<ul>
+<li>Key <strong>'recon'</strong>: (<em>torch scalar</em>) - Reconstruction ANAE between <code>X</code> and <code>Xr</code>.</li>
+<li>Key <strong>'lin'</strong>: (<em>torch scalar</em>) - Linearity ANAE between <code>Y</code> and <code>Ypred</code>.</li>
+<li>Key <strong>'pred'</strong>: (<em>torch scalar</em>) - Prediction ANAE between <code>X</code> and <code>Xpred</code>.</li>
+</ul></div>
 </dd>
 <dt id="dlkoopman.metrics.overall_loss"><code class="name flex">
 <span>def <span class="ident">overall_loss</span></span>(<span>X, Y, Xr, Ypred, Xpred, decoder_loss_weight) ‑> dict[str, torch.Tensor]</span>
@@ -110,11 +115,13 @@ Note that:</p>
 </li>
 </ul>
 <h2 id="returns">Returns</h2>
-<p><strong>losses</strong> (<em>dict[str, torch.Tensor]</em>)
-- Key <strong>'recon'</strong>: (<em>torch scalar</em>) - Reconstruction loss between <code>X</code> and <code>Xr</code>.
-- Key <strong>'lin'</strong>: (<em>torch scalar</em>) - Linearity loss between <code>Y</code> and <code>Ypred</code>.
-- Key <strong>'pred'</strong>: (<em>torch scalar</em>) - Prediction loss between <code>X</code> and <code>Xpred</code>.
-- Key <strong>'total'</strong>: (<em>torch scalar</em>) - Total loss = <code>lin + decoder_loss_weight*(recon+pred)</code></p></div>
+<p><strong>losses</strong> (<em>dict[str, torch.Tensor]</em>)</p>
+<ul>
+<li>Key <strong>'recon'</strong>: (<em>torch scalar</em>) - Reconstruction loss between <code>X</code> and <code>Xr</code>.</li>
+<li>Key <strong>'lin'</strong>: (<em>torch scalar</em>) - Linearity loss between <code>Y</code> and <code>Ypred</code>.</li>
+<li>Key <strong>'pred'</strong>: (<em>torch scalar</em>) - Prediction loss between <code>X</code> and <code>Xpred</code>.</li>
+<li>Key <strong>'total'</strong>: (<em>torch scalar</em>) - Total loss = <code>lin + decoder_loss_weight*(recon+pred)</code></li>
+</ul></div>
 </dd>
 </dl>
 </section>

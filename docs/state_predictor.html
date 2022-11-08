@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
 <meta name="generator" content="pdoc 0.10.0" />
 <title>dlkoopman.state_predictor API documentation</title>
-<meta name="description" content="**StatePredictor class, including its DataHandler**" />
+<meta name="description" content="**StatePredictor class, including its DataHandler** …" />
 <link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/sanitize.min.css" integrity="sha256-PK9q560IAAa6WVRRh76LtCaI8pjTJ2z11v0miyNNjrs=" crossorigin>
 <link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/typography.min.css" integrity="sha256-7l/o7C8jubJiy74VsKTidCy1yBkRtiUGbVkYBylBqUg=" crossorigin>
 <link rel="stylesheet preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/styles/github.min.css" crossorigin>
@@ -23,7 +23,8 @@
 <h1 class="title">Module <code>dlkoopman.state_predictor</code></h1>
 </header>
 <section id="section-intro">
-<p><strong>StatePredictor class, including its DataHandler</strong></p>
+<p><strong>StatePredictor class, including its DataHandler</strong>.</p>
+<p>The StatePredictor can be used to train on given states of a system at given indexes, then predict unknown states of the system at new indexes. See a specific example and tutorial <a href="https://github.com/GaloisInc/dlkoopman/blob/main/examples/state_predictor_naca0012/run.ipynb">here</a>.</p>
 </section>
 <section>
 </section>
@@ -70,24 +71,48 @@
 <li>The order and spacing restrictions on <code>ttr</code> do <em>not</em> apply. The values of these indexes can be anything.</li>
 </ul>
 </li>
-</ul></div>
+</ul>
+<h2 id="example">Example</h2>
+<pre><code class="language-python"># Provide data of a system with 3-dimensional states (i.e. input_size=3)
+# Provide data at 4 indexes for training, and 2 indexes each for validation and testing
+
+dh = StatePredictor_DataHandler(
+    ttr = [100, 203, 298, 400], # ascending order, (almost) equally spaced
+    Xtr = numpy.array([
+        [0.7, 2.1, 9.2], # state at index 100
+        [1.1, 5. , 6.1], # state at index 203
+        [4.3, 2. , 7.3], # state at index 298
+        [6.1, 4.2, 0.3]  # state at index 400
+    ]),
+    tva = [66, 238], # anything
+    Xva = numpy.array([
+        [3.8, 1.7, 0.4], # state at index 66
+        [7.6, 6.5, 9.3]  # state at index 238
+    ]),
+    tte = [-32, 784], # anything
+    Xte = numpy.array([
+        [9.8, 8.9, 0.2], # state at index -32
+        [7.3, 4.8, 7.5]  # state at index 784
+    ])
+)
+</code></pre></div>
 </dd>
 <dt id="dlkoopman.state_predictor.StatePredictor"><code class="flex name class">
 <span>class <span class="ident">StatePredictor</span></span>
 <span>(</span><span>dh, rank, encoded_size, encoder_hidden_layers=[100], decoder_hidden_layers=[], batch_norm=False)</span>
 </code></dt>
 <dd>
-<div class="desc"><p>StatePredictor class to learn the Koopman matrix of a system from its input states at given indexes, then predict its states at unknown indexes.</p>
+<div class="desc"><p>StatePredictor can be used to train on given states of a system at given indexes, then predict unknown states of the system at new indexes.</p>
 <h2 id="parameters">Parameters</h2>
 <ul>
 <li>
 <p><strong>dh</strong> (<em>StatePredictor_DataHandler</em>) - Data handler that feeds data.</p>
 </li>
 <li>
-<p><strong>rank</strong> (<em>int</em>) - Rank of SVD operation to compute Koopman matrix. Use <code>0</code> for full rank. Will be set to <code>min(encoded_size, num_training_indexes-1)</code> if the provided value is greater.</p>
+<p><strong>rank</strong> (<em>int</em>) - Rank of SVD operation to compute Koopman matrix. Use <code>0</code> for full rank. Will be set to min(<code>encoded_size</code>, <code>num_training_indexes</code>-1) if the provided value is greater.</p>
 </li>
 <li>
-<p>Parameters required by <a href="https://galoisinc.github.io/deep-koopman/nets.html#dlkoopman.nets.AutoEncoder">AutoEncoder</a>:</p>
+<p>Parameters for <a href="https://galoisinc.github.io/dlkoopman/nets.html#dlkoopman.nets.AutoEncoder">AutoEncoder</a>:</p>
 <ul>
 <li>
 <p><strong>encoded_size</strong> (<em>int</em>).</p>
@@ -120,15 +145,13 @@
 <p><strong>ae</strong> (<em>nets.AutoEncoder</em>) - AutoEncoder neural network to encode input states into a linearizable domain where the Koopman matrix can be learnt, then decode them back into original domain.</p>
 </li>
 <li>
-<p><strong>Omega</strong> (<em>torch.Tensor</em>), <strong>eigvecs</strong> (<em>torch.Tensor</em>), <strong>y0</strong> (<em>torch.Tensor</em>) - Used to make predictions using a trained model.</p>
-<ul>
-<li><code>Omega</code> - Continuous index eigenvalues of Koopman matrix.</li>
-<li><code>eigvecs</code> - Eigenvectors of Koopman matrix.</li>
-<li><code>y0</code> - Encoded state at the baseline index, which is evolved to get predictions for any index.</li>
-</ul>
+<p><strong>Omega</strong> (<em>torch.Tensor</em>), <strong>eigvecs</strong> (<em>torch.Tensor</em>) - Eigenvalues, and eigenvectors of the trained Koopman matrix that characterizes the continuous index system <span><span class="MathJax_Preview">\frac{dy}{di} = Ky_i</span><script type="math/tex">\frac{dy}{di} = Ky_i</script></span>. These are used to make predictions.</p>
 </li>
 <li>
-<p><strong>stats</strong> (<em>dict[list]</em>) - Stores different metrics from training and testing. Useful for checking performance.</p>
+<p><strong>y0</strong> (<em>torch.Tensor</em>) - Encoded state at the baseline index, which is evolved using <code>Omega</code> and <code>eigvecs</code> to get predictions for any index.</p>
+</li>
+<li>
+<p><strong>stats</strong> (<em>dict[list]</em>) - Stores different metrics from training and testing. Useful for checking performance and <a href="https://galoisinc.github.io/dlkoopman/utils.html#dlkoopman.utils.plot_stats">plotting</a>.</p>
 </li>
 <li>
 <p><strong>error_flag</strong> (<em>bool</em>) - Signals if any error has occurred in training.</p>
@@ -173,14 +196,14 @@
 <p><strong>cond_threshold</strong> (<em>float, optional</em>) - Condition number of the eigenvector matrix greater than this will be reported, and singular values smaller than this fraction of the largest will be ignored for the pseudo-inverse operation.</p>
 </li>
 <li>
-<p><strong>clip_grad_norm</strong> (<em>float, optional</em>) - If not None, clip the norm of gradients to this value.</p>
+<p><strong>clip_grad_norm</strong> (<em>float, optional</em>) - If not <code>None</code>, clip the norm of gradients to this value.</p>
 </li>
-<li><strong>clip_grad_value</strong> (<em>float, optional</em>) - If not None, clip the values of gradients to [-<code>clip_grad_value</code>,<code>clip_grad_value</code>].</li>
+<li><strong>clip_grad_value</strong> (<em>float, optional</em>) - If not <code>None</code>, clip the values of gradients to [-<code>clip_grad_value</code>,<code>clip_grad_value</code>].</li>
 </ul>
 <h2 id="effects">Effects</h2>
 <ul>
 <li><code>self.stats</code> is populated.</li>
-<li><code>self.Omega</code> and <code>self.eigvecs</code> hold the eigendecomposition of the trained learnt Koopman matrix, which can be used ti predict any state by evolving <code>self.y0</code>.</li>
+<li><code>self.Omega</code> and <code>self.eigvecs</code> hold the eigendecomposition of the Koopman matrix learnt during training, which can be used to predict any state by evolving <code>self.y0</code>.</li>
 </ul></div>
 </dd>
 <dt id="dlkoopman.state_predictor.StatePredictor.test_net"><code class="name flex">
@@ -201,7 +224,7 @@
 <p>This is different from testing because the ground truth values are not present, thus losses and errors are not computed. This method can be used to make predictions for interpolated and extrapolated indexes.</p>
 <h2 id="parameters">Parameters</h2>
 <ul>
-<li><strong>'t'</strong> (<em>Array[int,float], shape=(num_new_indexes,)</em>) - Indexes for which unknown states should be predicted. <em>Array</em> can be any data type such as <em>numpy.array</em>, <em>torch.Tensor</em>, <em>list</em>, <em>range</em>, etc.</li>
+<li><strong>t</strong> (<em>Array[int,float], shape=(num_new_indexes,)</em>) - Indexes for which unknown states should be predicted. <em>Array</em> can be any data type such as <em>numpy.array</em>, <em>torch.Tensor</em>, <em>list</em>, <em>range</em>, etc.</li>
 </ul>
 <h2 id="returns">Returns</h2>
 <p><strong>Xpred</strong> (<em>torch.Tensor, shape=(len(t), input_size)</em>) - Predicted states for the new indexes.</p></div>

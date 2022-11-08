@@ -9,7 +9,12 @@ def anae(ref, new) -> torch.Tensor:
     
     ANAE first normalizes each absolute deviation by the corresponding absolute ground truth, then averages them. This is a useful thing to report since it tells us how much percentage deviation to expect for a new value. E.g. if prediction ANAE for a problem is around 10%, then one can expect a newly predicted value to have an error of around 10% from the actual.
     
-    Example: Let `ref = torch.tensor([[-0.1,0.2,0],[100,200,300]]), new = torch.tensor([[-0.11,0.15,0.01],[105,210,285]])`.
+    Example: Let
+    ```python
+    ref = torch.tensor([[-0.1,0.2,0],[100,200,300]])
+    new = torch.tensor([[-0.11,0.15,0.01],[105,210,285]])
+    ```
+
     $$ANAE = \\text{Avg}\\left(\\frac{|-0.1-(-0.11)|}{|-0.1|}, \\frac{|0.2-0.15|}{|0.15|}, \\frac{|100-105|}{|100|}, \\frac{|200-210|}{|200|}, \\frac{|300-285|}{|300|}\\right) = 10\\%$$
     Note that:
     
@@ -62,9 +67,10 @@ def overall_anae(X, Y, Xr, Ypred, Xpred) -> dict[str, torch.Tensor]:
 
     ## Returns
     **anaes** (*dict[str, torch.Tensor]*)
-        - Key **'recon'**: (*torch scalar*) - Reconstruction error between `X` and `Xr`.
-        - Key **'lin'**: (*torch scalar*) - Linearity error between `Y` and `Ypred`.
-        - Key **'pred'**: (*torch scalar*) - Prediction error between `X` and `Xpred`.
+
+    - Key **'recon'**: (*torch scalar*) - Reconstruction ANAE between `X` and `Xr`.
+    - Key **'lin'**: (*torch scalar*) - Linearity ANAE between `Y` and `Ypred`.
+    - Key **'pred'**: (*torch scalar*) - Prediction ANAE between `X` and `Xpred`.
     """
     return {
         'recon': anae(ref=X, new=Xr),
@@ -91,10 +97,11 @@ def overall_loss(X, Y, Xr, Ypred, Xpred, decoder_loss_weight) -> dict[str, torch
 
     ## Returns
     **losses** (*dict[str, torch.Tensor]*)
-        - Key **'recon'**: (*torch scalar*) - Reconstruction loss between `X` and `Xr`.
-        - Key **'lin'**: (*torch scalar*) - Linearity loss between `Y` and `Ypred`.
-        - Key **'pred'**: (*torch scalar*) - Prediction loss between `X` and `Xpred`.
-        - Key **'total'**: (*torch scalar*) - Total loss = `lin + decoder_loss_weight*(recon+pred)`
+
+    - Key **'recon'**: (*torch scalar*) - Reconstruction loss between `X` and `Xr`.
+    - Key **'lin'**: (*torch scalar*) - Linearity loss between `Y` and `Ypred`.
+    - Key **'pred'**: (*torch scalar*) - Prediction loss between `X` and `Xpred`.
+    - Key **'total'**: (*torch scalar*) - Total loss = `lin + decoder_loss_weight*(recon+pred)`
     """
     losses = {
         'recon': torch.nn.MSELoss(reduction='mean')(X, Xr),

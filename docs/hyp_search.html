@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
 <meta name="generator" content="pdoc 0.10.0" />
 <title>dlkoopman.hyp_search API documentation</title>
-<meta name="description" content="Run hyperparameter search." />
+<meta name="description" content="Ready-to-use hyperparameter search module." />
 <link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/sanitize.min.css" integrity="sha256-PK9q560IAAa6WVRRh76LtCaI8pjTJ2z11v0miyNNjrs=" crossorigin>
 <link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/typography.min.css" integrity="sha256-7l/o7C8jubJiy74VsKTidCy1yBkRtiUGbVkYBylBqUg=" crossorigin>
 <link rel="stylesheet preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/styles/github.min.css" crossorigin>
@@ -23,7 +23,7 @@
 <h1 class="title">Module <code>dlkoopman.hyp_search</code></h1>
 </header>
 <section id="section-intro">
-<p>Run hyperparameter search.</p>
+<p>Ready-to-use hyperparameter search module.</p>
 </section>
 <section>
 </section>
@@ -36,7 +36,7 @@
 <span>def <span class="ident">run_hyp_search</span></span>(<span>dh, hyp_options, numruns=None, avg_ignore_initial_epochs=0, sort_key='avg_pred_anae_va') ‑> pathlib.Path</span>
 </code></dt>
 <dd>
-<div class="desc"><p>Perform many runs of a type of predictor model (either <code>StatePredictor</code> or <code>TrajectoryPredictor</code>) with different configurations on given data, and save the loss and ANAE statistics for each run.</p>
+<div class="desc"><p>Perform many runs of a type of predictor model (either <code>StatePredictor</code> or <code>TrajectoryPredictor</code>) with different configurations on given data, and save the metrics for each run.</p>
 <p>Use the results to pick a good predictor configuration.</p>
 <p><strong>The method can be interrupted at any time and the intermediate results will be saved</strong>.</p>
 <h2 id="saved-statistics">Saved statistics</h2>
@@ -48,21 +48,25 @@
 <li>'total_loss' - Total loss.</li>
 </ul>
 <p>save the following statistics:</p>
-<p>If only training data is provided:
-- <code>avg_&lt;x&gt;_tr</code> - Average training <code>&lt;x&gt;</code> across all epochs.
-- <code>final_&lt;x&gt;_tr</code> - Final training <code>&lt;x&gt;</code> after last epoch.</p>
-<p>If both training and validation data is provided (recommended):
-- <code>avg_&lt;x&gt;_va</code> - Average validation <code>&lt;x&gt;</code> across all epochs.
-- <code>best_&lt;x&gt;_va</code> - Best validation <code>&lt;x&gt;</code> across epochs.
-- <code>bestep_&lt;x&gt;_va</code> - Epoch number after which best validation <code>&lt;x&gt;</code> was achieved.</p>
-<p>For more details, refer to <a href="https://galoisinc.github.io/deep-koopman/losses.html">losses</a> and <a href="https://galoisinc.github.io/deep-koopman/errors.html">ANAEs</a>.</p>
+<p>If only training data is provided:</p>
+<ul>
+<li><code>avg_&lt;x&gt;_tr</code> - Average training <code>&lt;x&gt;</code> across all epochs.</li>
+<li><code>final_&lt;x&gt;_tr</code> - Final training <code>&lt;x&gt;</code> after last epoch.</li>
+</ul>
+<p>If both training and validation data is provided (recommended), save the above, and additionally:</p>
+<ul>
+<li><code>avg_&lt;x&gt;_va</code> - Average validation <code>&lt;x&gt;</code> across all epochs.</li>
+<li><code>best_&lt;x&gt;_va</code> - Best validation <code>&lt;x&gt;</code> across all epochs.</li>
+<li><code>bestep_&lt;x&gt;_va</code> - Epoch number at which best validation <code>&lt;x&gt;</code> was achieved.</li>
+</ul>
+<p>For more details on losses and ANAEs, refer to <a href="https://galoisinc.github.io/dlkoopman/metrics.html">metrics</a>.</p>
 <h2 id="parameters">Parameters</h2>
 <ul>
 <li>
-<p><strong>dh</strong> (<em>StatePredictor_DataHandler, TrajectoryPredictor_DataHandler</em>) - Data handler providing data. <strong>Model to be run is inferred from data, i.e. either <code>StatePredictor</code> or <code>TrajectoryPredictor</code>.</strong></p>
+<p><strong>dh</strong> (<em>StatePredictor_DataHandler, or TrajectoryPredictor_DataHandler</em>) - Data handler providing data. <strong>Model to be run is inferred from data, i.e. either <code>StatePredictor</code> or <code>TrajectoryPredictor</code>.</strong></p>
 </li>
 <li>
-<p><strong>hyp_options</strong> (<em>dict[str,list]</em>) - Input arguments to model and its methods will be swept over these values across runs. Set a key to have a single value to keep it constant across runs. As an example, when <code>dh</code> is a <code>StatePredictor_DataHandler</code>:</p>
+<p><strong>hyp_options</strong> (<em>dict[str,list]</em>) - Input arguments to model and its methods will be swept over these values across runs. As an example, when <code>dh</code> is a <code>StatePredictor_DataHandler</code>:</p>
 </li>
 </ul>
 <pre><code class="language-python">hyp_options = {
@@ -76,7 +80,7 @@
     'clip_grad_norm': 5 # this input stays constant across runs
 }
 
-# this results in \(2\times2\times5 = 20\) possible runs:
+# this results in 2*2*5=20 possible runs
 </code></pre>
 <ul>
 <li>
@@ -90,10 +94,12 @@
 </li>
 </ul>
 <h2 id="returns">Returns</h2>
-<p><strong>output_folder</strong> (<em>Path</em>) - The path to a newly created folder containing:
-- Results CSV file = <code>hyp_search_results.csv</code>
-- Log file = <code>hyp_search_log.log</code>
-- If any of the individual model runs resulted in errors, their log files will be stored as well so that you can take a closer look at what went wrong.</p>
+<p><strong>output_folder</strong> (<em>Path</em>) - The path to a newly created folder containing:</p>
+<ul>
+<li>Results CSV file = <code>hyp_search_results.csv</code></li>
+<li>Log file = <code>hyp_search_log.log</code></li>
+<li>If any of the individual model runs resulted in errors, their log files will be stored as well so that you can take a closer look at what went wrong.</li>
+</ul>
 <p>The results CSV contains:</p>
 <pre><code>-------------------------------------------------------------------------
 | UUID | &lt;hyperparameters swept over&gt; | &lt;loss results&gt; | &lt;anae results&gt; |
