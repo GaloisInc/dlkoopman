@@ -1,10 +1,5 @@
 # Examples and Tutorials
-Tutorials are in the form of Jupyter notebooks. You can view them online. If you want to run them interactively, please perform the following steps first:
-- Clone the repo: `git clone https://github.com/GaloisInc/deep-koopman.git`
-- Install requirements: `pip install -r requirements.txt`
-- Add the location to your Python path: `export PYTHONPATH="<clone_location>/deep-koopman:$PYTHONPATH"`
-
-You are now ready to go!
+Tutorials are in the form of Jupyter notebooks. You can view them online. If you want to run them interactively, please [install from source](../README.md#from-source) first.
 
 ## State Predictor (on NACA0012 data)
 The folder [`state_predictor_naca0012`](./state_predictor_naca0012/) contains tutorials on:
