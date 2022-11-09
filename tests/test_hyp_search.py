@@ -2,7 +2,7 @@ import pickle
 import os
 import shutil
 from dlkoopman.hyp_search import *
-from dlkoopman.state_pred import StatePredDH
+from dlkoopman.state_pred import StatePredDataHandler
 from dlkoopman import utils
 
 
@@ -14,7 +14,7 @@ def test_run_hyp_search():
 
     with open(os.path.join(os.path.dirname(os.path.dirname(os.path.realpath(__file__))), 'examples/state_pred_naca0012/data.pkl'), 'rb') as f:
         data = pickle.load(f)
-    dh = StatePredDH(
+    dh = StatePredDataHandler(
         Xtr=data['Xtr'], ttr=data['ttr'],
         Xva=data['Xva'], tva=data['tva']
     )

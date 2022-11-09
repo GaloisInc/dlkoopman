@@ -24,7 +24,7 @@
 </header>
 <section id="section-intro">
 <p><strong>State Predictor</strong>.</p>
-<p>The <code><a title="dlkoopman.state_pred.StatePred" href="#dlkoopman.state_pred.StatePred">StatePred</a></code> class can be used to train on given states of a system at given indexes, then predict unknown states of the system at new indexes. See a specific example and tutorial <a href="https://github.com/GaloisInc/dlkoopman/blob/main/examples/state_pred_naca0012/run.ipynb">here</a>.</p>
+<p><code><a title="dlkoopman.state_pred.StatePred" href="#dlkoopman.state_pred.StatePred">StatePred</a></code> can be used to train on given states of a system at given indexes, then predict unknown states of the system at new indexes. See a specific example and tutorial <a href="https://github.com/GaloisInc/dlkoopman/blob/main/examples/state_pred_naca0012/run.ipynb">here</a>.</p>
 </section>
 <section>
 </section>
@@ -35,12 +35,12 @@
 <section>
 <h2 class="section-title" id="header-classes">Classes</h2>
 <dl>
-<dt id="dlkoopman.state_pred.StatePredDH"><code class="flex name class">
-<span>class <span class="ident">StatePredDH</span></span>
+<dt id="dlkoopman.state_pred.StatePredDataHandler"><code class="flex name class">
+<span>class <span class="ident">StatePredDataHandler</span></span>
 <span>(</span><span>Xtr, ttr, Xva=None, tva=None, Xte=None, tte=None)</span>
 </code></dt>
 <dd>
-<div class="desc"><p>DataHandler class for providing data to train (and optionally validate and test) the <code><a title="dlkoopman.state_pred.StatePred" href="#dlkoopman.state_pred.StatePred">StatePred</a></code> model.</p>
+<div class="desc"><p>State predictor data handler. Used to provide data to train (and optionally validate and test) the <code><a title="dlkoopman.state_pred.StatePred" href="#dlkoopman.state_pred.StatePred">StatePred</a></code> model.</p>
 <h2 id="parameters">Parameters</h2>
 <ul>
 <li>
@@ -76,7 +76,7 @@
 <pre><code class="language-python"># Provide data of a system with 3-dimensional states (i.e. input_size=3)
 # Provide data at 4 indexes for training, and 2 indexes each for validation and testing
 
-dh = StatePredDH(
+dh = StatePredDataHandler(
     ttr = [100, 203, 298, 400], # ascending order, (almost) equally spaced
     Xtr = numpy.array([
         [0.7, 2.1, 9.2], # state at index 100
@@ -102,11 +102,11 @@ dh = StatePredDH(
 <span>(</span><span>dh, rank, encoded_size, encoder_hidden_layers=[100], decoder_hidden_layers=[], batch_norm=False)</span>
 </code></dt>
 <dd>
-<div class="desc"><p>StatePred can be used to train on given states of a system at given indexes, then predict unknown states of the system at new indexes.</p>
+<div class="desc"><p>State predictor. Used to train on given states of a system at given indexes, then predict unknown states of the system at new indexes.</p>
 <h2 id="parameters">Parameters</h2>
 <ul>
 <li>
-<p><strong>dh</strong> (<em>StatePredDH</em>) - Data handler that feeds data.</p>
+<p><strong>dh</strong> (<em>StatePredDataHandler</em>) - Data handler that feeds data.</p>
 </li>
 <li>
 <p><strong>rank</strong> (<em>int</em>) - Rank of SVD operation to compute Koopman matrix. Use <code>0</code> for full rank. Will be set to min(<code>encoded_size</code>, <code>num_training_indexes</code>-1) if the provided value is greater.</p>
@@ -248,7 +248,7 @@ dh = StatePredDH(
 <li><h3><a href="#header-classes">Classes</a></h3>
 <ul>
 <li>
-<h4><code><a title="dlkoopman.state_pred.StatePredDH" href="#dlkoopman.state_pred.StatePredDH">StatePredDH</a></code></h4>
+<h4><code><a title="dlkoopman.state_pred.StatePredDataHandler" href="#dlkoopman.state_pred.StatePredDataHandler">StatePredDataHandler</a></code></h4>
 </li>
 <li>
 <h4><code><a title="dlkoopman.state_pred.StatePred" href="#dlkoopman.state_pred.StatePred">StatePred</a></code></h4>

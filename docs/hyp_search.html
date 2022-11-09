@@ -63,10 +63,10 @@
 <h2 id="parameters">Parameters</h2>
 <ul>
 <li>
-<p><strong>dh</strong> (<em>StatePredDH, or TrajPredDH</em>) - Data handler providing data. <strong>Model to be run is inferred from data, i.e. either <code>StatePred</code> or <code>TrajPred</code>.</strong></p>
+<p><strong>dh</strong> (<em>StatePredDataHandler, or TrajPredDataHandler</em>) - Data handler providing data. <strong>Model to be run is inferred from data, i.e. either <code>StatePred</code> or <code>TrajPred</code>.</strong></p>
 </li>
 <li>
-<p><strong>hyp_options</strong> (<em>dict[str,list]</em>) - Input arguments to model and its methods will be swept over these values across runs. As an example, when <code>dh</code> is a <code>StatePredDH</code>:</p>
+<p><strong>hyp_options</strong> (<em>dict[str,list]</em>) - Input arguments to model and its methods will be swept over these values across runs. As an example, when <code>dh</code> is a <code>StatePredDataHandler</code>:</p>
 </li>
 </ul>
 <pre><code class="language-python">hyp_options = {

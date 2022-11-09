@@ -28,9 +28,9 @@ def get_ref_stats_rounded3():
     return round3(stats)
 
 
-def test_TrajPredDH(get_data):
+def test_TrajPredDataHandler(get_data):
     data = get_data
-    dh = TrajPredDH(
+    dh = TrajPredDataHandler(
         Xtr=data['Xtr'],
         Xva=data['Xva'],
         Xte=data['Xte']
@@ -38,7 +38,7 @@ def test_TrajPredDH(get_data):
     assert np.isclose(dh.Xscale, 0.4999852776527405)
 
     data['Xtr'][0][0][0] = -100.
-    dh = TrajPredDH(
+    dh = TrajPredDataHandler(
         Xtr=data['Xtr']
     )
     assert np.isclose(dh.Xscale, 100.)
@@ -48,7 +48,7 @@ def test_TrajPredDH(get_data):
 
 def test_TrajPred(get_data, get_ref_stats_rounded3):
     data = get_data
-    dh = TrajPredDH(
+    dh = TrajPredDataHandler(
         Xtr=data['Xtr'],
         Xva=data['Xva'],
         Xte=data['Xte']

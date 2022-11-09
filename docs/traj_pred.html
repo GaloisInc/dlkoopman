@@ -24,7 +24,7 @@
 </header>
 <section id="section-intro">
 <p><strong>Trajectory Predictor</strong>.</p>
-<p>The <code><a title="dlkoopman.traj_pred.TrajPred" href="#dlkoopman.traj_pred.TrajPred">TrajPred</a></code> class can be used to train on given equal-length trajectories of a system, then predict unknown trajectories of the system starting from new initial states. See a specific example and tutorial <a href="https://github.com/GaloisInc/dlkoopman/blob/main/examples/traj_pred_polynomial_manifold/run.ipynb">here</a>.</p>
+<p><code><a title="dlkoopman.traj_pred.TrajPred" href="#dlkoopman.traj_pred.TrajPred">TrajPred</a></code> can be used to train on given equal-length trajectories of a system, then predict unknown trajectories of the system starting from new initial states. See a specific example and tutorial <a href="https://github.com/GaloisInc/dlkoopman/blob/main/examples/traj_pred_polynomial_manifold/run.ipynb">here</a>.</p>
 </section>
 <section>
 </section>
@@ -35,12 +35,12 @@
 <section>
 <h2 class="section-title" id="header-classes">Classes</h2>
 <dl>
-<dt id="dlkoopman.traj_pred.TrajPredDH"><code class="flex name class">
-<span>class <span class="ident">TrajPredDH</span></span>
+<dt id="dlkoopman.traj_pred.TrajPredDataHandler"><code class="flex name class">
+<span>class <span class="ident">TrajPredDataHandler</span></span>
 <span>(</span><span>Xtr, Xva=None, Xte=None)</span>
 </code></dt>
 <dd>
-<div class="desc"><p>DataHandler class for providing data to train (and optionally validate and test) the <code><a title="dlkoopman.traj_pred.TrajPred" href="#dlkoopman.traj_pred.TrajPred">TrajPred</a></code> model.</p>
+<div class="desc"><p>Trajectory predictor data handler. Used to provide data to train (and optionally validate and test) the <code><a title="dlkoopman.traj_pred.TrajPred" href="#dlkoopman.traj_pred.TrajPred">TrajPred</a></code> model.</p>
 <h2 id="parameters">Parameters</h2>
 <ul>
 <li>
@@ -58,7 +58,7 @@
 # containing trajectories of length 4 (i.e. num_indexes=3)
 # Provide 3 trajectories for training, 1 for validation, and none for testing
 
-dh = TrajPredDH(
+dh = TrajPredDataHandler(
     Xtr = numpy.array([
         [ # 1st trajectory
             [8.4, 6.7],
@@ -95,11 +95,11 @@ dh = TrajPredDH(
 <span>(</span><span>dh, encoded_size, encoder_hidden_layers=[100], decoder_hidden_layers=[], batch_norm=False)</span>
 </code></dt>
 <dd>
-<div class="desc"><p>TrajPred can be used to train on given equal-length trajectories of a system, then predict unknown trajectories of the system starting from new initial states.</p>
+<div class="desc"><p>Trajectory predictor. Used to train on given equal-length trajectories of a system, then predict unknown trajectories of the system starting from new initial states.</p>
 <h2 id="parameters">Parameters</h2>
 <ul>
 <li>
-<p><strong>dh</strong> (<em>TrajPredDH</em>) - Data handler that feeds data.</p>
+<p><strong>dh</strong> (<em>TrajPredDataHandler</em>) - Data handler that feeds data.</p>
 </li>
 <li>
 <p>Parameters for <a href="https://galoisinc.github.io/dlkoopman/nets.html#dlkoopman.nets.AutoEncoder">AutoEncoder</a>:</p>
@@ -237,7 +237,7 @@ dh = TrajPredDH(
 <li><h3><a href="#header-classes">Classes</a></h3>
 <ul>
 <li>
-<h4><code><a title="dlkoopman.traj_pred.TrajPredDH" href="#dlkoopman.traj_pred.TrajPredDH">TrajPredDH</a></code></h4>
+<h4><code><a title="dlkoopman.traj_pred.TrajPredDataHandler" href="#dlkoopman.traj_pred.TrajPredDataHandler">TrajPredDataHandler</a></code></h4>
 </li>
 <li>
 <h4><code><a title="dlkoopman.traj_pred.TrajPred" href="#dlkoopman.traj_pred.TrajPred">TrajPred</a></code></h4>

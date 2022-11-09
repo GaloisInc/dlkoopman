@@ -1,6 +1,6 @@
 """**Trajectory Predictor**.
 
-The `TrajPred` class can be used to train on given equal-length trajectories of a system, then predict unknown trajectories of the system starting from new initial states. See a specific example and tutorial [here](https://github.com/GaloisInc/dlkoopman/blob/main/examples/traj_pred_polynomial_manifold/run.ipynb).
+`TrajPred` can be used to train on given equal-length trajectories of a system, then predict unknown trajectories of the system starting from new initial states. See a specific example and tutorial [here](https://github.com/GaloisInc/dlkoopman/blob/main/examples/traj_pred_polynomial_manifold/run.ipynb).
 """
 
 from collections import defaultdict
@@ -24,8 +24,8 @@ __pdoc__ = {
 }
 
 
-class TrajPredDH:
-    """DataHandler class for providing data to train (and optionally validate and test) the `TrajPred` model.
+class TrajPredDataHandler:
+    """Trajectory predictor data handler. Used to provide data to train (and optionally validate and test) the `TrajPred` model.
 
     ## Parameters
     - **'Xtr'** (*Array[float], shape=(num_training_trajectories, num_indexes, input_size)*) - Input trajectories to be used as training data. *Array* can be any data type such as *numpy.array*, *torch.Tensor*, *list* etc.
@@ -40,7 +40,7 @@ class TrajPredDH:
     # containing trajectories of length 4 (i.e. num_indexes=3)
     # Provide 3 trajectories for training, 1 for validation, and none for testing
 
-    dh = TrajPredDH(
+    dh = TrajPredDataHandler(
         Xtr = numpy.array([
             [ # 1st trajectory
                 [8.4, 6.7],
@@ -93,10 +93,10 @@ class TrajPredDH:
 
 
 class TrajPred:
-    """TrajPred can be used to train on given equal-length trajectories of a system, then predict unknown trajectories of the system starting from new initial states.
+    """Trajectory predictor. Used to train on given equal-length trajectories of a system, then predict unknown trajectories of the system starting from new initial states.
 
     ## Parameters
-    - **dh** (*TrajPredDH*) - Data handler that feeds data.
+    - **dh** (*TrajPredDataHandler*) - Data handler that feeds data.
 
     - Parameters for [AutoEncoder](https://galoisinc.github.io/dlkoopman/nets.html#dlkoopman.nets.AutoEncoder):
         - **encoded_size** (*int*).

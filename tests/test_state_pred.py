@@ -28,9 +28,9 @@ def get_ref_stats_rounded3():
     return round3(stats)
 
 
-def test_StatePredDH(get_data):
+def test_StatePredDataHandler(get_data):
     data = get_data
-    dh = StatePredDH(
+    dh = StatePredDataHandler(
         Xtr=data['Xtr'], ttr=data['ttr'],
         Xva=data['Xva'], tva=data['tva'],
         Xte=data['Xte'], tte=data['tte']
@@ -40,7 +40,7 @@ def test_StatePredDH(get_data):
     assert dh.tshift == 0.
 
     data['Xtr'][0][0] = -100.
-    dh = StatePredDH(
+    dh = StatePredDataHandler(
         Xtr=data['Xtr'], ttr=data['ttr']
     )
     assert np.isclose(dh.Xscale, 100.)
@@ -54,7 +54,7 @@ def test_StatePredDH(get_data):
 
 def test_StatePred(get_data, get_ref_stats_rounded3):
     data = get_data
-    dh = StatePredDH(
+    dh = StatePredDataHandler(
         Xtr=data['Xtr'], ttr=data['ttr'],
         Xva=data['Xva'], tva=data['tva'],
         Xte=data['Xte'], tte=data['tte']

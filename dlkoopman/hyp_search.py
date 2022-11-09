@@ -12,8 +12,8 @@ import shortuuid
 import sys
 from tqdm import tqdm
 
-from dlkoopman.state_pred import StatePred, StatePredDH
-from dlkoopman.traj_pred import TrajPred, TrajPredDH
+from dlkoopman.state_pred import StatePred, StatePredDataHandler
+from dlkoopman.traj_pred import TrajPred, TrajPredDataHandler
 
 
 def _gen_colnames(perf, do_val=True) -> list[str]:
@@ -98,9 +98,9 @@ def run_hyp_search(
     For more details on losses and ANAEs, refer to [metrics](https://galoisinc.github.io/dlkoopman/metrics.html).
 
     ## Parameters
-    - **dh** (*StatePredDH, or TrajPredDH*) - Data handler providing data. **Model to be run is inferred from data, i.e. either `StatePred` or `TrajPred`.**
+    - **dh** (*StatePredDataHandler, or TrajPredDataHandler*) - Data handler providing data. **Model to be run is inferred from data, i.e. either `StatePred` or `TrajPred`.**
     
-    - **hyp_options** (*dict[str,list]*) - Input arguments to model and its methods will be swept over these values across runs. As an example, when `dh` is a `StatePredDH`:
+    - **hyp_options** (*dict[str,list]*) - Input arguments to model and its methods will be swept over these values across runs. As an example, when `dh` is a `StatePredDataHandler`:
     ```python
     hyp_options = {
         ## arguments to __init__()
@@ -150,12 +150,12 @@ def run_hyp_search(
     ]
 
     ## Define possible hyp options and MODEL_CLASS
-    if isinstance(dh, StatePredDH):
+    if isinstance(dh, StatePredDataHandler):
         REQD_CLASS_KEYS = ['rank', 'encoded_size']
         CLASS_KEYS = ['rank', 'encoded_size', 'encoder_hidden_layers', 'decoder_hidden_layers', 'batch_norm']
         TRAIN_KEYS = ['numepochs', 'early_stopping', 'early_stopping_metric', 'lr', 'weight_decay', 'decoder_loss_weight', 'Kreg', 'cond_threshold', 'clip_grad_norm', 'clip_grad_value']
         MODEL_CLASS = StatePred
-    elif isinstance(dh, TrajPredDH):
+    elif isinstance(dh, TrajPredDataHandler):
         REQD_CLASS_KEYS = ['encoded_size']
         CLASS_KEYS = ['encoded_size', 'encoder_hidden_layers', 'decoder_hidden_layers', 'batch_norm']
         TRAIN_KEYS = ['numepochs', 'batch_size', 'early_stopping', 'early_stopping_metric', 'lr', 'weight_decay', 'decoder_loss_weight', 'clip_grad_norm', 'clip_grad_value']

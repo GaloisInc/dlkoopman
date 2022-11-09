@@ -1,6 +1,6 @@
 """**State Predictor**.
 
-The `StatePred` class can be used to train on given states of a system at given indexes, then predict unknown states of the system at new indexes. See a specific example and tutorial [here](https://github.com/GaloisInc/dlkoopman/blob/main/examples/state_pred_naca0012/run.ipynb).
+`StatePred` can be used to train on given states of a system at given indexes, then predict unknown states of the system at new indexes. See a specific example and tutorial [here](https://github.com/GaloisInc/dlkoopman/blob/main/examples/state_pred_naca0012/run.ipynb).
 """
 
 
@@ -27,8 +27,8 @@ __pdoc__ = {
 }
 
 
-class StatePredDH:
-    """DataHandler class for providing data to train (and optionally validate and test) the `StatePred` model.
+class StatePredDataHandler:
+    """State predictor data handler. Used to provide data to train (and optionally validate and test) the `StatePred` model.
 
     ## Parameters
     - **'Xtr'** (*Array[float], shape=(num_training_indexes, input_size)*) - Input states to be used as training data. *Array* can be any data type such as *numpy.array*, *torch.Tensor*, *list* etc.
@@ -52,7 +52,7 @@ class StatePredDH:
     # Provide data of a system with 3-dimensional states (i.e. input_size=3)
     # Provide data at 4 indexes for training, and 2 indexes each for validation and testing
 
-    dh = StatePredDH(
+    dh = StatePredDataHandler(
         ttr = [100, 203, 298, 400], # ascending order, (almost) equally spaced
         Xtr = numpy.array([
             [0.7, 2.1, 9.2], # state at index 100
@@ -119,10 +119,10 @@ class StatePredDH:
 
 
 class StatePred:
-    """StatePred can be used to train on given states of a system at given indexes, then predict unknown states of the system at new indexes.
+    """State predictor. Used to train on given states of a system at given indexes, then predict unknown states of the system at new indexes.
 
     ## Parameters
-    - **dh** (*StatePredDH*) - Data handler that feeds data.
+    - **dh** (*StatePredDataHandler*) - Data handler that feeds data.
 
     - **rank** (*int*) - Rank of SVD operation to compute Koopman matrix. Use `0` for full rank. Will be set to min(`encoded_size`, `num_training_indexes`-1) if the provided value is greater.
 
