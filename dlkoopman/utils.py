@@ -73,7 +73,7 @@ def plot_stats(model, perfs=['pred_anae'], start_epoch=1, fontsize=12):
     """Plot stats from a model.
 
     ## Parameters
-    - **model** (*StatePredictor* or *TrajectoryPredictor*) - A model with `stats` populated.
+    - **model** (*StatePred* or *TrajPred*) - A model with `stats` populated.
 
     - **perfs** (*list[str]*) - Which variables from `stats` to plot. For each variable, training data and validation data stats are plotted vs epochs, and the title of the plot is the test data stats value.
     

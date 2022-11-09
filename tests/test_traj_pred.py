@@ -2,7 +2,7 @@ import pytest
 import pickle
 import os
 import numpy as np
-from dlkoopman.trajectory_predictor import *
+from dlkoopman.traj_pred import *
 from dlkoopman import utils
 
 
@@ -17,7 +17,7 @@ def round3(stats):
 
 @pytest.fixture
 def get_data():
-    with open(os.path.join(os.path.dirname(os.path.dirname(os.path.realpath(__file__))), 'examples/trajectory_predictor_polynomial_manifold/data.pkl'), 'rb') as f:
+    with open(os.path.join(os.path.dirname(os.path.dirname(os.path.realpath(__file__))), 'examples/traj_pred_polynomial_manifold/data.pkl'), 'rb') as f:
         data = pickle.load(f)
     return data
 
@@ -28,9 +28,9 @@ def get_ref_stats_rounded3():
     return round3(stats)
 
 
-def test_TrajectoryPredictor_DataHandler(get_data):
+def test_TrajPredDH(get_data):
     data = get_data
-    dh = TrajectoryPredictor_DataHandler(
+    dh = TrajPredDH(
         Xtr=data['Xtr'],
         Xva=data['Xva'],
         Xte=data['Xte']
@@ -38,7 +38,7 @@ def test_TrajectoryPredictor_DataHandler(get_data):
     assert np.isclose(dh.Xscale, 0.4999852776527405)
 
     data['Xtr'][0][0][0] = -100.
-    dh = TrajectoryPredictor_DataHandler(
+    dh = TrajPredDH(
         Xtr=data['Xtr']
     )
     assert np.isclose(dh.Xscale, 100.)
@@ -46,9 +46,9 @@ def test_TrajectoryPredictor_DataHandler(get_data):
     assert torch.equal(dh.Xte, torch.tensor([]))
 
 
-def test_TrajectoryPredictor(get_data, get_ref_stats_rounded3):
+def test_TrajPred(get_data, get_ref_stats_rounded3):
     data = get_data
-    dh = TrajectoryPredictor_DataHandler(
+    dh = TrajPredDH(
         Xtr=data['Xtr'],
         Xva=data['Xva'],
         Xte=data['Xte']
@@ -58,7 +58,7 @@ def test_TrajectoryPredictor(get_data, get_ref_stats_rounded3):
 
     utils.set_seed(10)
 
-    tp = TrajectoryPredictor(
+    tp = TrajPred(
         dh = dh,
         encoded_size = 10
     )

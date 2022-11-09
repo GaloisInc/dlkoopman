@@ -4,8 +4,8 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
 <meta name="generator" content="pdoc 0.10.0" />
-<title>dlkoopman.state_predictor API documentation</title>
-<meta name="description" content="**StatePredictor class, including its DataHandler** …" />
+<title>dlkoopman.state_pred API documentation</title>
+<meta name="description" content="**StatePred class, including its DataHandler** …" />
 <link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/sanitize.min.css" integrity="sha256-PK9q560IAAa6WVRRh76LtCaI8pjTJ2z11v0miyNNjrs=" crossorigin>
 <link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/typography.min.css" integrity="sha256-7l/o7C8jubJiy74VsKTidCy1yBkRtiUGbVkYBylBqUg=" crossorigin>
 <link rel="stylesheet preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/styles/github.min.css" crossorigin>
@@ -20,11 +20,11 @@
 <main>
 <article id="content">
 <header>
-<h1 class="title">Module <code>dlkoopman.state_predictor</code></h1>
+<h1 class="title">Module <code>dlkoopman.state_pred</code></h1>
 </header>
 <section id="section-intro">
-<p><strong>StatePredictor class, including its DataHandler</strong>.</p>
-<p>The StatePredictor can be used to train on given states of a system at given indexes, then predict unknown states of the system at new indexes. See a specific example and tutorial <a href="https://github.com/GaloisInc/dlkoopman/blob/main/examples/state_predictor_naca0012/run.ipynb">here</a>.</p>
+<p><strong>StatePred class, including its DataHandler</strong>.</p>
+<p>The StatePred can be used to train on given states of a system at given indexes, then predict unknown states of the system at new indexes. See a specific example and tutorial <a href="https://github.com/GaloisInc/dlkoopman/blob/main/examples/state_pred_naca0012/run.ipynb">here</a>.</p>
 </section>
 <section>
 </section>
@@ -35,12 +35,12 @@
 <section>
 <h2 class="section-title" id="header-classes">Classes</h2>
 <dl>
-<dt id="dlkoopman.state_predictor.StatePredictor_DataHandler"><code class="flex name class">
-<span>class <span class="ident">StatePredictor_DataHandler</span></span>
+<dt id="dlkoopman.state_pred.StatePredDH"><code class="flex name class">
+<span>class <span class="ident">StatePredDH</span></span>
 <span>(</span><span>Xtr, ttr, Xva=None, tva=None, Xte=None, tte=None)</span>
 </code></dt>
 <dd>
-<div class="desc"><p>Handler class for providing data to train (and optionally validate and test) the <code><a title="dlkoopman.state_predictor.StatePredictor" href="#dlkoopman.state_predictor.StatePredictor">StatePredictor</a></code> model.</p>
+<div class="desc"><p>Handler class for providing data to train (and optionally validate and test) the <code><a title="dlkoopman.state_pred.StatePred" href="#dlkoopman.state_pred.StatePred">StatePred</a></code> model.</p>
 <h2 id="parameters">Parameters</h2>
 <ul>
 <li>
@@ -76,7 +76,7 @@
 <pre><code class="language-python"># Provide data of a system with 3-dimensional states (i.e. input_size=3)
 # Provide data at 4 indexes for training, and 2 indexes each for validation and testing
 
-dh = StatePredictor_DataHandler(
+dh = StatePredDH(
     ttr = [100, 203, 298, 400], # ascending order, (almost) equally spaced
     Xtr = numpy.array([
         [0.7, 2.1, 9.2], # state at index 100
@@ -97,16 +97,16 @@ dh = StatePredictor_DataHandler(
 )
 </code></pre></div>
 </dd>
-<dt id="dlkoopman.state_predictor.StatePredictor"><code class="flex name class">
-<span>class <span class="ident">StatePredictor</span></span>
+<dt id="dlkoopman.state_pred.StatePred"><code class="flex name class">
+<span>class <span class="ident">StatePred</span></span>
 <span>(</span><span>dh, rank, encoded_size, encoder_hidden_layers=[100], decoder_hidden_layers=[], batch_norm=False)</span>
 </code></dt>
 <dd>
-<div class="desc"><p>StatePredictor can be used to train on given states of a system at given indexes, then predict unknown states of the system at new indexes.</p>
+<div class="desc"><p>StatePred can be used to train on given states of a system at given indexes, then predict unknown states of the system at new indexes.</p>
 <h2 id="parameters">Parameters</h2>
 <ul>
 <li>
-<p><strong>dh</strong> (<em>StatePredictor_DataHandler</em>) - Data handler that feeds data.</p>
+<p><strong>dh</strong> (<em>StatePredDH</em>) - Data handler that feeds data.</p>
 </li>
 <li>
 <p><strong>rank</strong> (<em>int</em>) - Rank of SVD operation to compute Koopman matrix. Use <code>0</code> for full rank. Will be set to min(<code>encoded_size</code>, <code>num_training_indexes</code>-1) if the provided value is greater.</p>
@@ -159,7 +159,7 @@ dh = StatePredictor_DataHandler(
 </ul></div>
 <h3>Methods</h3>
 <dl>
-<dt id="dlkoopman.state_predictor.StatePredictor.train_net"><code class="name flex">
+<dt id="dlkoopman.state_pred.StatePred.train_net"><code class="name flex">
 <span>def <span class="ident">train_net</span></span>(<span>self, numepochs=500, early_stopping=0, early_stopping_metric='pred_anae', lr=0.001, weight_decay=0.0, decoder_loss_weight=0.01, Kreg=0.001, cond_threshold=100.0, clip_grad_norm=None, clip_grad_value=None)</span>
 </code></dt>
 <dd>
@@ -206,7 +206,7 @@ dh = StatePredictor_DataHandler(
 <li><code>self.Omega</code> and <code>self.eigvecs</code> hold the eigendecomposition of the Koopman matrix learnt during training, which can be used to predict any state by evolving <code>self.y0</code>.</li>
 </ul></div>
 </dd>
-<dt id="dlkoopman.state_predictor.StatePredictor.test_net"><code class="name flex">
+<dt id="dlkoopman.state_pred.StatePred.test_net"><code class="name flex">
 <span>def <span class="ident">test_net</span></span>(<span>self)</span>
 </code></dt>
 <dd>
@@ -216,7 +216,7 @@ dh = StatePredictor_DataHandler(
 <li><code>self.stats</code> is populated further.</li>
 </ul></div>
 </dd>
-<dt id="dlkoopman.state_predictor.StatePredictor.predict_new"><code class="name flex">
+<dt id="dlkoopman.state_pred.StatePred.predict_new"><code class="name flex">
 <span>def <span class="ident">predict_new</span></span>(<span>self, t) ‑> torch.Tensor</span>
 </code></dt>
 <dd>
@@ -248,14 +248,14 @@ dh = StatePredictor_DataHandler(
 <li><h3><a href="#header-classes">Classes</a></h3>
 <ul>
 <li>
-<h4><code><a title="dlkoopman.state_predictor.StatePredictor_DataHandler" href="#dlkoopman.state_predictor.StatePredictor_DataHandler">StatePredictor_DataHandler</a></code></h4>
+<h4><code><a title="dlkoopman.state_pred.StatePredDH" href="#dlkoopman.state_pred.StatePredDH">StatePredDH</a></code></h4>
 </li>
 <li>
-<h4><code><a title="dlkoopman.state_predictor.StatePredictor" href="#dlkoopman.state_predictor.StatePredictor">StatePredictor</a></code></h4>
+<h4><code><a title="dlkoopman.state_pred.StatePred" href="#dlkoopman.state_pred.StatePred">StatePred</a></code></h4>
 <ul class="">
-<li><code><a title="dlkoopman.state_predictor.StatePredictor.train_net" href="#dlkoopman.state_predictor.StatePredictor.train_net">train_net</a></code></li>
-<li><code><a title="dlkoopman.state_predictor.StatePredictor.test_net" href="#dlkoopman.state_predictor.StatePredictor.test_net">test_net</a></code></li>
-<li><code><a title="dlkoopman.state_predictor.StatePredictor.predict_new" href="#dlkoopman.state_predictor.StatePredictor.predict_new">predict_new</a></code></li>
+<li><code><a title="dlkoopman.state_pred.StatePred.train_net" href="#dlkoopman.state_pred.StatePred.train_net">train_net</a></code></li>
+<li><code><a title="dlkoopman.state_pred.StatePred.test_net" href="#dlkoopman.state_pred.StatePred.test_net">test_net</a></code></li>
+<li><code><a title="dlkoopman.state_pred.StatePred.predict_new" href="#dlkoopman.state_pred.StatePred.predict_new">predict_new</a></code></li>
 </ul>
 </li>
 </ul>

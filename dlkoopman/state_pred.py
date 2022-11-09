@@ -1,6 +1,6 @@
-"""**StatePredictor class, including its DataHandler**.
+"""**State Predictor**.
 
-The StatePredictor can be used to train on given states of a system at given indexes, then predict unknown states of the system at new indexes. See a specific example and tutorial [here](https://github.com/GaloisInc/dlkoopman/blob/main/examples/state_predictor_naca0012/run.ipynb).
+The `StatePred` class can be used to train on given states of a system at given indexes, then predict unknown states of the system at new indexes. See a specific example and tutorial [here](https://github.com/GaloisInc/dlkoopman/blob/main/examples/state_pred_naca0012/run.ipynb).
 """
 
 
@@ -19,16 +19,16 @@ warnings.filterwarnings("ignore", category=UserWarning)
 
 
 __pdoc__ = {
-    'StatePredictor.decoder_loss_weight': False,
-    'StatePredictor.cond_threshold': False,
-    'StatePredictor.Omega': False,
-    'StatePredictor.eigvecs': False,
-    'StatePredictor.y0': False
+    'StatePred.decoder_loss_weight': False,
+    'StatePred.cond_threshold': False,
+    'StatePred.Omega': False,
+    'StatePred.eigvecs': False,
+    'StatePred.y0': False
 }
 
 
-class StatePredictor_DataHandler:
-    """Handler class for providing data to train (and optionally validate and test) the `StatePredictor` model.
+class StatePredDH:
+    """DataHandler class for providing data to train (and optionally validate and test) the `StatePred` model.
 
     ## Parameters
     - **'Xtr'** (*Array[float], shape=(num_training_indexes, input_size)*) - Input states to be used as training data. *Array* can be any data type such as *numpy.array*, *torch.Tensor*, *list* etc.
@@ -52,7 +52,7 @@ class StatePredictor_DataHandler:
     # Provide data of a system with 3-dimensional states (i.e. input_size=3)
     # Provide data at 4 indexes for training, and 2 indexes each for validation and testing
 
-    dh = StatePredictor_DataHandler(
+    dh = StatePredDH(
         ttr = [100, 203, 298, 400], # ascending order, (almost) equally spaced
         Xtr = numpy.array([
             [0.7, 2.1, 9.2], # state at index 100
@@ -118,11 +118,11 @@ class StatePredictor_DataHandler:
             raise ValueError(f"Training indexes are not equally spaced and cannot be rounded to get equal spacing. Please check 'ttr' = {ttr}")
 
 
-class StatePredictor:
-    """StatePredictor can be used to train on given states of a system at given indexes, then predict unknown states of the system at new indexes.
+class StatePred:
+    """StatePred can be used to train on given states of a system at given indexes, then predict unknown states of the system at new indexes.
 
     ## Parameters
-    - **dh** (*StatePredictor_DataHandler*) - Data handler that feeds data.
+    - **dh** (*StatePredDH*) - Data handler that feeds data.
 
     - **rank** (*int*) - Rank of SVD operation to compute Koopman matrix. Use `0` for full rank. Will be set to min(`encoded_size`, `num_training_indexes`-1) if the provided value is greater.
 

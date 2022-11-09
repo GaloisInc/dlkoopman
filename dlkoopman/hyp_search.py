@@ -12,8 +12,8 @@ import shortuuid
 import sys
 from tqdm import tqdm
 
-from dlkoopman.state_predictor import StatePredictor, StatePredictor_DataHandler
-from dlkoopman.trajectory_predictor import TrajectoryPredictor, TrajectoryPredictor_DataHandler
+from dlkoopman.state_pred import StatePred, StatePredDH
+from dlkoopman.traj_pred import TrajPred, TrajPredDH
 
 
 def _gen_colnames(perf, do_val=True) -> list[str]:
@@ -68,7 +68,7 @@ def run_hyp_search(
     dh, hyp_options,
     numruns=None, avg_ignore_initial_epochs=0, sort_key='avg_pred_anae_va'
 ) -> Path:
-    """Perform many runs of a type of predictor model (either `StatePredictor` or `TrajectoryPredictor`) with different configurations on given data, and save the metrics for each run.
+    """Perform many runs of a type of predictor model (either `StatePred` or `TrajPred`) with different configurations on given data, and save the metrics for each run.
 
     Use the results to pick a good predictor configuration.
 
@@ -98,9 +98,9 @@ def run_hyp_search(
     For more details on losses and ANAEs, refer to [metrics](https://galoisinc.github.io/dlkoopman/metrics.html).
 
     ## Parameters
-    - **dh** (*StatePredictor_DataHandler, or TrajectoryPredictor_DataHandler*) - Data handler providing data. **Model to be run is inferred from data, i.e. either `StatePredictor` or `TrajectoryPredictor`.**
+    - **dh** (*StatePredDH, or TrajPredDH*) - Data handler providing data. **Model to be run is inferred from data, i.e. either `StatePred` or `TrajPred`.**
     
-    - **hyp_options** (*dict[str,list]*) - Input arguments to model and its methods will be swept over these values across runs. As an example, when `dh` is a `StatePredictor_DataHandler`:
+    - **hyp_options** (*dict[str,list]*) - Input arguments to model and its methods will be swept over these values across runs. As an example, when `dh` is a `StatePredDH`:
     ```python
     hyp_options = {
         ## arguments to __init__()
@@ -150,16 +150,16 @@ def run_hyp_search(
     ]
 
     ## Define possible hyp options and MODEL_CLASS
-    if isinstance(dh, StatePredictor_DataHandler):
+    if isinstance(dh, StatePredDH):
         REQD_CLASS_KEYS = ['rank', 'encoded_size']
         CLASS_KEYS = ['rank', 'encoded_size', 'encoder_hidden_layers', 'decoder_hidden_layers', 'batch_norm']
         TRAIN_KEYS = ['numepochs', 'early_stopping', 'early_stopping_metric', 'lr', 'weight_decay', 'decoder_loss_weight', 'Kreg', 'cond_threshold', 'clip_grad_norm', 'clip_grad_value']
-        MODEL_CLASS = StatePredictor
-    elif isinstance(dh, TrajectoryPredictor_DataHandler):
+        MODEL_CLASS = StatePred
+    elif isinstance(dh, TrajPredDH):
         REQD_CLASS_KEYS = ['encoded_size']
         CLASS_KEYS = ['encoded_size', 'encoder_hidden_layers', 'decoder_hidden_layers', 'batch_norm']
         TRAIN_KEYS = ['numepochs', 'batch_size', 'early_stopping', 'early_stopping_metric', 'lr', 'weight_decay', 'decoder_loss_weight', 'clip_grad_norm', 'clip_grad_value']
-        MODEL_CLASS = TrajectoryPredictor
+        MODEL_CLASS = TrajPred
     else:
         raise ValueError(f"Invalid 'dh' of type {type(dh)}")
     ALL_KEYS = CLASS_KEYS + TRAIN_KEYS

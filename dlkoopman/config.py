@@ -44,7 +44,7 @@ Setting this to `normalize_Xdata=False` may end the run by leading to imaginary 
 """
 
 use_exact_eigenvectors = True
-"""If `True`, the exact eigenvectors of the Koopman matrix are used in `StatePredictor`, if `False`, the projected eigenvectors are used.
+"""If `True`, the exact eigenvectors of the Koopman matrix are used in `StatePred`, if `False`, the projected eigenvectors are used.
 
 **Options**: `True` / `False`
 
@@ -56,7 +56,7 @@ For a discussion on exact and projected eigenvectors, see [Tu et al](https://arx
 """
 
 sigma_threshold = 1e-25
-"""When computing the SVD in `StatePredictor`, singular values lower than this will be reported, since they can be a possible cause of unstable gradients.
+"""When computing the SVD in `StatePred`, singular values lower than this will be reported, since they can be a possible cause of unstable gradients.
 
 **Options**: Any numerical value.
 

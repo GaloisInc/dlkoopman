@@ -36,7 +36,7 @@
 <span>def <span class="ident">run_hyp_search</span></span>(<span>dh, hyp_options, numruns=None, avg_ignore_initial_epochs=0, sort_key='avg_pred_anae_va') ‑> pathlib.Path</span>
 </code></dt>
 <dd>
-<div class="desc"><p>Perform many runs of a type of predictor model (either <code>StatePredictor</code> or <code>TrajectoryPredictor</code>) with different configurations on given data, and save the metrics for each run.</p>
+<div class="desc"><p>Perform many runs of a type of predictor model (either <code>StatePred</code> or <code>TrajPred</code>) with different configurations on given data, and save the metrics for each run.</p>
 <p>Use the results to pick a good predictor configuration.</p>
 <p><strong>The method can be interrupted at any time and the intermediate results will be saved</strong>.</p>
 <h2 id="saved-statistics">Saved statistics</h2>
@@ -63,10 +63,10 @@
 <h2 id="parameters">Parameters</h2>
 <ul>
 <li>
-<p><strong>dh</strong> (<em>StatePredictor_DataHandler, or TrajectoryPredictor_DataHandler</em>) - Data handler providing data. <strong>Model to be run is inferred from data, i.e. either <code>StatePredictor</code> or <code>TrajectoryPredictor</code>.</strong></p>
+<p><strong>dh</strong> (<em>StatePredDH, or TrajPredDH</em>) - Data handler providing data. <strong>Model to be run is inferred from data, i.e. either <code>StatePred</code> or <code>TrajPred</code>.</strong></p>
 </li>
 <li>
-<p><strong>hyp_options</strong> (<em>dict[str,list]</em>) - Input arguments to model and its methods will be swept over these values across runs. As an example, when <code>dh</code> is a <code>StatePredictor_DataHandler</code>:</p>
+<p><strong>hyp_options</strong> (<em>dict[str,list]</em>) - Input arguments to model and its methods will be swept over these values across runs. As an example, when <code>dh</code> is a <code>StatePredDH</code>:</p>
 </li>
 </ul>
 <pre><code class="language-python">hyp_options = {

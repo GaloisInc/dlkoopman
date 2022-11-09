@@ -25,9 +25,9 @@ A Python package for Koopman theory using deep learning.
 Koopman theory is a mathematical technique to achieve data-driven approximations of nonlinear dynamical systems by encoding them into a linear space. `dlkoopman` uses deep learning to learn such an encoding, while simultaneously learning the linear dynamics.
 
 ### Key features
-- `StatePredictor` - Train on individual states (snapshots) of a system, then predict unknown states.
+- `StatePred` - Train on individual states (snapshots) of a system, then predict unknown states.
     - E.g: What is the pressure vector on this aircraft for $23.5^{\circ}$ angle of attack?
-- `TrajectoryPredictor` - Train on generated trajectories of a system, then predict unknown trajectories for new initial states.
+- `TrajPred` - Train on generated trajectories of a system, then predict unknown trajectories for new initial states.
     - E.g: What is the behavior of this pendulum if I start from the point $[1,-1]$?
 - General and reusable - supports data from any dynamical system.
 - Novel error function Average Normalized Absolute Error (ANAE) for visualizing performance.
@@ -85,9 +85,9 @@ Errors mimimized during training:
 
 Prediction happens after training.
 
-(a) `StatePredictor` - Compute predicted states for new indexes such as $i'$. This uses the eigendecomposition of $K$, so $i'$ can be any real number - positive (forward extapolation), negative (backward extrapolation), or fractional (interpolation).
+(a) `StatePred` - Compute predicted states for new indexes such as $i'$. This uses the eigendecomposition of $K$, so $i'$ can be any real number - positive (forward extapolation), negative (backward extrapolation), or fractional (interpolation).
 
-(b) `TrajectoryPredictor` - Generate predicted trajectories $j'$ for new starting states such as $x^{j'}_0$. This uses a linear neural net layer to evolve the initial state.
+(b) `TrajPred` - Generate predicted trajectories $j'$ for new starting states such as $x^{j'}_0$. This uses a linear neural net layer to evolve the initial state.
 
 
 ## Known issues
