@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
 <meta name="generator" content="pdoc 0.10.0" />
 <title>dlkoopman.traj_pred API documentation</title>
-<meta name="description" content="**TrajPred class, including its DataHandler** …" />
+<meta name="description" content="**Trajectory Predictor** …" />
 <link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/sanitize.min.css" integrity="sha256-PK9q560IAAa6WVRRh76LtCaI8pjTJ2z11v0miyNNjrs=" crossorigin>
 <link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/typography.min.css" integrity="sha256-7l/o7C8jubJiy74VsKTidCy1yBkRtiUGbVkYBylBqUg=" crossorigin>
 <link rel="stylesheet preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/styles/github.min.css" crossorigin>
@@ -23,8 +23,8 @@
 <h1 class="title">Module <code>dlkoopman.traj_pred</code></h1>
 </header>
 <section id="section-intro">
-<p><strong>TrajPred class, including its DataHandler</strong>.</p>
-<p>The TrajPred can be used to train on given equal-length trajectories of a system, then predict unknown trajectories of the system starting from new initial states. See a specific example and tutorial <a href="https://github.com/GaloisInc/dlkoopman/blob/main/examples/traj_pred_polynomial_manifold/run.ipynb">here</a>.</p>
+<p><strong>Trajectory Predictor</strong>.</p>
+<p>The <code><a title="dlkoopman.traj_pred.TrajPred" href="#dlkoopman.traj_pred.TrajPred">TrajPred</a></code> class can be used to train on given equal-length trajectories of a system, then predict unknown trajectories of the system starting from new initial states. See a specific example and tutorial <a href="https://github.com/GaloisInc/dlkoopman/blob/main/examples/traj_pred_polynomial_manifold/run.ipynb">here</a>.</p>
 </section>
 <section>
 </section>
@@ -40,7 +40,7 @@
 <span>(</span><span>Xtr, Xva=None, Xte=None)</span>
 </code></dt>
 <dd>
-<div class="desc"><p>Handler class for providing data to train (and optionally validate and test) the <code><a title="dlkoopman.traj_pred.TrajPred" href="#dlkoopman.traj_pred.TrajPred">TrajPred</a></code> model.</p>
+<div class="desc"><p>DataHandler class for providing data to train (and optionally validate and test) the <code><a title="dlkoopman.traj_pred.TrajPred" href="#dlkoopman.traj_pred.TrajPred">TrajPred</a></code> model.</p>
 <h2 id="parameters">Parameters</h2>
 <ul>
 <li>
