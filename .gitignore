@@ -1,2 +1,2 @@
-generate_docs.sh
+generate.sh
 pdoc_templates

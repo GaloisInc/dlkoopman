@@ -46,7 +46,7 @@ class _MLP(torch.nn.Module):
 
 
 class AutoEncoder(torch.nn.Module):
-    """AutoEncoder neural net. Contains an encoder connected to a decoder, both are multi-layer perceptrons
+    """AutoEncoder neural net. Contains an encoder connected to a decoder, both are multi-layer perceptrons.
 
     ## Parameters
     - **input_size** (*int*) - Number of dimensions in original data (encoder input) and reconstructed data (decoder output).
@@ -104,9 +104,9 @@ class AutoEncoder(torch.nn.Module):
 
 
 class Knet(torch.nn.Module):
-    """Neural net to approximate the Koopman matrix.
+    """Linear neural net to approximate the Koopman matrix.
     
-    Contains identically sized input and output layers, no hidden layers, and no bias vector.
+    Contains identically sized input and output layers, no hidden layers, no bias vector, and no activation function.
 
     ## Parameters
     - **size** (*int*) - Dimension of the input and output layer.

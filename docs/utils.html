@@ -32,21 +32,6 @@
 <section>
 <h2 class="section-title" id="header-functions">Functions</h2>
 <dl>
-<dt id="dlkoopman.utils.stable_svd"><code class="name flex">
-<span>def <span class="ident">stable_svd</span></span>(<span>x) ‑> tuple[torch.Tensor, torch.Tensor, torch.Tensor]</span>
-</code></dt>
-<dd>
-<div class="desc"><p>Stable Singular Value Decomposition (courtesy <a href="https://github.com/wangleiphy/tensorgrad/blob/master/tensornets/adlib/svd.py">this</a>, in response to <a href="https://github.com/google/jax/issues/2311#issuecomment-984131512">this</a>) alternative to <a href="https://pytorch.org/docs/stable/generated/torch.linalg.svd.html"><code>torch.linalg.svd</code></a>, which may encounter NaNs in gradients.</p>
-<p>The other alternative is to zero out the NaN gradients as described <a href="https://github.com/tensorflow/tensorflow/issues/17476#issue-302663705">here</a>, however, we don't use this technique.</p>
-<h2 id="parameters">Parameters</h2>
-<p><strong>x</strong> (<em>torch.Tensor</em>) - Matrix whose SVD will be computed. Assume shape to be (m,n).</p>
-<h2 id="returns">Returns</h2>
-<ul>
-<li><strong>U</strong> (<em>torch.Tensor, shape=(m, min(m,n))</em>)</li>
-<li><strong>Sigma</strong> (<em>torch.Tensor, shape=(min(m,n),)</em>)</li>
-<li><strong>V</strong> (<em>torch.Tensor, shape=(n, min(m,n))</em>)</li>
-</ul></div>
-</dd>
 <dt id="dlkoopman.utils.plot_stats"><code class="name flex">
 <span>def <span class="ident">plot_stats</span></span>(<span>model, perfs=['pred_anae'], start_epoch=1, fontsize=12)</span>
 </code></dt>
@@ -55,7 +40,7 @@
 <h2 id="parameters">Parameters</h2>
 <ul>
 <li>
-<p><strong>model</strong> (<em>StatePredictor</em> or <em>TrajectoryPredictor</em>) - A model with <code>stats</code> populated.</p>
+<p><strong>model</strong> (<em>StatePred</em> or <em>TrajPred</em>) - A model with <code>stats</code> populated.</p>
 </li>
 <li>
 <p><strong>perfs</strong> (<em>list[str]</em>) - Which variables from <code>stats</code> to plot. For each variable, training data and validation data stats are plotted vs epochs, and the title of the plot is the test data stats value.</p>
@@ -98,7 +83,6 @@
 </li>
 <li><h3><a href="#header-functions">Functions</a></h3>
 <ul class="">
-<li><code><a title="dlkoopman.utils.stable_svd" href="#dlkoopman.utils.stable_svd">stable_svd</a></code></li>
 <li><code><a title="dlkoopman.utils.plot_stats" href="#dlkoopman.utils.plot_stats">plot_stats</a></code></li>
 <li><code><a title="dlkoopman.utils.set_seed" href="#dlkoopman.utils.set_seed">set_seed</a></code></li>
 </ul>

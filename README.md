@@ -1,27 +1,54 @@
-# deep-koopman
-Koopman theory is a mathematical technique to achieve data-driven approximations of dynamical systems. This repository implements a complete software tool to achieve Koopman theory using *machine learning and deep neural networks* to learn the dynamics of any system and predict its unknown states.
+# dlkoopman
+A Python package for Koopman theory using deep learning.
 
-We acknowledge previous implementations Koopman theory via code. Our tool `deep-koopman` bridges the gap between two schools of prior work -- a) software packages that implement Dynamic Mode Decomposition without *learning* Koopman observables (e.g. [`pykoopman`](https://github.com/dynamicslab/pykoopman)), and b) efforts that learn Koopman observables, but are not generalized software tools (e.g. [Lusch et al.](https://github.com/BethanyL/DeepKoopman)).
 
-## Key features of `deep-koopman`
-- A generalized software tool to apply deep learning based Koopman theory to any system with arbitrary input data / dimensionality.
-- Eigendecomposition to predict unknown states of any system in the future (*forward extrapolation*), past (*backward extrapolation*), and in-between (*interpolation*).
-- Novel error functions for visualizing performance.
-- Extensive options and a ready-to-use *hyperparameter search module* to customize training and improve performance.
+## Table of Contents
+- [Overview](#overview)
+    - [Key features](#key-features)
+    - [Why dlkoopman?](#why-dlkoopman)
+- [Installation](#installation)
+    - [With pip](#with-pip)
+    - [From source](#from-source)
+- [Tutorials and Examples](#tutorials-and-examples)
+- [API Reference](#api-reference)
+- [Description](#description)
+    - [Koopman theory](#koopman-theory)
+    - [dlkoopman training](#dlkoopman-training)
+    - [dlkoopman prediction](#dlkoopman-prediction)
+- [Known issues](#known-issues)
+- [How to cite](#how-to-cite)
+- [References](#references)
+- [Distribution Statement](#distribution-statement)
+
+
+## Overview
+Koopman theory is a mathematical technique to achieve data-driven approximations of nonlinear dynamical systems by encoding them into a linear space. `dlkoopman` uses deep learning to learn such an encoding, while simultaneously learning the linear dynamics.
+
+### Key features
+- `StatePred` - Train on individual states (snapshots) of a system, then predict unknown states.
+    - E.g: What is the pressure vector on this aircraft for $23.5^{\circ}$ angle of attack?
+- `TrajPred` - Train on generated trajectories of a system, then predict unknown trajectories for new initial states.
+    - E.g: What is the behavior of this pendulum if I start from the point $[1,-1]$?
+- General and reusable - supports data from any dynamical system.
+- Novel error function Average Normalized Absolute Error (ANAE) for visualizing performance.
+- Extensive options and a ready-to-use *hyperparameter search module* to improve performance.
 - Built using [Pytorch](https://pytorch.org/), supports both CPU and GPU platforms.
+
+### Why dlkoopman?
+We bridge the gap between a) software packages that restrict the learning of a good linearizable encoding (e.g. [`pykoopman`](https://github.com/dynamicslab/pykoopman)), and b) efforts that learn encodings for specific applications instead of being a general tool (e.g. [`DeepKoopman`](https://github.com/BethanyL/DeepKoopman)).
 
 
 ## Installation
 
+### With pip
+`pip install dlkoopman` (TODO)
+
 ### From source
 ```
-git clone https://github.com/GaloisInc/deep-koopman.git
+git clone https://github.com/GaloisInc/dlkoopman.git
 pip install -r requirements.txt
 ```
-Add the location to your Python path, i.e. `export PYTHONPATH="<clone_location>/deep-koopman:$PYTHONPATH"`
-
-### With pip
-Details coming soon!
+Add the location to your Python path, i.e. `export PYTHONPATH="<clone_location>/dlkoopman:$PYTHONPATH"`
 
 
 ## Tutorials and examples
@@ -29,33 +56,50 @@ Available in the [`examples`](./examples/) folder.
 
 
 ## API Reference
-Available at https://galoisinc.github.io/deep-koopman/.
+Available at https://galoisinc.github.io/dlkoopman/.
 
 
-## Background
-This section gives a brief overview. For a thorough mathematical treatment, refer to [`koopman_theory.pdf`](./koopman_theory.pdf).
+## Description 
 
-Assume a dynamical system $x_{t+1} = F(x_t)$, where $x$ is the (multi-dimensional, i.e. vector) state of the system at index $t$, and $F$ is the evolution rule describing the dynamics of the system. Koopman theory attempts to transform $x$ into a different space $y = g(x)$ where the dynamics are linear, i.e. $y_{t+1} = Ky_t$, where $K$ is the Koopman matrix. Linearizing the system is incredibly powerful since the state $x_t$ at any $t$ can be predicted from $K$ and the initial state $x_0$ as $x_t = g^{-1}\left(K^tg(x_0)\right)$.
+### Koopman theory
+Assume a dynamical system $x_{i+1} = F(x_i)$, where $x$ is the (genrally multi-dimensional) state of the system at index $i$, and $F$ is the (generally nonlinear) evolution rule describing the dynamics of the system. Koopman theory attempts to *encode* $x$ into a different space $y = g(x)$ where the dynamics are linear, i.e. $y_{i+1} = Ky_i$, where $K$ is the Koopman matrix. This is incredibly powerful since the state $y_i$ at any index $i$ can be predicted from the initial state $y_0$ as $y_i = K^iy_0$. This is then *decoded* back into the original space as $x = g^{-1}(y)$.
 
-The Deep Koopman system in this package performs three tasks: (TODO rework)
-- *Reconstruction* (`recon`): Learn an autoencoder architecture to create the pipeline $\hat{x} = g^{-1}(y) = g^{-1}\left(g(x)\right)$.
-- *Linearity* (`lin`): Learn a Koopman matrix which can operate on the initial encoded state $y_0$ to yield approximations $\{y_1',y_2',\cdots\}$ to the actual values $\{y_1,y_2,\cdots\}$, as well as predict unknown $y_t'$ for values of $t$ not in the given data.
-- *Prediction* (`pred`): $\{y_1',y_2',\cdots\}$ are decoded to predict approximations $\{\hat{x}_1',\hat{x}_2',\cdots\}$ to the actual values $\{x_1,x_2,\cdots\}$, as well as predict unknown $\hat{x}_t'$ for values of $t$ not in the given data. This is the task we care about the most.
+For a thorough mathematical treatment, refer to [`koopman_theory.pdf`](./koopman_theory.pdf).
+
+### dlkoopman training
 <figure><center>
-<img src="dlkoopman_system.png" width=750/>
+<img src="training_architecture.png" width=750/>
 </center></figure>
+
+This is a small example with three input states $\left[x_0, x_1, x_2\right]$. These are passed through an encoder neural network to get encoded states $\left[y_0, y_1, y_2\right]$. These are passed through a decoder neural network to get $\left[\hat{x}_0, \hat{x}_1, \hat{x}_2\right]$, and also used to learn $K$. This is used to derive predicted encoded states $\left[\mathsf{y}_1, \mathsf{y}_2\right]$, which are then passed through the same decoder to get predicted approximations $\left[\hat{\mathsf{x}}_1, \hat{\mathsf{x}}_2\right]$ to the original input states.
+
+Errors mimimized during training:
+- Train the autoencoder - Reconstruction `recon` between $\left\{x\right\}$ and $\left\{\hat{x}\right\}$.
+- Train the Koopman matrix - Linearity `lin` between $\left\{y\right\}$ and $\left\{\mathsf{y}\right\}$.
+- Combine the above - Prediction `pred` between $\left\{x\right\}$ and $\left\{\hat{\mathsf{x}}\right\}$.
+
+### dlkoopman prediction
+<figure><center>
+<img src="prediction_architecture.png" width=750/>
+</center></figure>
+
+Prediction happens after training.
+
+(a) `StatePred` - Compute predicted states for new indexes such as $i'$. This uses the eigendecomposition of $K$, so $i'$ can be any real number - positive (forward extapolation), negative (backward extrapolation), or fractional (interpolation).
+
+(b) `TrajPred` - Generate predicted trajectories $j'$ for new starting states such as $x^{j'}_0$. This uses a linear neural net layer to evolve the initial state.
 
 
 ## Known issues
-Some common issues and ways to overcome them are described in the [known issues](https://github.com/GaloisInc/deep-koopman/issues?q=is%3Aissue+label%3Aknown-issue+is%3Aclosed).
+Some common issues and ways to overcome them are described in the [known issues](https://github.com/GaloisInc/dlkoopman/issues?q=is%3Aissue+is%3Aclosed+label%3Aknown-issue).
 
 
 ## How to cite
 Please cite the accompanying paper:
 ```
 @article{Dey2022,
-    author = {Sourya Dey and Ethan Lew and Eric Davis},
-    title = {A complete deep learning software package for Koopman theory},
+    author = {Sourya Dey and Eric Davis},
+    title = {'dlkoopman': A deep learning software package for Koopman theory},
     year = {2022},
     note = {To be submitted to 5th Annual Learning for Dynamics & Control Conference (L4DC)}
 }
@@ -63,5 +107,11 @@ Please cite the accompanying paper:
 TODO arXiv
 
 
-## Acknowledgements and Distribution Statement
+## References
+- B. O. Koopman - Hamiltonian systems and transformation in Hilbert space
+- J. Nathan Kutz, Steven L. Brunton, Bingni Brunton, Joshua L. Proctor - Dynamic Mode Decomposition
+- Bethany Lusch, J. Nathan Kutz & Steven L. Brunton - Deep learning for universal linear embeddings of nonlinear dynamics
+
+
+## Distribution Statement
 This material is based upon work supported by the United States Air Force and DARPA under Contract No. FA8750-20-C-0534. Any opinions, findings and conclusions or recommendations expressed in this material are those of the author(s) and do not necessarily reflect the views of the United States Air Force and DARPA. Distribution Statement A, "Approved for Public Release, Distribution Unlimited."

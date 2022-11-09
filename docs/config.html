@@ -36,7 +36,7 @@
 <p><strong>Options</strong> (in increasing order of precision): <code>"half"</code> / <code>"float"</code> / <code>"double"</code>.</p>
 <p><strong>Default</strong>: <code>"float"</code></p>
 <h2 id="note">Note</h2>
-<p>Setting <code>precision = "double"</code> may help slightly with numerical instabilities, however, may also lead to inefficient GPU runtimes.</p></div>
+<p>Setting <code>precision = "double"</code> may make predictions slightly more accurate, however, may also lead to inefficient GPU runtimes.</p></div>
 </dd>
 <dt id="dlkoopman.config.use_cuda"><code class="name">var <span class="ident">use_cuda</span></code></dt>
 <dd>
@@ -60,7 +60,7 @@ This results in the singular and eigen vectors remaining the same.</p>
 </dd>
 <dt id="dlkoopman.config.use_exact_eigenvectors"><code class="name">var <span class="ident">use_exact_eigenvectors</span></code></dt>
 <dd>
-<div class="desc"><p>If <code>True</code>, the exact eigenvectors of the Koopman matrix are used in <code>StatePredictor</code>, if <code>False</code>, the projected eigenvectors are used.</p>
+<div class="desc"><p>If <code>True</code>, the exact eigenvectors of the Koopman matrix are used in <code>StatePred</code>, if <code>False</code>, the projected eigenvectors are used.</p>
 <p><strong>Options</strong>: <code>True</code> / <code>False</code></p>
 <p><strong>Default</strong>: <code>True</code></p>
 <h2 id="notes">Notes</h2>
@@ -68,7 +68,7 @@ This results in the singular and eigen vectors remaining the same.</p>
 </dd>
 <dt id="dlkoopman.config.sigma_threshold"><code class="name">var <span class="ident">sigma_threshold</span></code></dt>
 <dd>
-<div class="desc"><p>When computing the SVD in <code>StatePredictor</code>, singular values lower than this will be reported, since they can be a possible cause of unstable gradients.</p>
+<div class="desc"><p>When computing the SVD in <code>StatePred</code>, singular values lower than this will be reported, since they can be a possible cause of unstable gradients.</p>
 <p><strong>Options</strong>: Any numerical value.</p>
 <p><strong>Default</strong>: <code>1e-25</code></p></div>
 </dd>

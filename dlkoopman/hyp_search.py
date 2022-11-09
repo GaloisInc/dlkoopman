@@ -1,4 +1,4 @@
-"""Run hyperparameter search.""" 
+"""Ready-to-use hyperparameter search module.""" 
 
 import csv
 from collections import OrderedDict
@@ -12,8 +12,8 @@ import shortuuid
 import sys
 from tqdm import tqdm
 
-from dlkoopman.state_predictor import StatePredictor, StatePredictor_DataHandler
-from dlkoopman.trajectory_predictor import TrajectoryPredictor, TrajectoryPredictor_DataHandler
+from dlkoopman.state_pred import StatePred, StatePredDataHandler
+from dlkoopman.traj_pred import TrajPred, TrajPredDataHandler
 
 
 def _gen_colnames(perf, do_val=True) -> list[str]:
@@ -68,7 +68,7 @@ def run_hyp_search(
     dh, hyp_options,
     numruns=None, avg_ignore_initial_epochs=0, sort_key='avg_pred_anae_va'
 ) -> Path:
-    """Perform many runs of a type of predictor model (either `StatePredictor` or `TrajectoryPredictor`) with different configurations on given data, and save the loss and ANAE statistics for each run.
+    """Perform many runs of a type of predictor model (either `StatePred` or `TrajPred`) with different configurations on given data, and save the metrics for each run.
 
     Use the results to pick a good predictor configuration.
 
@@ -85,20 +85,22 @@ def run_hyp_search(
     save the following statistics:
 
     If only training data is provided:
-        - `avg_<x>_tr` - Average training `<x>` across all epochs.
-        - `final_<x>_tr` - Final training `<x>` after last epoch.
 
-    If both training and validation data is provided (recommended):
-        - `avg_<x>_va` - Average validation `<x>` across all epochs.
-        - `best_<x>_va` - Best validation `<x>` across epochs.
-        - `bestep_<x>_va` - Epoch number after which best validation `<x>` was achieved.
+    - `avg_<x>_tr` - Average training `<x>` across all epochs.
+    - `final_<x>_tr` - Final training `<x>` after last epoch.
 
-    For more details, refer to [losses](https://galoisinc.github.io/deep-koopman/losses.html) and [ANAEs](https://galoisinc.github.io/deep-koopman/errors.html).
+    If both training and validation data is provided (recommended), save the above, and additionally:
+
+    - `avg_<x>_va` - Average validation `<x>` across all epochs.
+    - `best_<x>_va` - Best validation `<x>` across all epochs.
+    - `bestep_<x>_va` - Epoch number at which best validation `<x>` was achieved.
+
+    For more details on losses and ANAEs, refer to [metrics](https://galoisinc.github.io/dlkoopman/metrics.html).
 
     ## Parameters
-    - **dh** (*StatePredictor_DataHandler, TrajectoryPredictor_DataHandler*) - Data handler providing data. **Model to be run is inferred from data, i.e. either `StatePredictor` or `TrajectoryPredictor`.**
+    - **dh** (*StatePredDataHandler, or TrajPredDataHandler*) - Data handler providing data. **Model to be run is inferred from data, i.e. either `StatePred` or `TrajPred`.**
     
-    - **hyp_options** (*dict[str,list]*) - Input arguments to model and its methods will be swept over these values across runs. Set a key to have a single value to keep it constant across runs. As an example, when `dh` is a `StatePredictor_DataHandler`:
+    - **hyp_options** (*dict[str,list]*) - Input arguments to model and its methods will be swept over these values across runs. As an example, when `dh` is a `StatePredDataHandler`:
     ```python
     hyp_options = {
         ## arguments to __init__()
@@ -111,7 +113,7 @@ def run_hyp_search(
         'clip_grad_norm': 5 # this input stays constant across runs
     }
     
-    # this results in \\(2\\times2\\times5 = 20\\) possible runs:
+    # this results in 2*2*5=20 possible runs
     ```
 
     - **numruns** (*int, optional*) - The total number of possible model runs is \\(N =\\) the number of elements in the Cartesian product of the values of `hyp_options` (in the above example, this is 20). If `numruns` is `None` or \\(>N\\), run \\(N\\) runs, otherwise run `numruns` runs.<br>Since each run takes time, it is recommended to set `numruns` to a reasonably smaller value when \\(N\\) is large.
@@ -122,9 +124,10 @@ def run_hyp_search(
 
     ## Returns
     **output_folder** (*Path*) - The path to a newly created folder containing:
-        - Results CSV file = `hyp_search_results.csv`
-        - Log file = `hyp_search_log.log`
-        - If any of the individual model runs resulted in errors, their log files will be stored as well so that you can take a closer look at what went wrong.
+    
+    - Results CSV file = `hyp_search_results.csv`
+    - Log file = `hyp_search_log.log`
+    - If any of the individual model runs resulted in errors, their log files will be stored as well so that you can take a closer look at what went wrong.
 
     The results CSV contains:
     ```
@@ -147,16 +150,16 @@ def run_hyp_search(
     ]
 
     ## Define possible hyp options and MODEL_CLASS
-    if isinstance(dh, StatePredictor_DataHandler):
+    if isinstance(dh, StatePredDataHandler):
         REQD_CLASS_KEYS = ['rank', 'encoded_size']
         CLASS_KEYS = ['rank', 'encoded_size', 'encoder_hidden_layers', 'decoder_hidden_layers', 'batch_norm']
         TRAIN_KEYS = ['numepochs', 'early_stopping', 'early_stopping_metric', 'lr', 'weight_decay', 'decoder_loss_weight', 'Kreg', 'cond_threshold', 'clip_grad_norm', 'clip_grad_value']
-        MODEL_CLASS = StatePredictor
-    elif isinstance(dh, TrajectoryPredictor_DataHandler):
+        MODEL_CLASS = StatePred
+    elif isinstance(dh, TrajPredDataHandler):
         REQD_CLASS_KEYS = ['encoded_size']
         CLASS_KEYS = ['encoded_size', 'encoder_hidden_layers', 'decoder_hidden_layers', 'batch_norm']
         TRAIN_KEYS = ['numepochs', 'batch_size', 'early_stopping', 'early_stopping_metric', 'lr', 'weight_decay', 'decoder_loss_weight', 'clip_grad_norm', 'clip_grad_value']
-        MODEL_CLASS = TrajectoryPredictor
+        MODEL_CLASS = TrajPred
     else:
         raise ValueError(f"Invalid 'dh' of type {type(dh)}")
     ALL_KEYS = CLASS_KEYS + TRAIN_KEYS

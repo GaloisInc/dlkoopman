@@ -4,8 +4,8 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
 <meta name="generator" content="pdoc 0.10.0" />
-<title>dlkoopman.state_predictor API documentation</title>
-<meta name="description" content="**StatePredictor class, including its DataHandler**" />
+<title>dlkoopman.traj_pred API documentation</title>
+<meta name="description" content="**Trajectory Predictor** …" />
 <link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/sanitize.min.css" integrity="sha256-PK9q560IAAa6WVRRh76LtCaI8pjTJ2z11v0miyNNjrs=" crossorigin>
 <link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/typography.min.css" integrity="sha256-7l/o7C8jubJiy74VsKTidCy1yBkRtiUGbVkYBylBqUg=" crossorigin>
 <link rel="stylesheet preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/styles/github.min.css" crossorigin>
@@ -20,10 +20,11 @@
 <main>
 <article id="content">
 <header>
-<h1 class="title">Module <code>dlkoopman.state_predictor</code></h1>
+<h1 class="title">Module <code>dlkoopman.traj_pred</code></h1>
 </header>
 <section id="section-intro">
-<p><strong>StatePredictor class, including its DataHandler</strong></p>
+<p><strong>Trajectory Predictor</strong>.</p>
+<p><code><a title="dlkoopman.traj_pred.TrajPred" href="#dlkoopman.traj_pred.TrajPred">TrajPred</a></code> can be used to train on given equal-length trajectories of a system, then predict unknown trajectories of the system starting from new initial states. See a specific example and tutorial <a href="https://github.com/GaloisInc/dlkoopman/blob/main/examples/traj_pred_polynomial_manifold/run.ipynb">here</a>.</p>
 </section>
 <section>
 </section>
@@ -34,60 +35,74 @@
 <section>
 <h2 class="section-title" id="header-classes">Classes</h2>
 <dl>
-<dt id="dlkoopman.state_predictor.StatePredictor_DataHandler"><code class="flex name class">
-<span>class <span class="ident">StatePredictor_DataHandler</span></span>
-<span>(</span><span>Xtr, ttr, Xva=None, tva=None, Xte=None, tte=None)</span>
+<dt id="dlkoopman.traj_pred.TrajPredDataHandler"><code class="flex name class">
+<span>class <span class="ident">TrajPredDataHandler</span></span>
+<span>(</span><span>Xtr, Xva=None, Xte=None)</span>
 </code></dt>
 <dd>
-<div class="desc"><p>Handler class for providing data to train (and optionally validate and test) the <code><a title="dlkoopman.state_predictor.StatePredictor" href="#dlkoopman.state_predictor.StatePredictor">StatePredictor</a></code> model.</p>
+<div class="desc"><p>Trajectory predictor data handler. Used to provide data to train (and optionally validate and test) the <code><a title="dlkoopman.traj_pred.TrajPred" href="#dlkoopman.traj_pred.TrajPred">TrajPred</a></code> model.</p>
 <h2 id="parameters">Parameters</h2>
 <ul>
 <li>
-<p><strong>'Xtr'</strong> (<em>Array[float], shape=(num_training_indexes, input_size)</em>) - Input states to be used as training data. <em>Array</em> can be any data type such as <em>numpy.array</em>, <em>torch.Tensor</em>, <em>list</em> etc.</p>
+<p><strong>'Xtr'</strong> (<em>Array[float], shape=(num_training_trajectories, num_indexes, input_size)</em>) - Input trajectories to be used as training data. <em>Array</em> can be any data type such as <em>numpy.array</em>, <em>torch.Tensor</em>, <em>list</em> etc.</p>
 </li>
 <li>
-<p><strong>'ttr'</strong> (<em>Array[int,float], shape=(num_training_indexes,)</em>) - Indexes of the states in <code>Xtr</code>. <em>Array</em> can be any data type such as <em>numpy.array</em>, <em>torch.Tensor</em>, <em>list</em>, <em>range</em>, etc.</p>
-<ul>
-<li><strong><code>ttr</code> must be in ascending order and should ideally be equally spaced</strong>. The 1st value of <code>ttr</code> will be used as the <em>baseline index</em>.</li>
-<li>Small deviations are okay, e.g. <code>[100, 203, 298, 400, 500]</code> will become <code>[100, 200, 300, 400, 500]</code>, but larger deviations that cannot be unambiguously rounded will lead to errors.</li>
+<p><strong>'Xva'</strong> (<em>Array[float], shape=(num_validation_trajectories, num_indexes, input_size), optional</em>) - Input trajectories to be used as validation data. Same data type requirements as <code>Xtr</code>.</p>
+</li>
+<li>
+<p><strong>'Xte'</strong> (<em>Array[float], shape=(num_test_trajectories, num_indexes, input_size), optional</em>) - Input trajectories to be used as test data. Same data type requirements as <code>Xtr</code>.</p>
+</li>
 </ul>
-</li>
-<li>
-<p><strong>'Xva'</strong> (<em>Array[float], shape=(num_validation_indexes, input_size), optional</em>) - Input states to be used as validation data. Same data type requirements as <code>Xtr</code>.</p>
-</li>
-<li>
-<p><strong>'tva'</strong> (<em>Array[int,float], shape=(num_validation_indexes,), optional</em>): Indexes of the states in <code>Xva</code>. Same data type requirements as <code>ttr</code>.</p>
-<ul>
-<li>The order and spacing restrictions on <code>ttr</code> do <em>not</em> apply. The values of these indexes can be anything.</li>
-</ul>
-</li>
-<li>
-<p><strong>'Xte'</strong> (<em>Array[float], shape=(num_test_indexes, input_size), optional</em>) - Input states to be used as test data. Same data type requirements as <code>Xtr</code>.</p>
-</li>
-<li>
-<p><strong>'tte'</strong> (<em>Array[int,float], shape=(num_test_indexes,), optional</em>): Indexes of the states in <code>Xte</code>. Same data type requirements as <code>ttr</code>.</p>
-<ul>
-<li>The order and spacing restrictions on <code>ttr</code> do <em>not</em> apply. The values of these indexes can be anything.</li>
-</ul>
-</li>
-</ul></div>
+<h2 id="example">Example</h2>
+<pre><code class="language-python"># Provide data of a system with 2-dimensional states (i.e. input_size=3)
+# containing trajectories of length 4 (i.e. num_indexes=3)
+# Provide 3 trajectories for training, 1 for validation, and none for testing
+
+dh = TrajPredDataHandler(
+    Xtr = numpy.array([
+        [ # 1st trajectory
+            [8.4, 6.7],
+            [4.2, 4.2],
+            [3.4, 4.6],
+            [7.7, 1.8]
+        ],
+        [ # 2nd trajectory
+            [5.9, 1.5],
+            [8.3, 5.1],
+            [9.9, 0.2],
+            [1.6, 7.2]
+        ],
+        [ # 3rd trajectory
+            [5.4, 9.8],
+            [2.4, 6.9],
+            [8.9, 0.5],
+            [9.3, 0.7]
+        ]
+    ]),
+    Xva = numpy.array([
+        [ # 1st trajectory
+            [4.7, 1.4],
+            [1.1, 6.2],
+            [7.8, 6.9],
+            [6.1, 8. ]
+        ]
+    ])
+)
+</code></pre></div>
 </dd>
-<dt id="dlkoopman.state_predictor.StatePredictor"><code class="flex name class">
-<span>class <span class="ident">StatePredictor</span></span>
-<span>(</span><span>dh, rank, encoded_size, encoder_hidden_layers=[100], decoder_hidden_layers=[], batch_norm=False)</span>
+<dt id="dlkoopman.traj_pred.TrajPred"><code class="flex name class">
+<span>class <span class="ident">TrajPred</span></span>
+<span>(</span><span>dh, encoded_size, encoder_hidden_layers=[100], decoder_hidden_layers=[], batch_norm=False)</span>
 </code></dt>
 <dd>
-<div class="desc"><p>StatePredictor class to learn the Koopman matrix of a system from its input states at given indexes, then predict its states at unknown indexes.</p>
+<div class="desc"><p>Trajectory predictor. Used to train on given equal-length trajectories of a system, then predict unknown trajectories of the system starting from new initial states.</p>
 <h2 id="parameters">Parameters</h2>
 <ul>
 <li>
-<p><strong>dh</strong> (<em>StatePredictor_DataHandler</em>) - Data handler that feeds data.</p>
+<p><strong>dh</strong> (<em>TrajPredDataHandler</em>) - Data handler that feeds data.</p>
 </li>
 <li>
-<p><strong>rank</strong> (<em>int</em>) - Rank of SVD operation to compute Koopman matrix. Use <code>0</code> for full rank. Will be set to <code>min(encoded_size, num_training_indexes-1)</code> if the provided value is greater.</p>
-</li>
-<li>
-<p>Parameters required by <a href="https://galoisinc.github.io/deep-koopman/nets.html#dlkoopman.nets.AutoEncoder">AutoEncoder</a>:</p>
+<p>Parameters for <a href="https://galoisinc.github.io/dlkoopman/nets.html#dlkoopman.nets.AutoEncoder">AutoEncoder</a>:</p>
 <ul>
 <li>
 <p><strong>encoded_size</strong> (<em>int</em>).</p>
@@ -120,54 +135,32 @@
 <p><strong>ae</strong> (<em>nets.AutoEncoder</em>) - AutoEncoder neural network to encode input states into a linearizable domain where the Koopman matrix can be learnt, then decode them back into original domain.</p>
 </li>
 <li>
-<p><strong>Omega</strong> (<em>torch.Tensor</em>), <strong>eigvecs</strong> (<em>torch.Tensor</em>), <strong>y0</strong> (<em>torch.Tensor</em>) - Used to make predictions using a trained model.</p>
-<ul>
-<li><code>Omega</code> - Continuous index eigenvalues of Koopman matrix.</li>
-<li><code>eigvecs</code> - Eigenvectors of Koopman matrix.</li>
-<li><code>y0</code> - Encoded state at the baseline index, which is evolved to get predictions for any index.</li>
-</ul>
+<p><strong>Knet</strong> (<em>nets.Knet</em>) - Linear layer to approximate the Koopman matrix. This is used to evolve states in the encoded domain so as to generate their trajectories.</p>
 </li>
 <li>
-<p><strong>stats</strong> (<em>dict[list]</em>) - Stores different metrics from training and testing. Useful for checking performance.</p>
+<p><strong>Lambda</strong> (<em>torch.Tensor</em>), <strong>eigvecs</strong> (<em>torch.Tensor</em>) - Eigenvalues, and eigenvectors of the trained Koopman matrix that characterizes the discrete index system <span><span class="MathJax_Preview">y_{i+1} = Ky_i</span><script type="math/tex">y_{i+1} = Ky_i</script></span>. The system is discrete since specific trajectory indexes are not provided, so they are always assumed to be <span><span class="MathJax_Preview">[0,1,2,\cdots]</span><script type="math/tex">[0,1,2,\cdots]</script></span>. The eigendecomposition is not used in computations since the trained <code>Knet</code> layer performs all predictions, but is still calculated to characterize the system.</p>
+</li>
+<li>
+<p><strong>stats</strong> (<em>dict[list]</em>) - Stores different metrics from training and testing. Useful for checking performance and <a href="https://galoisinc.github.io/dlkoopman/utils.html#dlkoopman.utils.plot_stats">plotting</a>.</p>
 </li>
 <li>
 <p><strong>error_flag</strong> (<em>bool</em>) - Signals if any error has occurred in training.</p>
 </li>
 </ul></div>
-<h3>Instance variables</h3>
-<dl>
-<dt id="dlkoopman.state_predictor.StatePredictor.decoder_loss_weight"><code class="name">var <span class="ident">decoder_loss_weight</span></code></dt>
-<dd>
-<div class="desc"></div>
-</dd>
-<dt id="dlkoopman.state_predictor.StatePredictor.cond_threshold"><code class="name">var <span class="ident">cond_threshold</span></code></dt>
-<dd>
-<div class="desc"></div>
-</dd>
-<dt id="dlkoopman.state_predictor.StatePredictor.Omega"><code class="name">var <span class="ident">Omega</span></code></dt>
-<dd>
-<div class="desc"></div>
-</dd>
-<dt id="dlkoopman.state_predictor.StatePredictor.eigvecs"><code class="name">var <span class="ident">eigvecs</span></code></dt>
-<dd>
-<div class="desc"></div>
-</dd>
-<dt id="dlkoopman.state_predictor.StatePredictor.y0"><code class="name">var <span class="ident">y0</span></code></dt>
-<dd>
-<div class="desc"></div>
-</dd>
-</dl>
 <h3>Methods</h3>
 <dl>
-<dt id="dlkoopman.state_predictor.StatePredictor.train_net"><code class="name flex">
-<span>def <span class="ident">train_net</span></span>(<span>self, numepochs=500, early_stopping=0, early_stopping_metric='pred_anae', lr=0.001, weight_decay=0.0, decoder_loss_weight=0.01, Kreg=0.001, cond_threshold=100.0, clip_grad_norm=None, clip_grad_value=None)</span>
+<dt id="dlkoopman.traj_pred.TrajPred.train_net"><code class="name flex">
+<span>def <span class="ident">train_net</span></span>(<span>self, numepochs=10, batch_size=250, early_stopping=0, early_stopping_metric='total_loss', lr=0.001, weight_decay=0.0, decoder_loss_weight=0.01, clip_grad_norm=None, clip_grad_value=None)</span>
 </code></dt>
 <dd>
-<div class="desc"><p>Train the model using <code>dh.Xtr</code> and <code>dh.ttr</code>, and validate it on <code>dh.Xva</code> and <code>dh.tva</code>.</p>
+<div class="desc"><p>Train the model using <code>dh.Xtr</code>, and validate it on <code>dh.Xva</code>.</p>
 <h2 id="parameters">Parameters</h2>
 <ul>
 <li>
 <p><strong>numepochs</strong> (<em>int, optional</em>) - Number of epochs for which to train. Each epoch uses the complete training data to learn the Koopman matrix.</p>
+</li>
+<li>
+<p><strong>batch_size</strong> (<em>int, optional</em>) - How many trajectories to train on per batch. Set to 0 to train on all trajectories per batch (not recommended when number of training trajectories is large).</p>
 </li>
 <li>
 <p><strong>early_stopping</strong> (<em>int/float, optional</em>) - Whether to terminate training early due to no improvement in validation metric.</p>
@@ -190,44 +183,40 @@
 <p><strong>decoder_loss_weight</strong> (<em>float, optional</em>) - Weight the losses between autoencoder decoder outputs (<code>recon</code> and <code>pred</code>) by this number. This is to account for the scaling effect of the decoder.</p>
 </li>
 <li>
-<p><strong>Kreg</strong> (<em>float, optional</em>) - L1 penalty for the Ktilde matrix.</p>
-</li>
-<li>
 <p><strong>cond_threshold</strong> (<em>float, optional</em>) - Condition number of the eigenvector matrix greater than this will be reported, and singular values smaller than this fraction of the largest will be ignored for the pseudo-inverse operation.</p>
 </li>
 <li>
-<p><strong>clip_grad_norm</strong> (<em>float, optional</em>) - If not None, clip the norm of gradients to this value.</p>
+<p><strong>clip_grad_norm</strong> (<em>float, optional</em>) - If not <code>None</code>, clip the norm of gradients to this value.</p>
 </li>
-<li><strong>clip_grad_value</strong> (<em>float, optional</em>) - If not None, clip the values of gradients to [-<code>clip_grad_value</code>,<code>clip_grad_value</code>].</li>
+<li><strong>clip_grad_value</strong> (<em>float, optional</em>) - If not <code>None</code>, clip the values of gradients to [-<code>clip_grad_value</code>,<code>clip_grad_value</code>].</li>
 </ul>
 <h2 id="effects">Effects</h2>
 <ul>
 <li><code>self.stats</code> is populated.</li>
-<li><code>self.Omega</code> and <code>self.eigvecs</code> hold the eigendecomposition of the trained learnt Koopman matrix, which can be used ti predict any state by evolving <code>self.y0</code>.</li>
 </ul></div>
 </dd>
-<dt id="dlkoopman.state_predictor.StatePredictor.test_net"><code class="name flex">
+<dt id="dlkoopman.traj_pred.TrajPred.test_net"><code class="name flex">
 <span>def <span class="ident">test_net</span></span>(<span>self)</span>
 </code></dt>
 <dd>
-<div class="desc"><p>Run the trained model on test data - <code>dh.Xte</code> and <code>dh.tte</code>.</p>
+<div class="desc"><p>Run the trained model on test data - <code>dh.Xte</code>.</p>
 <h2 id="effects">Effects</h2>
 <ul>
 <li><code>self.stats</code> is populated further.</li>
 </ul></div>
 </dd>
-<dt id="dlkoopman.state_predictor.StatePredictor.predict_new"><code class="name flex">
-<span>def <span class="ident">predict_new</span></span>(<span>self, t) ‑> torch.Tensor</span>
+<dt id="dlkoopman.traj_pred.TrajPred.predict_new"><code class="name flex">
+<span>def <span class="ident">predict_new</span></span>(<span>self, X0) ‑> torch.Tensor</span>
 </code></dt>
 <dd>
-<div class="desc"><p>Use the trained model to predict the states for new indexes that are unknown.</p>
-<p>This is different from testing because the ground truth values are not present, thus losses and errors are not computed. This method can be used to make predictions for interpolated and extrapolated indexes.</p>
+<div class="desc"><p>Use the trained model to predict complete trajectories for new starting states.</p>
+<p>This is different from testing because the ground truth values are not present, thus losses and errors are not computed.</p>
 <h2 id="parameters">Parameters</h2>
 <ul>
-<li><strong>'t'</strong> (<em>Array[int,float], shape=(num_new_indexes,)</em>) - Indexes for which unknown states should be predicted. <em>Array</em> can be any data type such as <em>numpy.array</em>, <em>torch.Tensor</em>, <em>list</em>, <em>range</em>, etc.</li>
+<li><strong>'X0'</strong> (<em>Array[float], shape=(num_new_trajectories, input_size)</em>) - The starting states for the new trajectories that are to be predicted. <em>Array</em> can be any data type such as <em>numpy.array</em>, <em>torch.Tensor</em>, <em>list</em>, <em>range</em>, etc.</li>
 </ul>
 <h2 id="returns">Returns</h2>
-<p><strong>Xpred</strong> (<em>torch.Tensor, shape=(len(t), input_size)</em>) - Predicted states for the new indexes.</p></div>
+<p><strong>Xpred</strong> (<em>torch.Tensor, shape=(num_new_trajectories, num_indexes, input_size)</em>) - Predicted trajectories for the new starting states.</p></div>
 </dd>
 </dl>
 </dd>
@@ -248,14 +237,14 @@
 <li><h3><a href="#header-classes">Classes</a></h3>
 <ul>
 <li>
-<h4><code><a title="dlkoopman.state_predictor.StatePredictor_DataHandler" href="#dlkoopman.state_predictor.StatePredictor_DataHandler">StatePredictor_DataHandler</a></code></h4>
+<h4><code><a title="dlkoopman.traj_pred.TrajPredDataHandler" href="#dlkoopman.traj_pred.TrajPredDataHandler">TrajPredDataHandler</a></code></h4>
 </li>
 <li>
-<h4><code><a title="dlkoopman.state_predictor.StatePredictor" href="#dlkoopman.state_predictor.StatePredictor">StatePredictor</a></code></h4>
+<h4><code><a title="dlkoopman.traj_pred.TrajPred" href="#dlkoopman.traj_pred.TrajPred">TrajPred</a></code></h4>
 <ul class="">
-<li><code><a title="dlkoopman.state_predictor.StatePredictor.train_net" href="#dlkoopman.state_predictor.StatePredictor.train_net">train_net</a></code></li>
-<li><code><a title="dlkoopman.state_predictor.StatePredictor.test_net" href="#dlkoopman.state_predictor.StatePredictor.test_net">test_net</a></code></li>
-<li><code><a title="dlkoopman.state_predictor.StatePredictor.predict_new" href="#dlkoopman.state_predictor.StatePredictor.predict_new">predict_new</a></code></li>
+<li><code><a title="dlkoopman.traj_pred.TrajPred.train_net" href="#dlkoopman.traj_pred.TrajPred.train_net">train_net</a></code></li>
+<li><code><a title="dlkoopman.traj_pred.TrajPred.test_net" href="#dlkoopman.traj_pred.TrajPred.test_net">test_net</a></code></li>
+<li><code><a title="dlkoopman.traj_pred.TrajPred.predict_new" href="#dlkoopman.traj_pred.TrajPred.predict_new">predict_new</a></code></li>
 </ul>
 </li>
 </ul>

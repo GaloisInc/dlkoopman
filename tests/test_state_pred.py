@@ -2,7 +2,7 @@ import pytest
 import pickle
 import os
 import numpy as np
-from dlkoopman.state_predictor import *
+from dlkoopman.state_pred import *
 from dlkoopman import utils
 
 
@@ -17,7 +17,7 @@ def round3(stats):
 
 @pytest.fixture
 def get_data():
-    with open(os.path.join(os.path.dirname(os.path.dirname(os.path.realpath(__file__))), 'examples/state_predictor_naca0012/data.pkl'), 'rb') as f:
+    with open(os.path.join(os.path.dirname(os.path.dirname(os.path.realpath(__file__))), 'examples/state_pred_naca0012/data.pkl'), 'rb') as f:
         data = pickle.load(f)
     return data
 
@@ -28,9 +28,9 @@ def get_ref_stats_rounded3():
     return round3(stats)
 
 
-def test_StatePredictor_DataHandler(get_data):
+def test_StatePredDataHandler(get_data):
     data = get_data
-    dh = StatePredictor_DataHandler(
+    dh = StatePredDataHandler(
         Xtr=data['Xtr'], ttr=data['ttr'],
         Xva=data['Xva'], tva=data['tva'],
         Xte=data['Xte'], tte=data['tte']
@@ -40,7 +40,7 @@ def test_StatePredictor_DataHandler(get_data):
     assert dh.tshift == 0.
 
     data['Xtr'][0][0] = -100.
-    dh = StatePredictor_DataHandler(
+    dh = StatePredDataHandler(
         Xtr=data['Xtr'], ttr=data['ttr']
     )
     assert np.isclose(dh.Xscale, 100.)
@@ -52,9 +52,9 @@ def test_StatePredictor_DataHandler(get_data):
     assert torch.equal(dh.tte, torch.tensor([]))
 
 
-def test_StatePredictor(get_data, get_ref_stats_rounded3):
+def test_StatePred(get_data, get_ref_stats_rounded3):
     data = get_data
-    dh = StatePredictor_DataHandler(
+    dh = StatePredDataHandler(
         Xtr=data['Xtr'], ttr=data['ttr'],
         Xva=data['Xva'], tva=data['tva'],
         Xte=data['Xte'], tte=data['tte']
@@ -64,7 +64,7 @@ def test_StatePredictor(get_data, get_ref_stats_rounded3):
 
     utils.set_seed(10)
 
-    sp = StatePredictor(
+    sp = StatePred(
         dh = dh,
         rank = 6,
         encoded_size = 50

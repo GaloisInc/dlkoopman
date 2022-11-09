@@ -8,6 +8,11 @@ import torch
 from typing import Any
 
 
+__pdoc__ = {
+    'stable_svd': False
+}
+
+
 def _safe_inverse(x, epsilon=1e-12):
     return x/(x**2 + epsilon)
 
@@ -51,7 +56,7 @@ class _SVD(torch.autograd.Function):
 def stable_svd(x) -> tuple[torch.Tensor, torch.Tensor, torch.Tensor]:
     """Stable Singular Value Decomposition (courtesy [this](https://github.com/wangleiphy/tensorgrad/blob/master/tensornets/adlib/svd.py), in response to [this](https://github.com/google/jax/issues/2311#issuecomment-984131512)) alternative to [`torch.linalg.svd`](https://pytorch.org/docs/stable/generated/torch.linalg.svd.html), which may encounter NaNs in gradients.
 
-    The other alternative is to zero out the NaN gradients as described [here](https://github.com/tensorflow/tensorflow/issues/17476#issue-302663705), however, we don't use this technique.
+    The other solution is to zero out the NaN gradients as described [here](https://github.com/tensorflow/tensorflow/issues/17476#issue-302663705), however, we don't use this technique.
 
     ## Parameters
     **x** (*torch.Tensor*) - Matrix whose SVD will be computed. Assume shape to be (m,n).
@@ -68,7 +73,7 @@ def plot_stats(model, perfs=['pred_anae'], start_epoch=1, fontsize=12):
     """Plot stats from a model.
 
     ## Parameters
-    - **model** (*StatePredictor* or *TrajectoryPredictor*) - A model with `stats` populated.
+    - **model** (*StatePred* or *TrajPred*) - A model with `stats` populated.
 
     - **perfs** (*list[str]*) - Which variables from `stats` to plot. For each variable, training data and validation data stats are plotted vs epochs, and the title of the plot is the test data stats value.
     

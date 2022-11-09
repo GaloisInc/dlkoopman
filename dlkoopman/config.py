@@ -1,8 +1,9 @@
 """Configuration options"""
 
 
-import torch
-
+###############################################################################
+# Change config options in this section as desired
+###############################################################################
 
 precision = "float"
 """Numerical precision of tensors.
@@ -12,7 +13,7 @@ precision = "float"
 **Default**: `"float"`
 
 ## Note
-Setting `precision = "double"` may help slightly with numerical instabilities, however, may also lead to inefficient GPU runtimes.
+Setting `precision = "double"` may make predictions slightly more accurate, however, may also lead to inefficient GPU runtimes.
 """
 
 use_cuda = True
@@ -43,7 +44,7 @@ Setting this to `normalize_Xdata=False` may end the run by leading to imaginary 
 """
 
 use_exact_eigenvectors = True
-"""If `True`, the exact eigenvectors of the Koopman matrix are used in `StatePredictor`, if `False`, the projected eigenvectors are used.
+"""If `True`, the exact eigenvectors of the Koopman matrix are used in `StatePred`, if `False`, the projected eigenvectors are used.
 
 **Options**: `True` / `False`
 
@@ -55,7 +56,7 @@ For a discussion on exact and projected eigenvectors, see [Tu et al](https://arx
 """
 
 sigma_threshold = 1e-25
-"""When computing the SVD in `StatePredictor`, singular values lower than this will be reported, since they can be a possible cause of unstable gradients.
+"""When computing the SVD in `StatePred`, singular values lower than this will be reported, since they can be a possible cause of unstable gradients.
 
 **Options**: Any numerical value.
 
@@ -63,48 +64,42 @@ sigma_threshold = 1e-25
 """
 
 ###############################################################################
-# Validate config
-# Run automatically whenever config is imported
-###############################################################################
-import sys
-_error = False
-
-try:
-    assert precision in ["half", "float", "double"], '`precision` must be either of "half" / "float" / "double"'
-except AssertionError as e:
-    print(f'Config Validation Error: {e}')
-    _error = True
-try:
-    assert use_cuda in [True, False], '`use_cuda` must be either True or False'
-except AssertionError as e:
-    print(f'Config Validation Error: {e}')
-    _error = True
-try:
-    assert normalize_Xdata in [True, False], '`normalize_Xdata` must be either True or False'
-except AssertionError as e:
-    print(f'Config Validation Error: {e}')
-    _error = True
-try:
-    assert use_exact_eigenvectors in [True, False], '`use_exact_eigenvectors` must be either True or False'
-except AssertionError as e:
-    print(f'Config Validation Error: {e}')
-    _error = True
-try:
-    assert type(sigma_threshold) in [int, float], '`sigma_threshold` must be a number'
-except AssertionError as e:
-    print(f'Config Validation Error: {e}')
-    _error = True
-
-if _error:
-    print('\nConfig validation failed, exiting!')
-    sys.exit()
+# End of config options
 ###############################################################################
 
 
+
+
 ###############################################################################
+# Do not change anything from here on
+###############################################################################
+
+
+__pdoc__ = {
+    'ConfigValidationError': False
+}
+
+# Config validation - runs automatically whenever config is imported
+
+class ConfigValidationError(Exception):
+    """Raised when config does not validate."""
+
+if precision not in ["half", "float", "double"]:
+    raise ConfigValidationError(f'`precision` must be either of "half" / "float" / "double", instead found {precision}')
+if use_cuda not in [True, False]:
+    raise ConfigValidationError(f'`use_cuda` must be either True or False, instead found {use_cuda}')
+if normalize_Xdata not in [True, False]:
+    raise ConfigValidationError(f'`normalize_Xdata` must be either True or False, instead found {normalize_Xdata}')
+if use_exact_eigenvectors not in [True, False]:
+    raise ConfigValidationError(f'`use_exact_eigenvectors` must be either True or False, instead found {use_exact_eigenvectors}')
+if type(sigma_threshold) not in [int, float]:
+    raise ConfigValidationError(f'`sigma_threshold` must be a number, instead found {sigma_threshold}')
+
+
 # Set other constants from config values
-###############################################################################
+
+import torch
+
 _RTYPE = torch.half if precision=="half" else torch.float if precision=="float" else torch.double
 _CTYPE = torch.chalf if precision=="half" else torch.cfloat if precision=="float" else torch.cdouble
 _DEVICE = torch.device("cuda" if use_cuda and torch.cuda.is_available() else "cpu")
-###############################################################################
