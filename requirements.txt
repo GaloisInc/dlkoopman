@@ -1,6 +1,0 @@
-matplotlib==3.4.2
-numpy==1.23.0
-pandas==1.2.3
-shortuuid==1.0.9
-torch==1.12.1
-tqdm==4.61.1

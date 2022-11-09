@@ -1,1 +1,31 @@
-# todo manually
+[tool.poetry]
+name = "dlkoopman"
+version = "1.0.0"
+description = "A Python package for Koopman theory using deep learning."
+authors = ["Sourya Dey <sourya@galois.com>"]
+license = "MIT"
+readme = "README.md"
+repository = "https://github.com/GaloisInc/dlkoopman"
+documentation = "https://galoisinc.github.io/dlkoopman/"
+keywords = ["koopman theory", "koopman operator", "deep learning", "autoencoder"]
+classifiers = [
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+    "Topic :: Scientific/Engineering :: Physics"
+]
+
+[tool.poetry.dependencies]
+python = "^3.9"
+tqdm = "^4.61.1"
+shortuuid = "^1.0.9"
+torch = "^1.12.1"
+numpy = "^1.23.0"
+pandas = "^1.2.3"
+matplotlib = "^3.4.2"
+
+[tool.poetry.dev-dependencies]
+pytest = "^7.1.2"
+pdoc3 = "^0.10.0"
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
