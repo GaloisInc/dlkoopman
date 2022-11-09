@@ -41,7 +41,7 @@ We bridge the gap between a) software packages that restrict the learning of a g
 ## Installation
 
 ### With pip
-`pip install dlkoopman` (TODO)
+`pip install dlkoopman`
 
 ### From source
 ```
