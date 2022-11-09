@@ -25,9 +25,9 @@ A Python package for Koopman theory using deep learning.
 Koopman theory is a mathematical technique to achieve data-driven approximations of nonlinear dynamical systems by encoding them into a linear space. `dlkoopman` uses deep learning to learn such an encoding, while simultaneously learning the linear dynamics.
 
 ### Key features
-- `StatePred` - Train on individual states (snapshots) of a system, then predict unknown states.
+- State prediction (`StatePred`) - Train on individual states (snapshots) of a system, then predict unknown states.
     - E.g: What is the pressure vector on this aircraft for $23.5^{\circ}$ angle of attack?
-- `TrajPred` - Train on generated trajectories of a system, then predict unknown trajectories for new initial states.
+- Trajectory prediction (`TrajPred`) - Train on generated trajectories of a system, then predict unknown trajectories for new initial states.
     - E.g: What is the behavior of this pendulum if I start from the point $[1,-1]$?
 - General and reusable - supports data from any dynamical system.
 - Novel error function Average Normalized Absolute Error (ANAE) for visualizing performance.
@@ -41,7 +41,7 @@ We bridge the gap between a) software packages that restrict the learning of a g
 ## Installation
 
 ### With pip
-`pip install dlkoopman` (TODO)
+`pip install dlkoopman`
 
 ### From source
 ```
@@ -74,9 +74,9 @@ For a thorough mathematical treatment, refer to [`koopman_theory.pdf`](./koopman
 This is a small example with three input states $\left[x_0, x_1, x_2\right]$. These are passed through an encoder neural network to get encoded states $\left[y_0, y_1, y_2\right]$. These are passed through a decoder neural network to get $\left[\hat{x}_0, \hat{x}_1, \hat{x}_2\right]$, and also used to learn $K$. This is used to derive predicted encoded states $\left[\mathsf{y}_1, \mathsf{y}_2\right]$, which are then passed through the same decoder to get predicted approximations $\left[\hat{\mathsf{x}}_1, \hat{\mathsf{x}}_2\right]$ to the original input states.
 
 Errors mimimized during training:
-- Train the autoencoder - Reconstruction `recon` between $\left\{x\right\}$ and $\left\{\hat{x}\right\}$.
-- Train the Koopman matrix - Linearity `lin` between $\left\{y\right\}$ and $\left\{\mathsf{y}\right\}$.
-- Combine the above - Prediction `pred` between $\left\{x\right\}$ and $\left\{\hat{\mathsf{x}}\right\}$.
+- Train the autoencoder - Reconstruction `recon` between $x$ and $\hat{x}$.
+- Train the Koopman matrix - Linearity `lin` between $y$ and $\mathsf{y}$.
+- Combine the above - Prediction `pred` between $x$ and $\hat{\mathsf{x}}$.
 
 ### dlkoopman prediction
 <figure><center>
@@ -85,9 +85,9 @@ Errors mimimized during training:
 
 Prediction happens after training.
 
-(a) `StatePred` - Compute predicted states for new indexes such as $i'$. This uses the eigendecomposition of $K$, so $i'$ can be any real number - positive (forward extapolation), negative (backward extrapolation), or fractional (interpolation).
+(a) State prediction - Compute predicted states for new indexes such as $i'$. This uses the eigendecomposition of $K$, so $i'$ can be any real number - positive (forward extapolation), negative (backward extrapolation), or fractional (interpolation).
 
-(b) `TrajPred` - Generate predicted trajectories $j'$ for new starting states such as $x^{j'}_0$. This uses a linear neural net layer to evolve the initial state.
+(b) Trajectory prediction - Generate predicted trajectories $j'$ for new starting states such as $x^{j'}_0$. This uses a linear neural net layer to evolve the initial state.
 
 
 ## Known issues
