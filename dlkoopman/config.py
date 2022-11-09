@@ -85,15 +85,15 @@ class ConfigValidationError(Exception):
     """Raised when config does not validate."""
 
 if precision not in ["half", "float", "double"]:
-    raise ConfigValidationError('`precision` must be either of "half" / "float" / "double"')
+    raise ConfigValidationError(f'`precision` must be either of "half" / "float" / "double", instead found {precision}')
 if use_cuda not in [True, False]:
-    raise ConfigValidationError('`use_cuda` must be either True or False')
+    raise ConfigValidationError(f'`use_cuda` must be either True or False, instead found {use_cuda}')
 if normalize_Xdata not in [True, False]:
-    raise ConfigValidationError('`normalize_Xdata` must be either True or False')
+    raise ConfigValidationError(f'`normalize_Xdata` must be either True or False, instead found {normalize_Xdata}')
 if use_exact_eigenvectors not in [True, False]:
-    raise ConfigValidationError('`use_exact_eigenvectors` must be either True or False')
+    raise ConfigValidationError(f'`use_exact_eigenvectors` must be either True or False, instead found {use_exact_eigenvectors}')
 if type(sigma_threshold) not in [int, float]:
-    raise ConfigValidationError('`sigma_threshold` must be a number')
+    raise ConfigValidationError(f'`sigma_threshold` must be a number, instead found {sigma_threshold}')
 
 
 # Set other constants from config values
