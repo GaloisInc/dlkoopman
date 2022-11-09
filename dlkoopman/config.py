@@ -1,8 +1,9 @@
 """Configuration options"""
 
 
-import torch
-
+###############################################################################
+# Change config options in this section as desired
+###############################################################################
 
 precision = "float"
 """Numerical precision of tensors.
@@ -63,48 +64,42 @@ sigma_threshold = 1e-25
 """
 
 ###############################################################################
-# Validate config
-# Run automatically whenever config is imported
-###############################################################################
-import sys
-_error = False
-
-try:
-    assert precision in ["half", "float", "double"], '`precision` must be either of "half" / "float" / "double"'
-except AssertionError as e:
-    print(f'Config Validation Error: {e}')
-    _error = True
-try:
-    assert use_cuda in [True, False], '`use_cuda` must be either True or False'
-except AssertionError as e:
-    print(f'Config Validation Error: {e}')
-    _error = True
-try:
-    assert normalize_Xdata in [True, False], '`normalize_Xdata` must be either True or False'
-except AssertionError as e:
-    print(f'Config Validation Error: {e}')
-    _error = True
-try:
-    assert use_exact_eigenvectors in [True, False], '`use_exact_eigenvectors` must be either True or False'
-except AssertionError as e:
-    print(f'Config Validation Error: {e}')
-    _error = True
-try:
-    assert type(sigma_threshold) in [int, float], '`sigma_threshold` must be a number'
-except AssertionError as e:
-    print(f'Config Validation Error: {e}')
-    _error = True
-
-if _error:
-    print('\nConfig validation failed, exiting!')
-    sys.exit()
+# End of config options
 ###############################################################################
 
 
+
+
 ###############################################################################
+# Do not change anything from here on
+###############################################################################
+
+
+__pdoc__ = {
+    'ConfigValidationError': False
+}
+
+# Config validation - runs automatically whenever config is imported
+
+class ConfigValidationError(Exception):
+    """Raised when config does not validate."""
+
+if precision not in ["half", "float", "double"]:
+    raise ConfigValidationError('`precision` must be either of "half" / "float" / "double"')
+if use_cuda not in [True, False]:
+    raise ConfigValidationError('`use_cuda` must be either True or False')
+if normalize_Xdata not in [True, False]:
+    raise ConfigValidationError('`normalize_Xdata` must be either True or False')
+if use_exact_eigenvectors not in [True, False]:
+    raise ConfigValidationError('`use_exact_eigenvectors` must be either True or False')
+if type(sigma_threshold) not in [int, float]:
+    raise ConfigValidationError('`sigma_threshold` must be a number')
+
+
 # Set other constants from config values
-###############################################################################
+
+import torch
+
 _RTYPE = torch.half if precision=="half" else torch.float if precision=="float" else torch.double
 _CTYPE = torch.chalf if precision=="half" else torch.cfloat if precision=="float" else torch.cdouble
 _DEVICE = torch.device("cuda" if use_cuda and torch.cuda.is_available() else "cpu")
-###############################################################################

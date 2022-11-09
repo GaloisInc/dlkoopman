@@ -23,7 +23,7 @@ __pdoc__ = {
     'StatePredictor.cond_threshold': False,
     'StatePredictor.Omega': False,
     'StatePredictor.eigvecs': False,
-    'StatePredictor.y0': False,
+    'StatePredictor.y0': False
 }
 
 

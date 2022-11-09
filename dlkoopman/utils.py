@@ -8,6 +8,11 @@ import torch
 from typing import Any
 
 
+__pdoc__ = {
+    'stable_svd': False
+}
+
+
 def _safe_inverse(x, epsilon=1e-12):
     return x/(x**2 + epsilon)
 
