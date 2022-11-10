@@ -4,12 +4,14 @@
 import matplotlib.pyplot as plt
 import numpy as np
 from pathlib import Path
+import random
 import torch
 from typing import Any
 
 
 __pdoc__ = {
-    'stable_svd': False
+    'stable_svd': False,
+    'moving_avg': False
 }
 
 
@@ -128,6 +130,7 @@ def set_seed(seed):
     """
     torch.manual_seed(seed)
     np.random.seed(seed)
+    random.seed(seed)
 
 
 def _tensorize(arg, dtype, device) -> Any:
@@ -147,3 +150,27 @@ def _extract_item(v) -> Any:
     except (AttributeError, ValueError):
         ret = v
     return ret
+
+
+def moving_avg(inp, window_size = 3):
+    """Compute moving average of the elements of an ordered iterable.
+
+    ## Parameters
+    **inp** (*Ordered Array, e.g. list, tuple*) - Input ordered iterable.
+    **window_size** (*int*) - How many elements to consider in each moving average.
+
+    ## Return
+    out (*Ordered Array, same type as input*) - Moving averaged elements of `inp`.
+
+    Throws a `ValueError` if `window_size` > `len(inp)`.
+
+    ## Example
+    ```python
+    inp = [1,2,3,5,7]
+    out = moving_avg(inp, 3)
+    # out = [2, 10/3, 5]
+    ```
+    """
+    if window_size > len(inp):
+        raise ValueError(f"'window_size' must be <= length of 'inp', but {window_size} > {len(inp)}")
+    return type(inp)(np.convolve(inp, np.ones(window_size), 'valid') / window_size)

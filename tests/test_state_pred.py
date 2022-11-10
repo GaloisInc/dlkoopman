@@ -1,4 +1,3 @@
-import pytest
 import pickle
 import os
 import numpy as np
@@ -6,30 +5,14 @@ from dlkoopman.state_pred import *
 from dlkoopman import utils
 
 
-def round3(stats):
-    for k in stats.keys():
-        if type(stats[k]) != list:
-            stats[k] = np.round(stats[k],3)
-        else:
-            stats[k] = [np.round(v,3) for v in stats[k]]
-    return stats
-
-
-@pytest.fixture
 def get_data():
     with open(os.path.join(os.path.dirname(os.path.dirname(os.path.realpath(__file__))), 'examples/state_pred_naca0012/data.pkl'), 'rb') as f:
         data = pickle.load(f)
     return data
 
-@pytest.fixture
-def get_ref_stats_rounded3():
-    with open(os.path.join(os.path.dirname(os.path.realpath(__file__)), 'ref_sp_stats.pkl'), 'rb') as f:
-        stats = pickle.load(f)
-    return round3(stats)
 
-
-def test_StatePredDataHandler(get_data):
-    data = get_data
+def test_StatePredDataHandler():
+    data = get_data()
     dh = StatePredDataHandler(
         Xtr=data['Xtr'], ttr=data['ttr'],
         Xva=data['Xva'], tva=data['tva'],
@@ -52,17 +35,16 @@ def test_StatePredDataHandler(get_data):
     assert torch.equal(dh.tte, torch.tensor([]))
 
 
-def test_StatePred(get_data, get_ref_stats_rounded3):
-    data = get_data
+def test_StatePred():
+    data = get_data()
     dh = StatePredDataHandler(
         Xtr=data['Xtr'], ttr=data['ttr'],
         Xva=data['Xva'], tva=data['tva'],
         Xte=data['Xte'], tte=data['tte']
     )
 
-    ref_stats = get_ref_stats_rounded3
-
     utils.set_seed(10)
+    #NOTE: We don't need to set a seed since torch results will anyway be different across versions (ref: https://pytorch.org/docs/stable/notes/randomness.html). However, it seems that the starting weights are the same across versions for the same seed, and the variability comes from the floating point computations performed during training (ref: https://discuss.pytorch.org/t/reproducibility-over-different-machines/63047). So, it's good to set a seed so that the results do not stray too much.
 
     sp = StatePred(
         dh = dh,
@@ -72,10 +54,20 @@ def test_StatePred(get_data, get_ref_stats_rounded3):
     sp.train_net(
         numepochs = 50
     )
-    sp.test_net()
+
+    assert not sp.error_flag
+
+    dom_eigval = torch.exp(sp.Omega)[0,0]
+    assert 0.9 < dom_eigval.real < 1.1
+    assert -0.1 < dom_eigval.imag < 0.1
+
+    metric_moving_avg = utils.moving_avg(sp.stats['total_loss_va'], window_size=9)
+    assert metric_moving_avg == sorted(metric_moving_avg, reverse=True)
+
+    t = [-1,6.789,30]
+    preds = sp.predict_new(t)
+    assert preds.shape == (len(t), 200)
 
     logfile = f'log_{sp.uuid}.log'
     assert os.path.isfile(logfile)
     os.system(f'rm -rf {logfile}')
-
-    assert round3(sp.stats) == ref_stats
