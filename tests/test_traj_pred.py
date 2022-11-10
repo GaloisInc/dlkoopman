@@ -1,4 +1,3 @@
-import pytest
 import pickle
 import os
 import numpy as np
@@ -15,21 +14,14 @@ def round3(stats):
     return stats
 
 
-@pytest.fixture
 def get_data():
     with open(os.path.join(os.path.dirname(os.path.dirname(os.path.realpath(__file__))), 'examples/traj_pred_polynomial_manifold/data.pkl'), 'rb') as f:
         data = pickle.load(f)
     return data
 
-@pytest.fixture
-def get_ref_stats_rounded3():
-    with open(os.path.join(os.path.dirname(os.path.realpath(__file__)), 'ref_tp_stats.pkl'), 'rb') as f:
-        stats = pickle.load(f)
-    return round3(stats)
 
-
-def test_TrajPredDataHandler(get_data):
-    data = get_data
+def test_TrajPredDataHandler():
+    data = get_data()
     dh = TrajPredDataHandler(
         Xtr=data['Xtr'],
         Xva=data['Xva'],
@@ -46,15 +38,16 @@ def test_TrajPredDataHandler(get_data):
     assert torch.equal(dh.Xte, torch.tensor([]))
 
 
-def test_TrajPred(get_data, get_ref_stats_rounded3):
-    data = get_data
+def test_TrajPred():
+    data = get_data()
     dh = TrajPredDataHandler(
         Xtr=data['Xtr'],
         Xva=data['Xva'],
         Xte=data['Xte']
     )
 
-    ref_stats = get_ref_stats_rounded3
+    with open(os.path.join(os.path.dirname(os.path.realpath(__file__)), 'ref_tp_stats.pkl'), 'rb') as f:
+        ref_stats = round3(pickle.load(f))
 
     utils.set_seed(10)
 

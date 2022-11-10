@@ -1,4 +1,3 @@
-import pytest
 import pickle
 import os
 import numpy as np
@@ -15,21 +14,14 @@ def round3(stats):
     return stats
 
 
-@pytest.fixture
 def get_data():
     with open(os.path.join(os.path.dirname(os.path.dirname(os.path.realpath(__file__))), 'examples/state_pred_naca0012/data.pkl'), 'rb') as f:
         data = pickle.load(f)
     return data
 
-@pytest.fixture
-def get_ref_stats_rounded3():
-    with open(os.path.join(os.path.dirname(os.path.realpath(__file__)), 'ref_sp_stats.pkl'), 'rb') as f:
-        stats = pickle.load(f)
-    return round3(stats)
 
-
-def test_StatePredDataHandler(get_data):
-    data = get_data
+def test_StatePredDataHandler():
+    data = get_data()
     dh = StatePredDataHandler(
         Xtr=data['Xtr'], ttr=data['ttr'],
         Xva=data['Xva'], tva=data['tva'],
@@ -52,15 +44,16 @@ def test_StatePredDataHandler(get_data):
     assert torch.equal(dh.tte, torch.tensor([]))
 
 
-def test_StatePred(get_data, get_ref_stats_rounded3):
-    data = get_data
+def test_StatePred():
+    data = get_data()
     dh = StatePredDataHandler(
         Xtr=data['Xtr'], ttr=data['ttr'],
         Xva=data['Xva'], tva=data['tva'],
         Xte=data['Xte'], tte=data['tte']
     )
 
-    ref_stats = get_ref_stats_rounded3
+    with open(os.path.join(os.path.dirname(os.path.realpath(__file__)), 'ref_sp_stats.pkl'), 'rb') as f:
+        ref_stats = round3(pickle.load(f))
 
     utils.set_seed(10)
 
