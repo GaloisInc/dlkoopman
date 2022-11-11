@@ -1,0 +1,17 @@
+name: pytest
+on: push
+
+jobs:
+  test:
+    runs-on: ubuntu-22.04
+    timeout-minutes: 10
+
+    steps:
+      - uses: actions/checkout@v3
+      - run: pipx install poetry
+      - uses: actions/setup-python@v4
+        with:
+          python-version: 3.9
+          cache: 'poetry'
+      - run: poetry install --with dev
+      - run: poetry run pytest
