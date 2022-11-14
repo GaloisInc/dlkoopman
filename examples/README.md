@@ -1,5 +1,5 @@
 # Examples and Tutorials
-Tutorials are in the form of Jupyter notebooks. You can view them online. If you want to run them interactively, please [install from source](../README.md#from-source) first.
+Tutorials are in the form of Jupyter notebooks. You can view them online. If you want to run them interactively, please clone this repository first, i.e. `git clone https://github.com/GaloisInc/dlkoopman.git`.
 
 ## State Predictor (on NACA0012 data)
 The folder [`state_pred_naca0012`](./state_pred_naca0012/) contains tutorials on:

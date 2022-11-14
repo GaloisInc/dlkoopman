@@ -3,6 +3,7 @@ name = "dlkoopman"
 version = "1.0.0"
 description = "A Python package for Koopman theory using deep learning."
 authors = ["Sourya Dey <sourya@galois.com>"]
+maintainers = ["Galois dlkoopman team <dlkoopman@galois.com>"]
 license = "MIT"
 readme = "README.md"
 repository = "https://github.com/GaloisInc/dlkoopman"

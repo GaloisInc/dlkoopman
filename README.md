@@ -1,4 +1,3 @@
-# dlkoopman
 A Python package for Koopman theory using deep learning.
 
 
@@ -10,7 +9,7 @@ A Python package for Koopman theory using deep learning.
     - [With pip](#with-pip)
     - [From source](#from-source)
 - [Tutorials and Examples](#tutorials-and-examples)
-- [API Reference](#api-reference)
+- [Documentation and API Reference](#documentation-and-api-reference)
 - [Description](#description)
     - [Koopman theory](#koopman-theory)
     - [dlkoopman training](#dlkoopman-training)
@@ -40,22 +39,22 @@ We bridge the gap between a) software packages that restrict the learning of a g
 
 ## Installation
 
-### With pip
+### With pip (for regular users)
 `pip install dlkoopman`
 
-### From source
+### From source (for development)
 ```
 git clone https://github.com/GaloisInc/dlkoopman.git
-pip install -r requirements.txt
+cd dlkoopman
+pip install .
 ```
-Add the location to your Python path, i.e. `export PYTHONPATH="<clone_location>/dlkoopman:$PYTHONPATH"`
 
 
 ## Tutorials and examples
 Available in the [`examples`](./examples/) folder.
 
 
-## API Reference
+## Documentation and API Reference
 Available at https://galoisinc.github.io/dlkoopman/.
 
 
@@ -97,14 +96,13 @@ Some common issues and ways to overcome them are described in the [known issues]
 ## How to cite
 Please cite the accompanying paper:
 ```
-@article{Dey2022,
+@article{Dey2022_dlkoopman,
     author = {Sourya Dey and Eric Davis},
-    title = {'dlkoopman': A deep learning software package for Koopman theory},
+    title = {DLKoopman: A deep learning software package for Koopman theory},
     year = {2022},
-    note = {To be submitted to 5th Annual Learning for Dynamics & Control Conference (L4DC)}
+    note = {Submitted to 5th Annual Learning for Dynamics & Control (L4DC) Conference}
 }
 ```
-TODO arXiv
 
 
 ## References
