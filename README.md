@@ -1,25 +1,6 @@
 A Python package for Koopman theory using deep learning.
 
 
-## Table of Contents
-- [Overview](#overview)
-    - [Key features](#key-features)
-    - [Why dlkoopman?](#why-dlkoopman)
-- [Installation](#installation)
-    - [With pip](#with-pip-for-regular-users)
-    - [From source](#from-source-for-development)
-- [Tutorials and Examples](#tutorials-and-examples)
-- [Documentation and API Reference](#documentation-and-api-reference)
-- [Description](#description)
-    - [Koopman theory](#koopman-theory)
-    - [dlkoopman training](#dlkoopman-training)
-    - [dlkoopman prediction](#dlkoopman-prediction)
-- [Known issues](#known-issues)
-- [How to cite](#how-to-cite)
-- [References](#references)
-- [Distribution Statement](#distribution-statement)
-
-
 ## Overview
 Koopman theory is a mathematical technique to achieve data-driven approximations of nonlinear dynamical systems by encoding them into a linear space. `dlkoopman` uses deep learning to learn such an encoding, while simultaneously learning the linear dynamics.
 

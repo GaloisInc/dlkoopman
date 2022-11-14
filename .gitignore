@@ -1,2 +1,3 @@
 generate.sh
-pdoc_templates
+pdoc_templates/
+dist/
