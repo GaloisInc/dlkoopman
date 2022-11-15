@@ -30,6 +30,9 @@ cd dlkoopman
 pip install .
 ```
 
+### Running as a Docker container
+DLKoopman can also be run as a docker container by pulling the image from `galoisinc/dlkoopman:<version>`, e.g. `docker pull galoisinc/dlkoopman:v1.0.2`.
+
 
 ## Tutorials and examples
 Available in the [`examples`](https://github.com/GaloisInc/dlkoopman/tree/ed11bef92b90112d9ca90722942a6789e6af7d5a/examples) folder.
@@ -47,9 +50,9 @@ Assume a dynamical system $x_{i+1} = F(x_i)$, where $x$ is the (genrally multi-d
 For a thorough mathematical treatment, see [this technical report](https://arxiv.org/abs/2211.07561).
 
 ### dlkoopman training
-<figure><center>
+<figure>
 <img src="https://raw.githubusercontent.com/GaloisInc/dlkoopman/ed11bef92b90112d9ca90722942a6789e6af7d5a/training_architecture.png" width=750/>
-</center></figure>
+</figure>
 
 This is a small example with three input states $\left[x_0, x_1, x_2\right]$. These are passed through an encoder neural network to get encoded states $\left[y_0, y_1, y_2\right]$. These are passed through a decoder neural network to get $\left[\hat{x}_0, \hat{x}_1, \hat{x}_2\right]$, and also used to learn $K$. This is used to derive predicted encoded states $\left[\mathsf{y}_1, \mathsf{y}_2\right]$, which are then passed through the same decoder to get predicted approximations $\left[\hat{\mathsf{x}}_1, \hat{\mathsf{x}}_2\right]$ to the original input states.
 
@@ -59,9 +62,9 @@ Errors mimimized during training:
 - Combine the above - Prediction `pred` between $x$ and $\hat{\mathsf{x}}$.
 
 ### dlkoopman prediction
-<figure><center>
+<figure>
 <img src="https://raw.githubusercontent.com/GaloisInc/dlkoopman/ed11bef92b90112d9ca90722942a6789e6af7d5a/prediction_architecture.png" width=750/>
-</center></figure>
+</figure>
 
 Prediction happens after training.
 
@@ -78,7 +81,7 @@ Some common issues and ways to overcome them are described in the [known issues]
 Please cite the accompanying paper:
 ```
 @article{Dey2022_dlkoopman,
-    author = {Sourya Dey and Eric Davis},
+    author = {Sourya Dey and Eric William Davis},
     title = {DLKoopman: A deep learning software package for Koopman theory},
     year = {2022},
     note = {Submitted to 5th Annual Learning for Dynamics & Control (L4DC) Conference}
