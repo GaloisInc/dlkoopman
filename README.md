@@ -32,7 +32,7 @@ pip install .
 
 
 ## Tutorials and examples
-Available in the [`examples`](./examples/) folder.
+Available in the [`examples`](https://github.com/GaloisInc/dlkoopman/tree/ed11bef92b90112d9ca90722942a6789e6af7d5a/examples) folder.
 
 
 ## Documentation and API Reference
@@ -48,7 +48,7 @@ For a thorough mathematical treatment, see [this technical report](https://arxiv
 
 ### dlkoopman training
 <figure><center>
-<img src="training_architecture.png" width=750/>
+<img src="https://raw.githubusercontent.com/GaloisInc/dlkoopman/ed11bef92b90112d9ca90722942a6789e6af7d5a/training_architecture.png" width=750/>
 </center></figure>
 
 This is a small example with three input states $\left[x_0, x_1, x_2\right]$. These are passed through an encoder neural network to get encoded states $\left[y_0, y_1, y_2\right]$. These are passed through a decoder neural network to get $\left[\hat{x}_0, \hat{x}_1, \hat{x}_2\right]$, and also used to learn $K$. This is used to derive predicted encoded states $\left[\mathsf{y}_1, \mathsf{y}_2\right]$, which are then passed through the same decoder to get predicted approximations $\left[\hat{\mathsf{x}}_1, \hat{\mathsf{x}}_2\right]$ to the original input states.
@@ -60,7 +60,7 @@ Errors mimimized during training:
 
 ### dlkoopman prediction
 <figure><center>
-<img src="prediction_architecture.png" width=750/>
+<img src="https://raw.githubusercontent.com/GaloisInc/dlkoopman/ed11bef92b90112d9ca90722942a6789e6af7d5a/prediction_architecture.png" width=750/>
 </center></figure>
 
 Prediction happens after training.
