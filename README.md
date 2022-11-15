@@ -44,7 +44,7 @@ Available at https://galoisinc.github.io/dlkoopman/.
 ### Koopman theory
 Assume a dynamical system $x_{i+1} = F(x_i)$, where $x$ is the (genrally multi-dimensional) state of the system at index $i$, and $F$ is the (generally nonlinear) evolution rule describing the dynamics of the system. Koopman theory attempts to *encode* $x$ into a different space $y = g(x)$ where the dynamics are linear, i.e. $y_{i+1} = Ky_i$, where $K$ is the Koopman matrix. This is incredibly powerful since the state $y_i$ at any index $i$ can be predicted from the initial state $y_0$ as $y_i = K^iy_0$. This is then *decoded* back into the original space as $x = g^{-1}(y)$.
 
-For a thorough mathematical treatment, refer to [`koopman_theory.pdf`](./koopman_theory.pdf).
+For a thorough mathematical treatment, see [this technical report](https://arxiv.org/abs/2211.07561).
 
 ### dlkoopman training
 <figure><center>
