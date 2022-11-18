@@ -83,6 +83,7 @@ Please cite the accompanying paper:
 @article{Dey2022_dlkoopman,
     author = {Sourya Dey and Eric William Davis},
     title = {DLKoopman: A deep learning software package for Koopman theory},
+    journal = {arXiv preprint arXiv:2211.08992},
     year = {2022},
     note = {Submitted to 5th Annual Learning for Dynamics & Control (L4DC) Conference}
 }
