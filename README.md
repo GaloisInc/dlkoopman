@@ -78,7 +78,7 @@ Some common issues and ways to overcome them are described in the [known issues]
 
 
 ## How to cite
-Please cite the accompanying paper:
+Please cite the [accompanying paper](https://arxiv.org/abs/2211.08992):
 ```
 @article{Dey2022_dlkoopman,
     author = {Sourya Dey and Eric William Davis},
