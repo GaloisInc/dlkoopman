@@ -4,7 +4,11 @@ A Python package for Koopman theory using deep learning.
 ## Overview
 Koopman theory is a mathematical technique to achieve data-driven approximations of nonlinear dynamical systems by encoding them into a linear space. `dlkoopman` uses deep learning to learn such an encoding, while simultaneously learning the linear dynamics.
 
-### Key features
+### Why dlkoopman?
+TODO We bridge the gap between a) software packages that restrict the learning of a good linearizable encoding (e.g. [`pykoopman`](https://github.com/dynamicslab/pykoopman)), and b) efforts that learn encodings for specific applications instead of being a general tool (e.g. [`DeepKoopman`](https://github.com/BethanyL/DeepKoopman)).
+
+Pull from abstract and intro, have key features here, and link to paper, blog article, and press release if it happens.
+
 - State prediction (`StatePred`) - Train on individual states (snapshots) of a system, then predict unknown states.
     - E.g: What is the pressure vector on this aircraft for $23.5^{\circ}$ angle of attack?
 - Trajectory prediction (`TrajPred`) - Train on generated trajectories of a system, then predict unknown trajectories for new initial states.
@@ -13,9 +17,6 @@ Koopman theory is a mathematical technique to achieve data-driven approximations
 - Novel error function Average Normalized Absolute Error (ANAE) for visualizing performance.
 - Extensive options and a ready-to-use *hyperparameter search module* to improve performance.
 - Built using [Pytorch](https://pytorch.org/), supports both CPU and GPU platforms.
-
-### Why dlkoopman?
-We bridge the gap between a) software packages that restrict the learning of a good linearizable encoding (e.g. [`pykoopman`](https://github.com/dynamicslab/pykoopman)), and b) efforts that learn encodings for specific applications instead of being a general tool (e.g. [`DeepKoopman`](https://github.com/BethanyL/DeepKoopman)).
 
 
 ## Installation
