@@ -43,7 +43,16 @@
 <p><strong>model</strong> (<em>StatePred</em> or <em>TrajPred</em>) - A model with <code>stats</code> populated.</p>
 </li>
 <li>
-<p><strong>perfs</strong> (<em>list[str]</em>) - Which variables from <code>stats</code> to plot. For each variable, training data and validation data stats are plotted vs epochs, and the title of the plot is the test data stats value.</p>
+<p><strong>perfs</strong> (<em>list[str]</em>) - Which performance variables from <code>stats</code> to plot. For each variable, training data and validation data stats are plotted vs epochs, and the title of the plot is the test data stats value. Options for variables are:</p>
+<ul>
+<li><code>'recon_loss'</code></li>
+<li><code>'lin_loss'</code></li>
+<li><code>'pred_loss'</code></li>
+<li><code>'total_loss'</code></li>
+<li><code>'recon_anae'</code></li>
+<li><code>'lin_anae'</code></li>
+<li><code>'pred_anae'</code></li>
+</ul>
 </li>
 <li>
 <p><strong>start_epoch</strong> (<em>int</em>) - Start plotting from this epoch. Setting this to higher than 1 may be useful when the first few epochs have weird values that skew the y axis scale.</p>
