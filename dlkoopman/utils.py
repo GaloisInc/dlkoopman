@@ -1,13 +1,13 @@
 """Utilities"""
 
 
-import matplotlib.pyplot as plt
-import numpy as np
-from pathlib import Path
 import random
-import torch
+from pathlib import Path
 from typing import Any
 
+import matplotlib.pyplot as plt
+import numpy as np
+import torch
 
 __pdoc__ = {
     'stable_svd': False,

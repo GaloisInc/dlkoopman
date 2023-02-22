@@ -1,6 +1,7 @@
-import pickle
 import os
+import pickle
 import shutil
+
 from dlkoopman.hyp_search import *
 from dlkoopman.state_pred import StatePredDataHandler
 

@@ -1,4 +1,5 @@
 import torch
+
 from dlkoopman.metrics import *
 from dlkoopman.metrics import _naae
 

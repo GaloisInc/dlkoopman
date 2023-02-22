@@ -1,8 +1,10 @@
-import pickle
 import os
+import pickle
+
 import numpy as np
-from dlkoopman.traj_pred import *
+
 from dlkoopman import utils
+from dlkoopman.traj_pred import *
 
 
 def get_data():

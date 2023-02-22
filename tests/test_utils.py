@@ -1,5 +1,6 @@
-import torch
 import numpy as np
+import torch
+
 from dlkoopman.utils import *
 from dlkoopman.utils import _extract_item
 

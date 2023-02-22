@@ -3,19 +3,20 @@
 `TrajPred` can be used to train on given equal-length trajectories of a system, then predict unknown trajectories of the system starting from new initial states. See a specific example and tutorial [here](https://github.com/GaloisInc/dlkoopman/blob/main/examples/traj_pred_polynomial_manifold/run.ipynb).
 """
 
+
+import warnings
 from collections import defaultdict
-import numpy as np
 from pathlib import Path
+
+import numpy as np
 import shortuuid
 import torch
 from tqdm import tqdm
 
 from dlkoopman import config as cfg
-from dlkoopman import utils, metrics, nets
+from dlkoopman import metrics, nets, utils
 
-import warnings
 warnings.filterwarnings("ignore", category=UserWarning)
-
 
 __pdoc__ = {
     'TrajPred.decoder_loss_weight': False,

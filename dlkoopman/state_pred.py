@@ -4,19 +4,19 @@
 """
 
 
+import warnings
 from collections import defaultdict
-import numpy as np
 from pathlib import Path
+
+import numpy as np
 import shortuuid
 import torch
 from tqdm import tqdm
 
 from dlkoopman import config as cfg
-from dlkoopman import utils, metrics, nets
+from dlkoopman import metrics, nets, utils
 
-import warnings
 warnings.filterwarnings("ignore", category=UserWarning)
-
 
 __pdoc__ = {
     'StatePred.decoder_loss_weight': False,
