@@ -14,7 +14,7 @@ import torch
 from tqdm import tqdm
 
 from dlkoopman import config as cfg
-from dlkoopman import metrics, nets, utils
+from dlkoopman import utils, metrics, nets
 
 warnings.filterwarnings("ignore", category=UserWarning)
 
