@@ -1,4 +1,4 @@
-"""Ready-to-use hyperparameter search module.""" 
+"""Ready-to-use hyperparameter search module."""
 
 
 import csv

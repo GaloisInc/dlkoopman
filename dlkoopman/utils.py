@@ -11,6 +11,10 @@ import torch
 
 __pdoc__ = {
     'stable_svd': False,
+    'tensorize': False,
+    'scale': False,
+    'shift': False,
+    'extract_item': False,
     'moving_avg': False
 }
 
@@ -140,17 +144,17 @@ def set_seed(seed):
     random.seed(seed)
 
 
-def _tensorize(arg, dtype, device) -> Any:
+def tensorize(arg, dtype, device) -> Any:
     return torch.as_tensor(arg, dtype=dtype, device=device) if arg is not None else torch.tensor([], dtype=dtype, device=device)
 
-def _scale(arg, scale) -> Any:
+def scale(arg, scale) -> Any:
     return arg/scale
 
-def _shift(arg, shift) -> Any:
+def shift(arg, shift) -> Any:
     return arg-shift
 
 
-def _extract_item(v) -> Any:
+def extract_item(v) -> Any:
     """ Given input, return its `.item()` if it can be extracted, otherwise return input. """
     try:
         ret = v.item()

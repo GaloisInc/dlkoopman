@@ -83,9 +83,9 @@ class TrajPredDataHandler:
 
     def __init__(self, Xtr, Xva=None, Xte=None, cfg=None):
         self.cfg = Config() if cfg is None else cfg
-        self.Xtr = utils._tensorize(Xtr, dtype=self.cfg.RTYPE, device=self.cfg.DEVICE)
-        self.Xva = utils._tensorize(Xva, dtype=self.cfg.RTYPE, device=self.cfg.DEVICE)
-        self.Xte = utils._tensorize(Xte, dtype=self.cfg.RTYPE, device=self.cfg.DEVICE)
+        self.Xtr = utils.tensorize(Xtr, dtype=self.cfg.RTYPE, device=self.cfg.DEVICE)
+        self.Xva = utils.tensorize(Xva, dtype=self.cfg.RTYPE, device=self.cfg.DEVICE)
+        self.Xte = utils.tensorize(Xte, dtype=self.cfg.RTYPE, device=self.cfg.DEVICE)
 
         ## Check sizes
         if len(self.Xva):
@@ -96,9 +96,9 @@ class TrajPredDataHandler:
         ## Define Xscale, and normalize X data if applicable
         self.Xscale = torch.max(torch.abs(self.Xtr)).item()
         if self.cfg.normalize_Xdata:
-            self.Xtr = utils._scale(self.Xtr, scale=self.Xscale)
-            self.Xva = utils._scale(self.Xva, scale=self.Xscale)
-            self.Xte = utils._scale(self.Xte, scale=self.Xscale)
+            self.Xtr = utils.scale(self.Xtr, scale=self.Xscale)
+            self.Xva = utils.scale(self.Xva, scale=self.Xscale)
+            self.Xte = utils.scale(self.Xte, scale=self.Xscale)
 
 
 class TrajPred:
@@ -319,9 +319,9 @@ class TrajPred:
 
                 # Collect batch training stats
                 for k,v in batch_anaes_tr.items():
-                    anaes_tr[k] += utils._extract_item(v)
+                    anaes_tr[k] += utils.extract_item(v)
                 for k,v in batch_losses_tr.items():
-                    losses_tr[k] += utils._extract_item(v)
+                    losses_tr[k] += utils.extract_item(v)
 
                 # Backprop
                 loss_tr = batch_losses_tr['total']
@@ -359,9 +359,9 @@ class TrajPred:
 
             # Collect epoch training stats and record
             for k,v in anaes_tr.items():
-                self.stats[f'{k}_anae_tr'].append(utils._extract_item(v/numbatches))
+                self.stats[f'{k}_anae_tr'].append(utils.extract_item(v/numbatches))
             for k,v in losses_tr.items():
-                self.stats[f'{k}_loss_tr'].append(utils._extract_item(v/numbatches))
+                self.stats[f'{k}_loss_tr'].append(utils.extract_item(v/numbatches))
             with open(self.log_file, 'a') as lf:
                 lf.write(', '.join([f'{k} = {v[-1]}' for k,v in self.stats.items() if k.endswith('_tr')]) + '\n')
 
@@ -382,9 +382,9 @@ class TrajPred:
 
                 # Collect epoch validation stats and record
                 for k,v in anaes_va.items():
-                    self.stats[f'{k}_anae_va'].append(utils._extract_item(v))
+                    self.stats[f'{k}_anae_va'].append(utils.extract_item(v))
                 for k,v in losses_va.items():
-                    self.stats[f'{k}_loss_va'].append(utils._extract_item(v))
+                    self.stats[f'{k}_loss_va'].append(utils.extract_item(v))
                 with open(self.log_file, 'a') as lf:
                     lf.write(', '.join([f'{k} = {v[-1]}' for k,v in self.stats.items() if k.endswith('_va')]) + '\n')
 
@@ -440,9 +440,9 @@ class TrajPred:
 
             # Collect test stats and record
             for k,v in anaes_te.items():
-                self.stats[f'{k}_anae_te'].append(utils._extract_item(v))
+                self.stats[f'{k}_anae_te'].append(utils.extract_item(v))
             for k,v in losses_te.items():
-                self.stats[f'{k}_loss_te'].append(utils._extract_item(v))
+                self.stats[f'{k}_loss_te'].append(utils.extract_item(v))
             with open(self.log_file, 'a') as lf:
                 lf.write(', '.join([f'{k} = {v[-1]}' for k,v in self.stats.items() if k.endswith('_te')]) + '\n')
 
@@ -458,9 +458,9 @@ class TrajPred:
         ## Returns
         **Xpred** (*torch.Tensor, shape=(num_new_trajectories, num_indexes, input_size)*) - Predicted trajectories for the new starting states.
         """
-        X0 = utils._tensorize(X0, dtype=self.cfg.RTYPE, device=self.cfg.DEVICE)
+        X0 = utils.tensorize(X0, dtype=self.cfg.RTYPE, device=self.cfg.DEVICE)
         if self.cfg.normalize_Xdata:
-            _X0 = utils._scale(X0, scale=self.dh.Xscale)
+            _X0 = utils.scale(X0, scale=self.dh.Xscale)
 
         self.ae.eval()
         self.Knet.eval()
@@ -470,7 +470,7 @@ class TrajPred:
             Xpred = self.ae.decoder(Ypred)
 
             if self.cfg.normalize_Xdata:
-                Xpred = utils._scale(Xpred, scale=1/self.dh.Xscale)
+                Xpred = utils.scale(Xpred, scale=1/self.dh.Xscale)
 
         with open(self.log_file, 'a') as lf:
             lf.write("\nNew predictions:\n\n")

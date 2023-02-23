@@ -83,12 +83,12 @@ class StatePredDataHandler:
 
     def __init__(self, Xtr, ttr, Xva=None, tva=None, Xte=None, tte=None, cfg=None):
         self.cfg = Config() if cfg is None else cfg
-        self.Xtr = utils._tensorize(Xtr, dtype=self.cfg.RTYPE, device=self.cfg.DEVICE)
-        self.Xva = utils._tensorize(Xva, dtype=self.cfg.RTYPE, device=self.cfg.DEVICE)
-        self.Xte = utils._tensorize(Xte, dtype=self.cfg.RTYPE, device=self.cfg.DEVICE)
-        self.ttr = utils._tensorize(ttr, dtype=self.cfg.RTYPE, device=self.cfg.DEVICE)
-        self.tva = utils._tensorize(tva, dtype=self.cfg.RTYPE, device=self.cfg.DEVICE)
-        self.tte = utils._tensorize(tte, dtype=self.cfg.RTYPE, device=self.cfg.DEVICE)
+        self.Xtr = utils.tensorize(Xtr, dtype=self.cfg.RTYPE, device=self.cfg.DEVICE)
+        self.Xva = utils.tensorize(Xva, dtype=self.cfg.RTYPE, device=self.cfg.DEVICE)
+        self.Xte = utils.tensorize(Xte, dtype=self.cfg.RTYPE, device=self.cfg.DEVICE)
+        self.ttr = utils.tensorize(ttr, dtype=self.cfg.RTYPE, device=self.cfg.DEVICE)
+        self.tva = utils.tensorize(tva, dtype=self.cfg.RTYPE, device=self.cfg.DEVICE)
+        self.tte = utils.tensorize(tte, dtype=self.cfg.RTYPE, device=self.cfg.DEVICE)
 
         ## Check sizes
         assert len(self.Xtr) == len(self.ttr), f"Expected 'Xtr' and 'ttr' to have same length of 1st dimension, instead found {len(self.Xtr)} and {len(self.ttr)}"
@@ -98,15 +98,15 @@ class StatePredDataHandler:
         ## Define Xscale, and normalize X data if applicable
         self.Xscale = torch.max(torch.abs(self.Xtr)).item()
         if self.cfg.normalize_Xdata:
-            self.Xtr = utils._scale(self.Xtr, scale=self.Xscale)
-            self.Xva = utils._scale(self.Xva, scale=self.Xscale)
-            self.Xte = utils._scale(self.Xte, scale=self.Xscale)
+            self.Xtr = utils.scale(self.Xtr, scale=self.Xscale)
+            self.Xva = utils.scale(self.Xva, scale=self.Xscale)
+            self.Xte = utils.scale(self.Xte, scale=self.Xscale)
 
         ## Shift t data to make ttr start from 0 if it doesn't
         self.tshift = self.ttr[0].item()
-        self.ttr = utils._shift(self.ttr, shift=self.tshift)
-        self.tva = utils._shift(self.tva, shift=self.tshift)
-        self.tte = utils._shift(self.tte, shift=self.tshift)
+        self.ttr = utils.shift(self.ttr, shift=self.tshift)
+        self.tva = utils.shift(self.tva, shift=self.tshift)
+        self.tte = utils.shift(self.tte, shift=self.tshift)
 
         ## Find differences between ttr values
         self.dts = defaultdict(int) # define this as a class attribute because it will be accessed outside for writing to log file
@@ -115,9 +115,9 @@ class StatePredDataHandler:
 
         ## Define t scale as most common difference between ttr values, and normalize t data by it
         self.tscale = max(self.dts, key=self.dts.get)
-        self.ttr = utils._scale(self.ttr, scale=self.tscale)
-        self.tva = utils._scale(self.tva, scale=self.tscale)
-        self.tte = utils._scale(self.tte, scale=self.tscale)
+        self.ttr = utils.scale(self.ttr, scale=self.tscale)
+        self.tva = utils.scale(self.tva, scale=self.tscale)
+        self.tte = utils.scale(self.tte, scale=self.tscale)
 
         ## Ensure that ttr now goes as [0,1,2,...], i.e. no gaps
         self.ttr = torch.round(self.ttr)
@@ -446,9 +446,9 @@ class StatePred:
 
             # Collect epoch training stats and record
             for k,v in anaes_tr.items():
-                self.stats[f'{k}_anae_tr'].append(utils._extract_item(v))
+                self.stats[f'{k}_anae_tr'].append(utils.extract_item(v))
             for k,v in losses_tr.items():
-                self.stats[f'{k}_loss_tr'].append(utils._extract_item(v))
+                self.stats[f'{k}_loss_tr'].append(utils.extract_item(v))
             with open(self.log_file, 'a') as lf:
                 lf.write(', '.join([f'{k} = {v[-1]}' for k,v in self.stats.items() if k.endswith('_tr')]) + '\n')
 
@@ -500,9 +500,9 @@ class StatePred:
 
                 # Collect epoch validation stats and record
                 for k,v in anaes_va.items():
-                    self.stats[f'{k}_anae_va'].append(utils._extract_item(v))
+                    self.stats[f'{k}_anae_va'].append(utils.extract_item(v))
                 for k,v in losses_va.items():
-                    self.stats[f'{k}_loss_va'].append(utils._extract_item(v))
+                    self.stats[f'{k}_loss_va'].append(utils.extract_item(v))
                 with open(self.log_file, 'a') as lf:
                     lf.write(', '.join([f'{k} = {v[-1]}' for k,v in self.stats.items() if k.endswith('_va')]) + '\n')
 
@@ -556,9 +556,9 @@ class StatePred:
 
             # Collect test stats and record
             for k,v in anaes_te.items():
-                self.stats[f'{k}_anae_te'].append(utils._extract_item(v))
+                self.stats[f'{k}_anae_te'].append(utils.extract_item(v))
             for k,v in losses_te.items():
-                self.stats[f'{k}_loss_te'].append(utils._extract_item(v))
+                self.stats[f'{k}_loss_te'].append(utils.extract_item(v))
             with open(self.log_file, 'a') as lf:
                 lf.write(', '.join([f'{k} = {v[-1]}' for k,v in self.stats.items() if k.endswith('_te')]) + '\n')
 
@@ -574,9 +574,9 @@ class StatePred:
         ## Returns
         **Xpred** (*torch.Tensor, shape=(len(t), input_size)*) - Predicted states for the new indexes.
         """
-        _t = utils._tensorize(t, dtype=self.cfg.RTYPE, device=self.cfg.DEVICE)
-        _t = utils._shift(_t, shift=self.dh.tshift)
-        _t = utils._scale(_t, scale=self.dh.tscale)
+        _t = utils.tensorize(t, dtype=self.cfg.RTYPE, device=self.cfg.DEVICE)
+        _t = utils.shift(_t, shift=self.dh.tshift)
+        _t = utils.scale(_t, scale=self.dh.tscale)
 
         self.ae.eval()
         with torch.no_grad():
@@ -584,7 +584,7 @@ class StatePred:
             Xpred = self.ae.decoder(Ypred)
 
             if self.cfg.normalize_Xdata:
-                Xpred = utils._scale(Xpred, scale=1/self.dh.Xscale) # unscale back to original domain
+                Xpred = utils.scale(Xpred, scale=1/self.dh.Xscale) # unscale back to original domain
 
         with open(self.log_file, 'a') as lf:
             lf.write("\nNew predictions:\n")
