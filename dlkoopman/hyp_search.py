@@ -70,9 +70,9 @@ def run_hyp_search(
     dh, hyp_options,
     numruns=None, avg_ignore_initial_epochs=0, sort_key='avg_pred_anae_va'
 ) -> Path:
-    """Perform many runs of a type of predictor model (either `StatePred` or `TrajPred`) with different configurations on given data, and save the metrics for each run.
+    """Perform many runs of a type of predictor - either `StatePred` or `TrajPred` - with different hyperparameter combinations (which are the argument values passed to the class and its methods) on given data, and save the metrics for each run.
 
-    Use the results to pick a good predictor configuration.
+    Use the results to pick good hyperparameter combinations.
 
     **The method can be interrupted at any time and the intermediate results will be saved**.
 
