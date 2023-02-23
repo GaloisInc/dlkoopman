@@ -1,4 +1,22 @@
-A Python package for Koopman theory using deep learning.
+<p align="center">
+    <a href="https://badge.fury.io/py/dlkoopman"  target="_blank">
+        <img alt="PyPI version" src="https://badge.fury.io/py/dlkoopman.svg">
+    </a>
+    <a href="https://github.com/GaloisInc/dlkoopman/blob/main/LICENSE" target="_blank">
+        <img alt="Software License" src="https://img.shields.io/badge/license-MIT-brightgreen.svg">
+    </a>
+    <a href="https://github.com/GaloisInc/dlkoopman/actions/workflows/pages/pages-build-deployment" target="_blank">
+        <img alt="Documentation building status" src="https://github.com/GaloisInc/dlkoopman/actions/workflows/pages/pages-build-deployment/badge.svg">
+    </a>
+    <a href="https://github.com/GaloisInc/dlkoopman/actions/workflows/pytest.yml" target="_blank">
+        <img alt="Tests status" src="https://github.com/GaloisInc/dlkoopman/actions/workflows/pytest.yml/badge.svg">
+    </a>
+    <a href="https://github.com/GaloisInc/dlkoopman/actions/workflows/isort.yml" target="_blank">
+        <img alt="isort status" src="https://github.com/GaloisInc/dlkoopman/actions/workflows/isort.yml/badge.svg">
+    </a>
+</p>
+
+**DLKoopman**: A Python package for Koopman theory using deep learning.
 
 
 ## Overview
