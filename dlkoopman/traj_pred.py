@@ -13,8 +13,8 @@ import shortuuid
 import torch
 from tqdm import tqdm
 
-from dlkoopman import config as cfg
 from dlkoopman import metrics, nets, utils
+from dlkoopman.config import Config
 
 warnings.filterwarnings("ignore", category=UserWarning)
 
@@ -29,18 +29,24 @@ class TrajPredDataHandler:
     """Trajectory predictor data handler. Used to provide data to train (and optionally validate and test) the `TrajPred` model.
 
     ## Parameters
-    - **'Xtr'** (*Array[float], shape=(num_training_trajectories, num_indexes, input_size)*) - Input trajectories to be used as training data. *Array* can be any data type such as *numpy.array*, *torch.Tensor*, *list* etc.
+    - **Xtr** (*Array[float], shape=(num_training_trajectories, num_indexes, input_size)*) - Input trajectories to be used as training data. *Array* can be any data type such as *numpy.array*, *torch.Tensor*, *list* etc.
 
-    - **'Xva'** (*Array[float], shape=(num_validation_trajectories, num_indexes, input_size), optional*) - Input trajectories to be used as validation data. Same data type requirements as `Xtr`.
+    - **Xva** (*Array[float], shape=(num_validation_trajectories, num_indexes, input_size), optional*) - Input trajectories to be used as validation data. Same data type requirements as `Xtr`.
 
-    - **'Xte'** (*Array[float], shape=(num_test_trajectories, num_indexes, input_size), optional*) - Input trajectories to be used as test data. Same data type requirements as `Xtr`.
+    - **Xte** (*Array[float], shape=(num_test_trajectories, num_indexes, input_size), optional*) - Input trajectories to be used as test data. Same data type requirements as `Xtr`.
+
+    - **cfg** (*dlkoopan.config.Config, optional*) - Leave this as `None` to use the default configuration options. If changing any configuration option(s) is desired, create a separate `Config` instance and pass that as an argument (see example below).
 
     ## Example
     ```python
     # Provide data of a system with 2-dimensional states (i.e. input_size=3)
     # containing trajectories of length 4 (i.e. num_indexes=3)
     # Provide 3 trajectories for training, 1 for validation, and none for testing
+    # Use a custom configuration with double data types on CPU only
 
+    from dlkoopman.config import Config
+    cfg = Config(precision="double", use_cuda=False)
+    
     dh = TrajPredDataHandler(
         Xtr = numpy.array([
             [ # 1st trajectory
@@ -69,15 +75,17 @@ class TrajPredDataHandler:
                 [7.8, 6.9],
                 [6.1, 8. ]
             ]
-        ])
+        ]),
+        cfg = cfg
     )
     ```
     """
 
-    def __init__(self, Xtr, Xva=None, Xte=None):
-        self.Xtr = utils._tensorize(Xtr, dtype=cfg._RTYPE, device=cfg._DEVICE)
-        self.Xva = utils._tensorize(Xva, dtype=cfg._RTYPE, device=cfg._DEVICE)
-        self.Xte = utils._tensorize(Xte, dtype=cfg._RTYPE, device=cfg._DEVICE)
+    def __init__(self, Xtr, Xva=None, Xte=None, cfg=None):
+        self.cfg = Config() if cfg is None else cfg
+        self.Xtr = utils._tensorize(Xtr, dtype=self.cfg.RTYPE, device=self.cfg.DEVICE)
+        self.Xva = utils._tensorize(Xva, dtype=self.cfg.RTYPE, device=self.cfg.DEVICE)
+        self.Xte = utils._tensorize(Xte, dtype=self.cfg.RTYPE, device=self.cfg.DEVICE)
 
         ## Check sizes
         if len(self.Xva):
@@ -87,7 +95,7 @@ class TrajPredDataHandler:
 
         ## Define Xscale, and normalize X data if applicable
         self.Xscale = torch.max(torch.abs(self.Xtr)).item()
-        if cfg.normalize_Xdata:
+        if self.cfg.normalize_Xdata:
             self.Xtr = utils._scale(self.Xtr, scale=self.Xscale)
             self.Xva = utils._scale(self.Xva, scale=self.Xscale)
             self.Xte = utils._scale(self.Xte, scale=self.Xscale)
@@ -97,7 +105,7 @@ class TrajPred:
     """Trajectory predictor. Used to train on given equal-length trajectories of a system, then predict unknown trajectories of the system starting from new initial states.
 
     ## Parameters
-    - **dh** (*TrajPredDataHandler*) - Data handler that feeds data.
+    - **dh** (*TrajPredDataHandler*) - Data handler that feeds data. **Configuration options of a `TrajPred` instance are identical to `dh.cfg`.**
 
     - Parameters for [AutoEncoder](https://galoisinc.github.io/dlkoopman/nets.html#dlkoopman.nets.AutoEncoder):
         - **encoded_size** (*int*).
@@ -130,6 +138,8 @@ class TrajPred:
         dh, encoded_size,
         encoder_hidden_layers=[100], decoder_hidden_layers=[], batch_norm=False
     ):
+        self.cfg = dh.cfg
+
         ## Define UUID and log file
         self.uuid = shortuuid.uuid()
         self.log_file = Path(f'./log_{self.uuid}.log').resolve()
@@ -148,13 +158,13 @@ class TrajPred:
             decoder_hidden_layers = decoder_hidden_layers,
             batch_norm = batch_norm
         )
-        self.ae.to(dtype=cfg._RTYPE, device=cfg._DEVICE)
+        self.ae.to(dtype=self.cfg.RTYPE, device=self.cfg.DEVICE)
 
         ## Define linear layer
         self.Knet = nets.Knet(
             size = encoded_size
         )
-        self.Knet.to(dtype=cfg._RTYPE, device=cfg._DEVICE)
+        self.Knet.to(dtype=self.cfg.RTYPE, device=self.cfg.DEVICE)
 
         ## Define params
         self.params = list(self.ae.parameters()) + list(self.Knet.parameters())
@@ -448,8 +458,8 @@ class TrajPred:
         ## Returns
         **Xpred** (*torch.Tensor, shape=(num_new_trajectories, num_indexes, input_size)*) - Predicted trajectories for the new starting states.
         """
-        X0 = utils._tensorize(X0, dtype=cfg._RTYPE, device=cfg._DEVICE)
-        if cfg.normalize_Xdata:
+        X0 = utils._tensorize(X0, dtype=self.cfg.RTYPE, device=self.cfg.DEVICE)
+        if self.cfg.normalize_Xdata:
             _X0 = utils._scale(X0, scale=self.dh.Xscale)
 
         self.ae.eval()
@@ -459,7 +469,7 @@ class TrajPred:
             Ypred = self._evolve(Y0)
             Xpred = self.ae.decoder(Ypred)
 
-            if cfg.normalize_Xdata:
+            if self.cfg.normalize_Xdata:
                 Xpred = utils._scale(Xpred, scale=1/self.dh.Xscale)
 
         with open(self.log_file, 'a') as lf:

@@ -13,8 +13,8 @@ import shortuuid
 import torch
 from tqdm import tqdm
 
-from dlkoopman import config as cfg
 from dlkoopman import metrics, nets, utils
+from dlkoopman.config import Config
 
 warnings.filterwarnings("ignore", category=UserWarning)
 
@@ -31,27 +31,33 @@ class StatePredDataHandler:
     """State predictor data handler. Used to provide data to train (and optionally validate and test) the `StatePred` model.
 
     ## Parameters
-    - **'Xtr'** (*Array[float], shape=(num_training_indexes, input_size)*) - Input states to be used as training data. *Array* can be any data type such as *numpy.array*, *torch.Tensor*, *list* etc.
+    - **Xtr** (*Array[float], shape=(num_training_indexes, input_size)*) - Input states to be used as training data. *Array* can be any data type such as *numpy.array*, *torch.Tensor*, *list* etc.
 
-    - **'ttr'** (*Array[int,float], shape=(num_training_indexes,)*) - Indexes of the states in `Xtr`. *Array* can be any data type such as *numpy.array*, *torch.Tensor*, *list*, *range*, etc.
+    - **ttr** (*Array[int,float], shape=(num_training_indexes,)*) - Indexes of the states in `Xtr`. *Array* can be any data type such as *numpy.array*, *torch.Tensor*, *list*, *range*, etc.
         - **`ttr` must be in ascending order and should ideally be equally spaced**. The 1st value of `ttr` will be used as the *baseline index*.
         - Small deviations are okay, e.g. `[100, 203, 298, 400, 500]` will become `[100, 200, 300, 400, 500]`, but larger deviations that cannot be unambiguously rounded will lead to errors.
 
-    - **'Xva'** (*Array[float], shape=(num_validation_indexes, input_size), optional*) - Input states to be used as validation data. Same data type requirements as `Xtr`.
+    - **Xva** (*Array[float], shape=(num_validation_indexes, input_size), optional*) - Input states to be used as validation data. Same data type requirements as `Xtr`.
 
-    - **'tva'** (*Array[int,float], shape=(num_validation_indexes,), optional*): Indexes of the states in `Xva`. Same data type requirements as `ttr`.
+    - **tva** (*Array[int,float], shape=(num_validation_indexes,), optional*) - Indexes of the states in `Xva`. Same data type requirements as `ttr`.
         - The order and spacing restrictions on `ttr` do *not* apply. The values of these indexes can be anything.
         
-    - **'Xte'** (*Array[float], shape=(num_test_indexes, input_size), optional*) - Input states to be used as test data. Same data type requirements as `Xtr`.
+    - **Xte** (*Array[float], shape=(num_test_indexes, input_size), optional*) - Input states to be used as test data. Same data type requirements as `Xtr`.
 
-    - **'tte'** (*Array[int,float], shape=(num_test_indexes,), optional*): Indexes of the states in `Xte`. Same data type requirements as `ttr`.
+    - **tte** (*Array[int,float], shape=(num_test_indexes,), optional*) - Indexes of the states in `Xte`. Same data type requirements as `ttr`.
         - The order and spacing restrictions on `ttr` do *not* apply. The values of these indexes can be anything.
 
+    - **cfg** (*dlkoopan.config.Config, optional*) - Leave this as `None` to use the default configuration options. If changing any configuration option(s) is desired, create a separate `Config` instance and pass that as an argument (see example below).
+    
     ## Example
     ```python
     # Provide data of a system with 3-dimensional states (i.e. input_size=3)
     # Provide data at 4 indexes for training, and 2 indexes each for validation and testing
+    # Use a custom configuration with double data types on CPU only
 
+    from dlkoopman.config import Config
+    cfg = Config(precision="double", use_cuda=False)
+    
     dh = StatePredDataHandler(
         ttr = [100, 203, 298, 400], # ascending order, (almost) equally spaced
         Xtr = numpy.array([
@@ -69,18 +75,20 @@ class StatePredDataHandler:
         Xte = numpy.array([
             [9.8, 8.9, 0.2], # state at index -32
             [7.3, 4.8, 7.5]  # state at index 784
-        ])
+        ]),
+        cfg = cfg
     )
     ```
     """
 
-    def __init__(self, Xtr, ttr, Xva=None, tva=None, Xte=None, tte=None):
-        self.Xtr = utils._tensorize(Xtr, dtype=cfg._RTYPE, device=cfg._DEVICE)
-        self.Xva = utils._tensorize(Xva, dtype=cfg._RTYPE, device=cfg._DEVICE)
-        self.Xte = utils._tensorize(Xte, dtype=cfg._RTYPE, device=cfg._DEVICE)
-        self.ttr = utils._tensorize(ttr, dtype=cfg._RTYPE, device=cfg._DEVICE)
-        self.tva = utils._tensorize(tva, dtype=cfg._RTYPE, device=cfg._DEVICE)
-        self.tte = utils._tensorize(tte, dtype=cfg._RTYPE, device=cfg._DEVICE)
+    def __init__(self, Xtr, ttr, Xva=None, tva=None, Xte=None, tte=None, cfg=None):
+        self.cfg = Config() if cfg is None else cfg
+        self.Xtr = utils._tensorize(Xtr, dtype=self.cfg.RTYPE, device=self.cfg.DEVICE)
+        self.Xva = utils._tensorize(Xva, dtype=self.cfg.RTYPE, device=self.cfg.DEVICE)
+        self.Xte = utils._tensorize(Xte, dtype=self.cfg.RTYPE, device=self.cfg.DEVICE)
+        self.ttr = utils._tensorize(ttr, dtype=self.cfg.RTYPE, device=self.cfg.DEVICE)
+        self.tva = utils._tensorize(tva, dtype=self.cfg.RTYPE, device=self.cfg.DEVICE)
+        self.tte = utils._tensorize(tte, dtype=self.cfg.RTYPE, device=self.cfg.DEVICE)
 
         ## Check sizes
         assert len(self.Xtr) == len(self.ttr), f"Expected 'Xtr' and 'ttr' to have same length of 1st dimension, instead found {len(self.Xtr)} and {len(self.ttr)}"
@@ -89,7 +97,7 @@ class StatePredDataHandler:
 
         ## Define Xscale, and normalize X data if applicable
         self.Xscale = torch.max(torch.abs(self.Xtr)).item()
-        if cfg.normalize_Xdata:
+        if self.cfg.normalize_Xdata:
             self.Xtr = utils._scale(self.Xtr, scale=self.Xscale)
             self.Xva = utils._scale(self.Xva, scale=self.Xscale)
             self.Xte = utils._scale(self.Xte, scale=self.Xscale)
@@ -122,7 +130,7 @@ class StatePred:
     """State predictor. Used to train on given states of a system at given indexes, then predict unknown states of the system at new indexes.
 
     ## Parameters
-    - **dh** (*StatePredDataHandler*) - Data handler that feeds data.
+    - **dh** (*StatePredDataHandler*) - Data handler that feeds data. **Configuration options of a `StatePred` instance are identical to `dh.cfg`.**
 
     - **rank** (*int*) - Rank of SVD operation to compute Koopman matrix. Use `0` for full rank. Will be set to min(`encoded_size`, `num_training_indexes`-1) if the provided value is greater.
 
@@ -156,6 +164,8 @@ class StatePred:
         dh, rank, encoded_size,
         encoder_hidden_layers=[100], decoder_hidden_layers=[], batch_norm=False
     ):
+        self.cfg = dh.cfg
+        
         ## Define UUID and log file
         self.uuid = shortuuid.uuid()
         self.log_file = Path(f'./log_{self.uuid}.log').resolve()
@@ -174,7 +184,7 @@ class StatePred:
             decoder_hidden_layers = decoder_hidden_layers,
             batch_norm = batch_norm
         )
-        self.ae.to(dtype=cfg._RTYPE, device=cfg._DEVICE)
+        self.ae.to(dtype=self.cfg.RTYPE, device=self.cfg.DEVICE)
 
         ## Get rank and ensure it's a valid value
         full_rank = min(self.encoded_size,len(self.dh.ttr)-1) #this is basically min(Y.shape), where Y is defined in _dmd_linearize()
@@ -277,9 +287,9 @@ class StatePred:
         Ut = U.t() #shape = (rank, encoded_size)
         
         # Singular values
-        if Sigma[-1] < cfg.sigma_threshold:
+        if Sigma[-1] < self.cfg.sigma_threshold:
             with open(self.log_file, 'a') as lf:
-                lf.write(f"Smallest singular value prior to truncation = {Sigma[-1]} is smaller than threshold = {cfg.sigma_threshold}. This may lead to very large / nan values in backprop of SVD.\n")
+                lf.write(f"Smallest singular value prior to truncation = {Sigma[-1]} is smaller than threshold = {self.cfg.sigma_threshold}. This may lead to very large / nan values in backprop of SVD.\n")
         #NOTE: We can also do a check if any pair (or more) of consecutive singular values are so close that the difference of their squares is less than some threshold, since this will also lead to very large / nan values during backprop. But doing this check requires looping over the Sigma tensor (time complexity = O(len(Sigma))) and is not worth it.
         Sigma = torch.diag(Sigma[:self.rank]) #shape = (rank, rank)
         
@@ -290,7 +300,7 @@ class StatePred:
         interm = Yprime @ V @ torch.linalg.inv(Sigma) #shape = (encoded_size, rank)
         Ktilde = Ut @ interm #shape = (rank, rank)
 
-        if not cfg.use_exact_eigenvectors:
+        if not self.cfg.use_exact_eigenvectors:
             interm = U
         
         return Ktilde, interm
@@ -317,7 +327,7 @@ class StatePred:
         #NOTE: We can do a check if any pair (or more) of consecutive eigenvalues are so close that their difference is less than some threshold, since this will lead to very large / nan values during backprop. But doing this check requires looping over the Omega tensor (time complexity = O(len(Omega))) and is not worth it.
         
         # Eigenvectors
-        eigvecs = interm.to(cfg._CTYPE) @ eigvecstilde #shape = (encoded_size, rank)
+        eigvecs = interm.to(self.cfg.CTYPE) @ eigvecstilde #shape = (encoded_size, rank)
         S,s = torch.linalg.norm(eigvecs,2), torch.linalg.norm(eigvecs,-2)
         cond = S/s
         if cond > self.cond_threshold:
@@ -341,7 +351,7 @@ class StatePred:
         Returns:
             Ypred: Predictions for all the indexes in t. Shape (num_samples, encoded_size). Predictions may be complex, however they are converted to real by taking absolute value. This is fine because, if things are okay, the imaginary parts should be negligible (several orders of magnitude less) than the real parts.
         """
-        coeffs = torch.linalg.pinv(eigvecs, rtol=1./self.cond_threshold) @ y0.to(cfg._CTYPE) #shape = (rank,)
+        coeffs = torch.linalg.pinv(eigvecs, rtol=1./self.cond_threshold) @ y0.to(self.cfg.CTYPE) #shape = (rank,)
         Ypred = torch.tensor([])
         for index,ti in enumerate(t):
             ypred = eigvecs @ torch.linalg.matrix_exp(Omega*ti) @ coeffs #shape = (encoded_size,)
@@ -564,7 +574,7 @@ class StatePred:
         ## Returns
         **Xpred** (*torch.Tensor, shape=(len(t), input_size)*) - Predicted states for the new indexes.
         """
-        _t = utils._tensorize(t, dtype=cfg._RTYPE, device=cfg._DEVICE)
+        _t = utils._tensorize(t, dtype=self.cfg.RTYPE, device=self.cfg.DEVICE)
         _t = utils._shift(_t, shift=self.dh.tshift)
         _t = utils._scale(_t, scale=self.dh.tscale)
 
@@ -573,7 +583,7 @@ class StatePred:
             Ypred = self._dmd_predict(t=_t, y0=self.y0, Omega=self.Omega, eigvecs=self.eigvecs)
             Xpred = self.ae.decoder(Ypred)
 
-            if cfg.normalize_Xdata:
+            if self.cfg.normalize_Xdata:
                 Xpred = utils._scale(Xpred, scale=1/self.dh.Xscale) # unscale back to original domain
 
         with open(self.log_file, 'a') as lf:

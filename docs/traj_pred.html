@@ -37,26 +37,33 @@
 <dl>
 <dt id="dlkoopman.traj_pred.TrajPredDataHandler"><code class="flex name class">
 <span>class <span class="ident">TrajPredDataHandler</span></span>
-<span>(</span><span>Xtr, Xva=None, Xte=None)</span>
+<span>(</span><span>Xtr, Xva=None, Xte=None, cfg=None)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Trajectory predictor data handler. Used to provide data to train (and optionally validate and test) the <code><a title="dlkoopman.traj_pred.TrajPred" href="#dlkoopman.traj_pred.TrajPred">TrajPred</a></code> model.</p>
 <h2 id="parameters">Parameters</h2>
 <ul>
 <li>
-<p><strong>'Xtr'</strong> (<em>Array[float], shape=(num_training_trajectories, num_indexes, input_size)</em>) - Input trajectories to be used as training data. <em>Array</em> can be any data type such as <em>numpy.array</em>, <em>torch.Tensor</em>, <em>list</em> etc.</p>
+<p><strong>Xtr</strong> (<em>Array[float], shape=(num_training_trajectories, num_indexes, input_size)</em>) - Input trajectories to be used as training data. <em>Array</em> can be any data type such as <em>numpy.array</em>, <em>torch.Tensor</em>, <em>list</em> etc.</p>
 </li>
 <li>
-<p><strong>'Xva'</strong> (<em>Array[float], shape=(num_validation_trajectories, num_indexes, input_size), optional</em>) - Input trajectories to be used as validation data. Same data type requirements as <code>Xtr</code>.</p>
+<p><strong>Xva</strong> (<em>Array[float], shape=(num_validation_trajectories, num_indexes, input_size), optional</em>) - Input trajectories to be used as validation data. Same data type requirements as <code>Xtr</code>.</p>
 </li>
 <li>
-<p><strong>'Xte'</strong> (<em>Array[float], shape=(num_test_trajectories, num_indexes, input_size), optional</em>) - Input trajectories to be used as test data. Same data type requirements as <code>Xtr</code>.</p>
+<p><strong>Xte</strong> (<em>Array[float], shape=(num_test_trajectories, num_indexes, input_size), optional</em>) - Input trajectories to be used as test data. Same data type requirements as <code>Xtr</code>.</p>
+</li>
+<li>
+<p><strong>cfg</strong> (<em>dlkoopan.config.Config, optional</em>) - Leave this as <code>None</code> to use the default configuration options. If changing any configuration option(s) is desired, create a separate <code>Config</code> instance and pass that as an argument (see example below).</p>
 </li>
 </ul>
 <h2 id="example">Example</h2>
 <pre><code class="language-python"># Provide data of a system with 2-dimensional states (i.e. input_size=3)
 # containing trajectories of length 4 (i.e. num_indexes=3)
 # Provide 3 trajectories for training, 1 for validation, and none for testing
+# Use a custom configuration with double data types on CPU only
+
+from dlkoopman.config import Config
+cfg = Config(precision=&quot;double&quot;, use_cuda=False)
 
 dh = TrajPredDataHandler(
     Xtr = numpy.array([
@@ -86,7 +93,8 @@ dh = TrajPredDataHandler(
             [7.8, 6.9],
             [6.1, 8. ]
         ]
-    ])
+    ]),
+    cfg = cfg
 )
 </code></pre></div>
 </dd>
@@ -99,7 +107,7 @@ dh = TrajPredDataHandler(
 <h2 id="parameters">Parameters</h2>
 <ul>
 <li>
-<p><strong>dh</strong> (<em>TrajPredDataHandler</em>) - Data handler that feeds data.</p>
+<p><strong>dh</strong> (<em>TrajPredDataHandler</em>) - Data handler that feeds data. <strong>Configuration options of a <code><a title="dlkoopman.traj_pred.TrajPred" href="#dlkoopman.traj_pred.TrajPred">TrajPred</a></code> instance are identical to <code>dh.cfg</code>.</strong></p>
 </li>
 <li>
 <p>Parameters for <a href="https://galoisinc.github.io/dlkoopman/nets.html#dlkoopman.nets.AutoEncoder">AutoEncoder</a>:</p>

@@ -37,44 +37,51 @@
 <dl>
 <dt id="dlkoopman.state_pred.StatePredDataHandler"><code class="flex name class">
 <span>class <span class="ident">StatePredDataHandler</span></span>
-<span>(</span><span>Xtr, ttr, Xva=None, tva=None, Xte=None, tte=None)</span>
+<span>(</span><span>Xtr, ttr, Xva=None, tva=None, Xte=None, tte=None, cfg=None)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>State predictor data handler. Used to provide data to train (and optionally validate and test) the <code><a title="dlkoopman.state_pred.StatePred" href="#dlkoopman.state_pred.StatePred">StatePred</a></code> model.</p>
 <h2 id="parameters">Parameters</h2>
 <ul>
 <li>
-<p><strong>'Xtr'</strong> (<em>Array[float], shape=(num_training_indexes, input_size)</em>) - Input states to be used as training data. <em>Array</em> can be any data type such as <em>numpy.array</em>, <em>torch.Tensor</em>, <em>list</em> etc.</p>
+<p><strong>Xtr</strong> (<em>Array[float], shape=(num_training_indexes, input_size)</em>) - Input states to be used as training data. <em>Array</em> can be any data type such as <em>numpy.array</em>, <em>torch.Tensor</em>, <em>list</em> etc.</p>
 </li>
 <li>
-<p><strong>'ttr'</strong> (<em>Array[int,float], shape=(num_training_indexes,)</em>) - Indexes of the states in <code>Xtr</code>. <em>Array</em> can be any data type such as <em>numpy.array</em>, <em>torch.Tensor</em>, <em>list</em>, <em>range</em>, etc.</p>
+<p><strong>ttr</strong> (<em>Array[int,float], shape=(num_training_indexes,)</em>) - Indexes of the states in <code>Xtr</code>. <em>Array</em> can be any data type such as <em>numpy.array</em>, <em>torch.Tensor</em>, <em>list</em>, <em>range</em>, etc.</p>
 <ul>
 <li><strong><code>ttr</code> must be in ascending order and should ideally be equally spaced</strong>. The 1st value of <code>ttr</code> will be used as the <em>baseline index</em>.</li>
 <li>Small deviations are okay, e.g. <code>[100, 203, 298, 400, 500]</code> will become <code>[100, 200, 300, 400, 500]</code>, but larger deviations that cannot be unambiguously rounded will lead to errors.</li>
 </ul>
 </li>
 <li>
-<p><strong>'Xva'</strong> (<em>Array[float], shape=(num_validation_indexes, input_size), optional</em>) - Input states to be used as validation data. Same data type requirements as <code>Xtr</code>.</p>
+<p><strong>Xva</strong> (<em>Array[float], shape=(num_validation_indexes, input_size), optional</em>) - Input states to be used as validation data. Same data type requirements as <code>Xtr</code>.</p>
 </li>
 <li>
-<p><strong>'tva'</strong> (<em>Array[int,float], shape=(num_validation_indexes,), optional</em>): Indexes of the states in <code>Xva</code>. Same data type requirements as <code>ttr</code>.</p>
+<p><strong>tva</strong> (<em>Array[int,float], shape=(num_validation_indexes,), optional</em>) - Indexes of the states in <code>Xva</code>. Same data type requirements as <code>ttr</code>.</p>
 <ul>
 <li>The order and spacing restrictions on <code>ttr</code> do <em>not</em> apply. The values of these indexes can be anything.</li>
 </ul>
 </li>
 <li>
-<p><strong>'Xte'</strong> (<em>Array[float], shape=(num_test_indexes, input_size), optional</em>) - Input states to be used as test data. Same data type requirements as <code>Xtr</code>.</p>
+<p><strong>Xte</strong> (<em>Array[float], shape=(num_test_indexes, input_size), optional</em>) - Input states to be used as test data. Same data type requirements as <code>Xtr</code>.</p>
 </li>
 <li>
-<p><strong>'tte'</strong> (<em>Array[int,float], shape=(num_test_indexes,), optional</em>): Indexes of the states in <code>Xte</code>. Same data type requirements as <code>ttr</code>.</p>
+<p><strong>tte</strong> (<em>Array[int,float], shape=(num_test_indexes,), optional</em>) - Indexes of the states in <code>Xte</code>. Same data type requirements as <code>ttr</code>.</p>
 <ul>
 <li>The order and spacing restrictions on <code>ttr</code> do <em>not</em> apply. The values of these indexes can be anything.</li>
 </ul>
+</li>
+<li>
+<p><strong>cfg</strong> (<em>dlkoopan.config.Config, optional</em>) - Leave this as <code>None</code> to use the default configuration options. If changing any configuration option(s) is desired, create a separate <code>Config</code> instance and pass that as an argument (see example below).</p>
 </li>
 </ul>
 <h2 id="example">Example</h2>
 <pre><code class="language-python"># Provide data of a system with 3-dimensional states (i.e. input_size=3)
 # Provide data at 4 indexes for training, and 2 indexes each for validation and testing
+# Use a custom configuration with double data types on CPU only
+
+from dlkoopman.config import Config
+cfg = Config(precision=&quot;double&quot;, use_cuda=False)
 
 dh = StatePredDataHandler(
     ttr = [100, 203, 298, 400], # ascending order, (almost) equally spaced
@@ -93,7 +100,8 @@ dh = StatePredDataHandler(
     Xte = numpy.array([
         [9.8, 8.9, 0.2], # state at index -32
         [7.3, 4.8, 7.5]  # state at index 784
-    ])
+    ]),
+    cfg = cfg
 )
 </code></pre></div>
 </dd>
@@ -106,7 +114,7 @@ dh = StatePredDataHandler(
 <h2 id="parameters">Parameters</h2>
 <ul>
 <li>
-<p><strong>dh</strong> (<em>StatePredDataHandler</em>) - Data handler that feeds data.</p>
+<p><strong>dh</strong> (<em>StatePredDataHandler</em>) - Data handler that feeds data. <strong>Configuration options of a <code><a title="dlkoopman.state_pred.StatePred" href="#dlkoopman.state_pred.StatePred">StatePred</a></code> instance are identical to <code>dh.cfg</code>.</strong></p>
 </li>
 <li>
 <p><strong>rank</strong> (<em>int</em>) - Rank of SVD operation to compute Koopman matrix. Use <code>0</code> for full rank. Will be set to min(<code>encoded_size</code>, <code>num_training_indexes</code>-1) if the provided value is greater.</p>

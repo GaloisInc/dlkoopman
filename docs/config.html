@@ -28,55 +28,64 @@
 <section>
 </section>
 <section>
-<h2 class="section-title" id="header-variables">Global variables</h2>
+</section>
+<section>
+</section>
+<section>
+<h2 class="section-title" id="header-classes">Classes</h2>
 <dl>
-<dt id="dlkoopman.config.precision"><code class="name">var <span class="ident">precision</span></code></dt>
+<dt id="dlkoopman.config.Config"><code class="flex name class">
+<span>class <span class="ident">Config</span></span>
+<span>(</span><span>precision='float', use_cuda=True, normalize_Xdata=True, use_exact_eigenvectors=True, sigma_threshold=1e-25)</span>
+</code></dt>
 <dd>
-<div class="desc"><p>Numerical precision of tensors.</p>
-<p><strong>Options</strong> (in increasing order of precision): <code>"half"</code> / <code>"float"</code> / <code>"double"</code>.</p>
-<p><strong>Default</strong>: <code>"float"</code></p>
-<h2 id="note">Note</h2>
-<p>Setting <code>precision = "double"</code> may make predictions slightly more accurate, however, may also lead to inefficient GPU runtimes.</p></div>
-</dd>
-<dt id="dlkoopman.config.use_cuda"><code class="name">var <span class="ident">use_cuda</span></code></dt>
-<dd>
-<div class="desc"><p>If <code>True</code>, tensor computations when take place on CuDA GPUs whenever available.</p>
-<p><strong>Options</strong>: <code>True</code> / <code>False</code></p>
-<p><strong>Default</strong>: <code>True</code></p></div>
-</dd>
-<dt id="dlkoopman.config.normalize_Xdata"><code class="name">var <span class="ident">normalize_Xdata</span></code></dt>
-<dd>
-<div class="desc"><p>If <code>True</code>, all input states (training, validation, test) are divided by the maximum absolute value in the training data.</p>
-<p><strong>Options</strong>: <code>True</code> / <code>False</code></p>
-<p><strong>Default</strong>: <code>True</code></p>
-<h2 id="notes">Notes</h2>
-<p>Normalizing data is a generally good technique for deep learning, and is normally done for each feature <span><span class="MathJax_Preview">f</span><script type="math/tex">f</script></span> in the input data as
+<div class="desc"><p>Configuration options.</p>
+<h2 id="parameters">Parameters</h2>
+<ul>
+<li>
+<p><strong>precision</strong> (<em>str, optional</em>) - Numerical precision of tensors. Must be one of <code>"half"</code> / <code>"float"</code> / <code>"double"</code>.</p>
+<ul>
+<li>Note that setting <code>precision = "double"</code> may make predictions slightly more accurate, however, may also lead to inefficient GPU runtimes.</li>
+</ul>
+</li>
+<li>
+<p><strong>use_cuda</strong> (<em>bool, optional</em>) - If <code>True</code>, tensor computations will take place on CuDA GPUs if available.</p>
+</li>
+<li>
+<p><strong>normalize_Xdata</strong> (<em>bool, optional</em>) - If <code>True</code>, all input states (training, validation, test) are divided by the maximum absolute value in the training data.</p>
+<ul>
+<li>Note that normalizing data is a generally good technique for deep learning, and is normally done for each feature <span><span class="MathJax_Preview">f</span><script type="math/tex">f</script></span> in the input data as
 <span><span class="MathJax_Preview">X_f = \frac{X_f-\text{offset}_f}{\text{scale}_f}</span><script type="math/tex; mode=display">X_f = \frac{X_f-\text{offset}_f}{\text{scale}_f}</script></span>
-(where offset and scale are mean and standard deviation for Gaussian normalization, or minimum value and range for Minmax normalization.) However, <em>this messes up the spectral techniques such as singular value and eigen value decomposition required in Koopman theory</em>. Hence, setting <code>normalize_Xdata=True</code> will just use a single scale value for normalizing the whole data to get
+(where offset and scale are mean and standard deviation for Gaussian normalization, or minimum value and range for Minmax normalization.)<br>However, <em>this messes up the spectral techniques such as singular value and eigen value decomposition required in Koopman theory</em>. Hence, setting <code>normalize_Xdata=True</code> will just use a single scale value for normalizing the whole data to get
 <span><span class="MathJax_Preview">X = \frac{X}{\text{scale}}</span><script type="math/tex; mode=display">X = \frac{X}{\text{scale}}</script></span>
-This results in the singular and eigen vectors remaining the same.</p>
-<h2 id="caution">Caution</h2>
-<p>Setting this to <code>normalize_Xdata=False</code> may end the run by leading to imaginary parts of tensors reaching values where the loss function depends on the phase (in <code>torch &gt;= 1.11</code>, this leads to <code>"RuntimeError: linalg_eig_backward: The eigenvectors in the complex case are specified up to multiplication by e^{i phi}. The specified loss function depends on this quantity, so it is ill-defined"</code>). The only benefit to setting this to <code>False</code> is that if the run successfully completes, the final error metrics such as ANAE are slightly more accurate since they are reported on the un-normalized data values.</p></div>
-</dd>
-<dt id="dlkoopman.config.use_exact_eigenvectors"><code class="name">var <span class="ident">use_exact_eigenvectors</span></code></dt>
-<dd>
-<div class="desc"><p>If <code>True</code>, the exact eigenvectors of the Koopman matrix are used in <code>StatePred</code>, if <code>False</code>, the projected eigenvectors are used.</p>
-<p><strong>Options</strong>: <code>True</code> / <code>False</code></p>
-<p><strong>Default</strong>: <code>True</code></p>
-<h2 id="notes">Notes</h2>
-<p>For a discussion on exact and projected eigenvectors, see <a href="https://arxiv.org/abs/1312.0041">Tu et al</a> or <a href="https://epubs.siam.org/doi/pdf/10.1137/1.9781611974508.ch1">Chapter 1 of Kutz et al</a>. The basic idea is that using exact eigenvectors is more accurate, but their computation may become less numerically stable than that of projected eigenvectors.</p></div>
-</dd>
-<dt id="dlkoopman.config.sigma_threshold"><code class="name">var <span class="ident">sigma_threshold</span></code></dt>
-<dd>
-<div class="desc"><p>When computing the SVD in <code>StatePred</code>, singular values lower than this will be reported, since they can be a possible cause of unstable gradients.</p>
-<p><strong>Options</strong>: Any numerical value.</p>
-<p><strong>Default</strong>: <code>1e-25</code></p></div>
+which results in the singular and eigen vectors remaining the same.</li>
+<li><em>Caution</em>: Setting <code>normalize_Xdata=False</code> may end the run by leading to imaginary parts of tensors reaching values where the loss function depends on the phase (in <code>torch &gt;= 1.11</code>, this leads to <code>"RuntimeError: linalg_eig_backward: The eigenvectors in the complex case are specified up to multiplication by e^{i phi}. The specified loss function depends on this quantity, so it is ill-defined"</code>). The only benefit to setting <code>normalize_Xdata=False</code> is that if the run successfully completes, the final error metrics such as <a href="https://galoisinc.github.io/dlkoopman/metrics.html#dlkoopman.metrics.anae">ANAE</a> are slightly more accurate since they are reported on the un-normalized data values.</li>
+</ul>
+</li>
+<li>
+<p><strong>use_exact_eigenvectors</strong> (<em>bool, optional</em>) - If <code>True</code>, the exact eigenvectors of the Koopman matrix are used in <code>StatePred</code>, if <code>False</code>, the projected eigenvectors are used.</p>
+<ul>
+<li>For a discussion on exact and projected eigenvectors, see <a href="https://arxiv.org/abs/1312.0041">Tu et al</a> or <a href="https://epubs.siam.org/doi/pdf/10.1137/1.9781611974508.ch1">Chapter 1 of Kutz et al</a>. The basic idea is that using exact eigenvectors is more accurate, but their computation may become less numerically stable than that of projected eigenvectors.</li>
+</ul>
+</li>
+<li>
+<p><strong>sigma_threshold</strong> (<em>float, optional</em>) - When computing the SVD in <code>StatePred</code>, singular values lower than this will be reported, since they can be a possible cause of unstable gradients.</p>
+</li>
+</ul>
+<h2 id="attributes">Attributes</h2>
+<ul>
+<li>
+<p><strong>RTYPE</strong> (<em>torch.dtype</em>) - Data type of real tensors. Is automatically set to <code>torch.&lt;precision&gt;</code> (e.g. <code>torch.float</code> if <code>precision="float"</code>).</p>
+</li>
+<li>
+<p><strong>CTYPE</strong> (<em>torch.dtype</em>) - Data type of complex tensors. Is automatically set to <code>torch.c&lt;precision&gt;</code> (e.g. <code>torch.cfloat</code> if <code>precision="float"</code>).</p>
+</li>
+<li>
+<p><strong>DEVICE</strong> (<em>torch.device</em>) - Device where tensors reside. Is automatically set to <code>"cpu"</code> if <code>use_cuda=False</code> or CuDA is not available, otherwise <code>"cuda"</code>.</p>
+</li>
+</ul></div>
 </dd>
 </dl>
-</section>
-<section>
-</section>
-<section>
 </section>
 </article>
 <nav id="sidebar">
@@ -90,13 +99,11 @@ This results in the singular and eigen vectors remaining the same.</p>
 <li><code><a title="dlkoopman" href="index.html">dlkoopman</a></code></li>
 </ul>
 </li>
-<li><h3><a href="#header-variables">Global variables</a></h3>
-<ul class="">
-<li><code><a title="dlkoopman.config.precision" href="#dlkoopman.config.precision">precision</a></code></li>
-<li><code><a title="dlkoopman.config.use_cuda" href="#dlkoopman.config.use_cuda">use_cuda</a></code></li>
-<li><code><a title="dlkoopman.config.normalize_Xdata" href="#dlkoopman.config.normalize_Xdata">normalize_Xdata</a></code></li>
-<li><code><a title="dlkoopman.config.use_exact_eigenvectors" href="#dlkoopman.config.use_exact_eigenvectors">use_exact_eigenvectors</a></code></li>
-<li><code><a title="dlkoopman.config.sigma_threshold" href="#dlkoopman.config.sigma_threshold">sigma_threshold</a></code></li>
+<li><h3><a href="#header-classes">Classes</a></h3>
+<ul>
+<li>
+<h4><code><a title="dlkoopman.config.Config" href="#dlkoopman.config.Config">Config</a></code></h4>
+</li>
 </ul>
 </li>
 </ul>
