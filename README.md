@@ -68,6 +68,9 @@ Available in the [`examples`](https://github.com/GaloisInc/dlkoopman/tree/ed11be
 ## Documentation and API Reference
 Available at https://galoisinc.github.io/dlkoopman/.
 
+## Changelog
+See [Releases](https://github.com/GaloisInc/dlkoopman/releases) and their notes.
+
 
 ## Description 
 
