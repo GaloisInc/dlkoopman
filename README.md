@@ -1,11 +1,39 @@
-A Python package for Koopman theory using deep learning.
+<p>
+    <a href="https://badge.fury.io/py/dlkoopman"  target="_blank">
+        <img alt="PyPI version" src="https://badge.fury.io/py/dlkoopman.svg">
+    </a>
+    <a href="https://github.com/GaloisInc/dlkoopman/blob/main/LICENSE" target="_blank">
+        <img alt="Software License" src="https://img.shields.io/badge/license-MIT-brightgreen.svg">
+    </a>
+    <a href="https://github.com/GaloisInc/dlkoopman/actions/workflows/pages/pages-build-deployment" target="_blank">
+        <img alt="Documentation building status" src="https://github.com/GaloisInc/dlkoopman/actions/workflows/pages/pages-build-deployment/badge.svg">
+    </a>
+    <a href="https://github.com/GaloisInc/dlkoopman/actions/workflows/pytest.yml" target="_blank">
+        <img alt="Tests status" src="https://github.com/GaloisInc/dlkoopman/actions/workflows/pytest.yml/badge.svg">
+    </a>
+    <a href="https://github.com/GaloisInc/dlkoopman/actions/workflows/isort.yml" target="_blank">
+        <img alt="isort status" src="https://github.com/GaloisInc/dlkoopman/actions/workflows/isort.yml/badge.svg">
+    </a>
+</p>
+
+<figure>
+<img src="https://raw.githubusercontent.com/GaloisInc/dlkoopman/36108ffcfd9608a393985ac9af431d3910fe2fc5/logo.png" height=150/>
+</figure>
+
+**DLKoopman: A general-purpose Python package for Koopman theory using deep learning**.
+
+Koopman theory is a technique to use sampled data, or states, of a nonlinear dynamical system to learn a linear model for it. A linear model is very powerful as it:
+- Gives insight into the dynamics via eigenvalues and eigenvectors.
+- Can leverage linear algebra to easily analyze the system and predict its behavior under unknown conditions.
 
 
-## Overview
-Koopman theory is a mathematical technique to achieve data-driven approximations of nonlinear dynamical systems by encoding them into a linear space. `dlkoopman` uses deep learning to learn such an encoding, while simultaneously learning the linear dynamics.
+## Why DLKoopman?
+*DLKoopman uses deep learning to learn an encoding of a nonlinear dynamical system into a linear domain, while simultaneously learning the linear dynamics*. We bridge the gap between:
+- Software packages that restrict the learning of a good encoding (e.g. [`pykoopman`](https://github.com/dynamicslab/pykoopman)), and
+- Efforts that learn encodings for specific applications instead of being a general-purpose tool (e.g. [`DeepKoopman`](https://github.com/BethanyL/DeepKoopman)).
 
-### Key features
-- State prediction (`StatePred`) - Train on individual states (snapshots) of a system, then predict unknown states.
+### Key DLKoopman features
+- State prediction (`StatePred`) - Train on individual states of a system, then predict unknown states.
     - E.g: What is the pressure vector on this aircraft for $23.5^{\circ}$ angle of attack?
 - Trajectory prediction (`TrajPred`) - Train on generated trajectories of a system, then predict unknown trajectories for new initial states.
     - E.g: What is the behavior of this pendulum if I start from the point $[1,-1]$?
@@ -14,8 +42,7 @@ Koopman theory is a mathematical technique to achieve data-driven approximations
 - Extensive options and a ready-to-use *hyperparameter search module* to improve performance.
 - Built using [Pytorch](https://pytorch.org/), supports both CPU and GPU platforms.
 
-### Why dlkoopman?
-We bridge the gap between a) software packages that restrict the learning of a good linearizable encoding (e.g. [`pykoopman`](https://github.com/dynamicslab/pykoopman)), and b) efforts that learn encodings for specific applications instead of being a general tool (e.g. [`DeepKoopman`](https://github.com/BethanyL/DeepKoopman)).
+Read more about DLKoopman in this [blog article](https://galois.com/blog/2023/01/dl-koopman/).
 
 
 ## Installation
@@ -31,7 +58,7 @@ pip install .
 ```
 
 ### Running as a Docker container
-DLKoopman can also be run as a docker container by pulling the image from `galoisinc/dlkoopman:<version>`, e.g. `docker pull galoisinc/dlkoopman:v1.0.2`.
+DLKoopman can also be run as a docker container by pulling the image from `galoisinc/dlkoopman:<version>`, e.g. `docker pull galoisinc/dlkoopman:v1.1.0`.
 
 
 ## Tutorials and examples
@@ -40,6 +67,9 @@ Available in the [`examples`](https://github.com/GaloisInc/dlkoopman/tree/ed11be
 
 ## Documentation and API Reference
 Available at https://galoisinc.github.io/dlkoopman/.
+
+## Changelog
+See [Releases](https://github.com/GaloisInc/dlkoopman/releases) and their notes.
 
 
 ## Description 

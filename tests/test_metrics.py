@@ -1,6 +1,6 @@
 import torch
+
 from dlkoopman.metrics import *
-from dlkoopman.metrics import _naae
 
 
 def test_anae():
@@ -14,7 +14,7 @@ def test_anae():
 
 def test_naae():
     assert torch.isclose(
-        _naae(
+        naae(
             ref = torch.tensor([[0.1,1],[100,200]]),
             new = torch.tensor([[1.1,2],[99,199]])
         ),

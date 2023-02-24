@@ -1,8 +1,12 @@
-import pickle
 import os
+import pickle
+
 import numpy as np
-from dlkoopman.traj_pred import *
+import pytest
+import torch
+
 from dlkoopman import utils
+from dlkoopman.traj_pred import *
 
 
 def get_data():
@@ -65,3 +69,46 @@ def test_TrajPred():
     logfile = f'log_{tp.uuid}.log'
     assert os.path.isfile(logfile)
     os.system(f'rm -rf {logfile}')
+
+
+def round3(stats):
+    for k in stats.keys():
+        if type(stats[k]) != list:
+            stats[k] = np.round(stats[k],3)
+        else:
+            stats[k] = [np.round(v,3) for v in stats[k]]
+    return stats
+
+@pytest.mark.skipif(torch.__version__ != '1.12.1', reason = "Exact comparisons require a specific torch version since the results of training may not match across versions (see https://pytorch.org/docs/stable/notes/randomness.html).")
+def test_TrajPred_exact():
+    """
+    Pin the torch version and test if a specific training run exactly matches provided results.
+    NOTE: If tests still fail, consider pinning numpy==1.23.0 and Python==3.9.12.
+    """
+    data = get_data()
+    dh = TrajPredDataHandler(
+        Xtr=data['Xtr'],
+        Xva=data['Xva'],
+        Xte=data['Xte']
+    )
+
+    with open(os.path.join(os.path.dirname(os.path.realpath(__file__)), 'ref_tp_stats.pkl'), 'rb') as f:
+        ref_stats = round3(pickle.load(f))
+
+    utils.set_seed(10)
+
+    tp = TrajPred(
+        dh = dh,
+        encoded_size = 10
+    )
+    tp.train_net(
+        numepochs = 2,
+        batch_size = 250
+    )
+    tp.test_net()
+
+    logfile = f'log_{tp.uuid}.log'
+    assert os.path.isfile(logfile)
+    os.system(f'rm -rf {logfile}')
+
+    assert round3(tp.stats) == ref_stats

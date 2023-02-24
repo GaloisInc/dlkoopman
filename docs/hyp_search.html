@@ -36,8 +36,8 @@
 <span>def <span class="ident">run_hyp_search</span></span>(<span>dh, hyp_options, numruns=None, avg_ignore_initial_epochs=0, sort_key='avg_pred_anae_va') ‑> pathlib.Path</span>
 </code></dt>
 <dd>
-<div class="desc"><p>Perform many runs of a type of predictor model (either <code>StatePred</code> or <code>TrajPred</code>) with different configurations on given data, and save the metrics for each run.</p>
-<p>Use the results to pick a good predictor configuration.</p>
+<div class="desc"><p>Perform many runs of a type of predictor - either <code>StatePred</code> or <code>TrajPred</code> - with different hyperparameter combinations (which are the argument values passed to the class and its methods) on given data, and save the metrics for each run.</p>
+<p>Use the results to pick good hyperparameter combinations.</p>
 <p><strong>The method can be interrupted at any time and the intermediate results will be saved</strong>.</p>
 <h2 id="saved-statistics">Saved statistics</h2>
 <p>For each of the following <code>&lt;x&gt;</code>:</p>

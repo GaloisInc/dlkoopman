@@ -3,8 +3,12 @@
 
 import torch
 
+__pdoc__ = {
+    'MLP': False
+}
 
-class _MLP(torch.nn.Module):
+
+class MLP(torch.nn.Module):
     """Multi-layer perceptron neural net.
 
     ## Parameters
@@ -73,14 +77,14 @@ class AutoEncoder(torch.nn.Module):
         elif not encoder_hidden_layers and decoder_hidden_layers:
             encoder_hidden_layers = decoder_hidden_layers[::-1]
 
-        self.encoder = _MLP(
+        self.encoder = MLP(
             input_size = input_size,
             output_size = encoded_size,
             hidden_sizes = encoder_hidden_layers,
             batch_norm = batch_norm
         )
 
-        self.decoder = _MLP(
+        self.decoder = MLP(
             input_size = encoded_size,
             output_size = input_size,
             hidden_sizes = decoder_hidden_layers,

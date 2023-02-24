@@ -1,8 +1,12 @@
-import pickle
 import os
+import pickle
+
 import numpy as np
-from dlkoopman.state_pred import *
+import pytest
+import torch
+
 from dlkoopman import utils
+from dlkoopman.state_pred import *
 
 
 def get_data():
@@ -71,3 +75,46 @@ def test_StatePred():
     logfile = f'log_{sp.uuid}.log'
     assert os.path.isfile(logfile)
     os.system(f'rm -rf {logfile}')
+
+
+def round3(stats):
+    for k in stats.keys():
+        if type(stats[k]) != list:
+            stats[k] = np.round(stats[k],3)
+        else:
+            stats[k] = [np.round(v,3) for v in stats[k]]
+    return stats
+
+@pytest.mark.skipif(torch.__version__ != '1.12.1', reason = "Exact comparisons require a specific torch version since the results of training may not match across versions (see https://pytorch.org/docs/stable/notes/randomness.html).")
+def test_StatePred_exact():
+    """
+    Pin the torch version and test if a specific training run exactly matches provided results.
+    NOTE: If tests still fail, consider pinning numpy==1.23.0 and Python==3.9.12.
+    """
+    data = get_data()
+    dh = StatePredDataHandler(
+        Xtr=data['Xtr'], ttr=data['ttr'],
+        Xva=data['Xva'], tva=data['tva'],
+        Xte=data['Xte'], tte=data['tte']
+    )
+
+    with open(os.path.join(os.path.dirname(os.path.realpath(__file__)), 'ref_sp_stats.pkl'), 'rb') as f:
+        ref_stats = round3(pickle.load(f))
+
+    utils.set_seed(10)
+
+    sp = StatePred(
+        dh = dh,
+        rank = 6,
+        encoded_size = 50
+    )
+    sp.train_net(
+        numepochs = 50
+    )
+    sp.test_net()
+
+    logfile = f'log_{sp.uuid}.log'
+    assert os.path.isfile(logfile)
+    os.system(f'rm -rf {logfile}')
+
+    assert round3(sp.stats) == ref_stats

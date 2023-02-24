@@ -1,16 +1,20 @@
 """Utilities"""
 
 
-import matplotlib.pyplot as plt
-import numpy as np
-from pathlib import Path
 import random
-import torch
+from pathlib import Path
 from typing import Any
 
+import matplotlib.pyplot as plt
+import numpy as np
+import torch
 
 __pdoc__ = {
     'stable_svd': False,
+    'tensorize': False,
+    'scale': False,
+    'shift': False,
+    'extract_item': False,
     'moving_avg': False
 }
 
@@ -77,7 +81,14 @@ def plot_stats(model, perfs=['pred_anae'], start_epoch=1, fontsize=12):
     ## Parameters
     - **model** (*StatePred* or *TrajPred*) - A model with `stats` populated.
 
-    - **perfs** (*list[str]*) - Which variables from `stats` to plot. For each variable, training data and validation data stats are plotted vs epochs, and the title of the plot is the test data stats value.
+    - **perfs** (*list[str]*) - Which performance variables from `stats` to plot. For each variable, training data and validation data stats are plotted vs epochs, and the title of the plot is the test data stats value. Options for variables are:
+        - `'recon_loss'`
+        - `'lin_loss'`
+        - `'pred_loss'`
+        - `'total_loss'`
+        - `'recon_anae'`
+        - `'lin_anae'`
+        - `'pred_anae'`
     
     - **start_epoch** (*int*) - Start plotting from this epoch. Setting this to higher than 1 may be useful when the first few epochs have weird values that skew the y axis scale.
 
@@ -133,17 +144,17 @@ def set_seed(seed):
     random.seed(seed)
 
 
-def _tensorize(arg, dtype, device) -> Any:
+def tensorize(arg, dtype, device) -> Any:
     return torch.as_tensor(arg, dtype=dtype, device=device) if arg is not None else torch.tensor([], dtype=dtype, device=device)
 
-def _scale(arg, scale) -> Any:
+def scale(arg, scale) -> Any:
     return arg/scale
 
-def _shift(arg, shift) -> Any:
+def shift(arg, shift) -> Any:
     return arg-shift
 
 
-def _extract_item(v) -> Any:
+def extract_item(v) -> Any:
     """ Given input, return its `.item()` if it can be extracted, otherwise return input. """
     try:
         ret = v.item()

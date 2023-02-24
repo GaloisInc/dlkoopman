@@ -3,6 +3,10 @@
 
 import torch
 
+__pdoc__ = {
+    'naae': False
+}
+
 
 def anae(ref, new) -> torch.Tensor:
     """Average Normalized Absolute Error (ANAE).
@@ -28,27 +32,8 @@ def anae(ref, new) -> torch.Tensor:
     ## Returns
     **anae** (*torch scalar*) - In percentage.
     """
-    anae = torch.abs(ref-new)/torch.abs(ref)
-    return 100.*torch.mean(anae[anae!=torch.inf])
-
-def _naae(ref, new) -> torch.Tensor:
-    """Normalized Average Absolute Error (NAAE).
-    
-    NAAE first averages the absolute error, then normalizes that using the average value of the absolute ground truth. This reduces the chance of a few small ground truth values having a huge impact, but loses details by taking the average over all absolute error values, and likewise over all ground truth values.
-    
-    Example: Let `ref = torch.tensor([[-0.1,0.2,0],[100,200,300]]), new = torch.tensor([[-0.11,0.15,0.01],[105,210,285]])`.
-    $$NAAE = \\frac{\\text{Avg}(|0.01|,|0.05|,|-0.01|,|-5|,|-10|,|15|)}{\\text{Avg}(|-0.1|,|0.2|,|0|,|100|,|200|,|300|)} = 5\\%$$
-
-    ## Parameters
-    **ref** (*torch.Tensor*) and **new** (*torch.Tensor*) - Error will be calculated between these tensors.
-
-    ## Returns
-    **naae** (*torch scalar*) - In percentage.
-
-    ## Caution
-    NAAE is experimental, so it is best to stick with ANAE for now.
-    """
-    return 100.*torch.mean(torch.abs(ref-new))/torch.mean(torch.abs(ref))
+    ret = torch.abs(ref-new)/torch.abs(ref)
+    return 100.*torch.mean(ret[ret!=torch.inf])
 
 
 def overall_anae(X, Y, Xr, Ypred, Xpred) -> dict[str, torch.Tensor]:
@@ -77,6 +62,26 @@ def overall_anae(X, Y, Xr, Ypred, Xpred) -> dict[str, torch.Tensor]:
         'lin': anae(ref=Y, new=Ypred),
         'pred': anae(ref=X, new=Xpred)
     }
+
+
+def naae(ref, new) -> torch.Tensor:
+    """Normalized Average Absolute Error (NAAE).
+    
+    NAAE first averages the absolute error, then normalizes that using the average value of the absolute ground truth. This reduces the chance of a few small ground truth values having a huge impact, but loses details by taking the average over all absolute error values, and likewise over all ground truth values.
+    
+    Example: Let `ref = torch.tensor([[-0.1,0.2,0],[100,200,300]]), new = torch.tensor([[-0.11,0.15,0.01],[105,210,285]])`.
+    $$NAAE = \\frac{\\text{Avg}(|0.01|,|0.05|,|-0.01|,|-5|,|-10|,|15|)}{\\text{Avg}(|-0.1|,|0.2|,|0|,|100|,|200|,|300|)} = 5\\%$$
+
+    ## Parameters
+    **ref** (*torch.Tensor*) and **new** (*torch.Tensor*) - Error will be calculated between these tensors.
+
+    ## Returns
+    **naae** (*torch scalar*) - In percentage.
+
+    ## Caution
+    NAAE is experimental, so it is best to stick with ANAE for now.
+    """
+    return 100.*torch.mean(torch.abs(ref-new))/torch.mean(torch.abs(ref))
 
 
 def overall_loss(X, Y, Xr, Ypred, Xpred, decoder_loss_weight) -> dict[str, torch.Tensor]:
