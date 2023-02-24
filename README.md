@@ -17,7 +17,7 @@
 </p>
 
 <figure>
-<img src="logo.png" height=150/>
+<img src="https://raw.githubusercontent.com/GaloisInc/dlkoopman/36108ffcfd9608a393985ac9af431d3910fe2fc5/logo.png" height=150/>
 </figure>
 
 **DLKoopman: A general-purpose Python package for Koopman theory using deep learning**.
