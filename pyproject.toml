@@ -1,7 +1,7 @@
 [tool.poetry]
 name = "dlkoopman"
-version = "1.1.0"
-description = "A Python package for Koopman theory using deep learning."
+version = "1.1.1"
+description = "A general-purpose Python package for Koopman theory using deep learning."
 authors = ["Sourya Dey <sourya@galois.com>"]
 maintainers = ["Galois dlkoopman team <dlkoopman@galois.com>"]
 license = "MIT"

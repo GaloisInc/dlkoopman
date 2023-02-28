@@ -22,13 +22,13 @@
 
 **DLKoopman: A general-purpose Python package for Koopman theory using deep learning**.
 
-Koopman theory is a technique to use sampled data, or states, of a nonlinear dynamical system to learn a linear model for it. A linear model is very powerful as it:
-- Gives insight into the dynamics via eigenvalues and eigenvectors.
-- Can leverage linear algebra to easily analyze the system and predict its behavior under unknown conditions.
+Koopman theory is a technique to encode sampled data (aka states) of a nonlinear dynamical system into a linear domain. This is very powerful as a linear model can:
+- Give insight into the dynamics via eigenvalues and eigenvectors.
+- Leverage linear algebra techniques to easily analyze the system and predict its behavior under unknown conditions.
 
 
 ## Why DLKoopman?
-*DLKoopman uses deep learning to learn an encoding of a nonlinear dynamical system into a linear domain, while simultaneously learning the linear dynamics*. We bridge the gap between:
+*DLKoopman uses deep learning to learn an encoding of a nonlinear dynamical system into a linear domain, while simultaneously learning the dynamics of the linear model*. DLKoopman bridges the gap between:
 - Software packages that restrict the learning of a good encoding (e.g. [`pykoopman`](https://github.com/dynamicslab/pykoopman)), and
 - Efforts that learn encodings for specific applications instead of being a general-purpose tool (e.g. [`DeepKoopman`](https://github.com/BethanyL/DeepKoopman)).
 
@@ -37,9 +37,9 @@ Koopman theory is a technique to use sampled data, or states, of a nonlinear dyn
     - E.g: What is the pressure vector on this aircraft for $23.5^{\circ}$ angle of attack?
 - Trajectory prediction (`TrajPred`) - Train on generated trajectories of a system, then predict unknown trajectories for new initial states.
     - E.g: What is the behavior of this pendulum if I start from the point $[1,-1]$?
-- General and reusable - supports data from any dynamical system.
+- General-purpose and reusable - supports data from any dynamical system.
 - Novel error function Average Normalized Absolute Error (ANAE) for visualizing performance.
-- Extensive options and a ready-to-use *hyperparameter search module* to improve performance.
+- Extensive options and a ready-to-use hyperparameter search module to improve performance.
 - Built using [Pytorch](https://pytorch.org/), supports both CPU and GPU platforms.
 
 Read more about DLKoopman in this [blog article](https://galois.com/blog/2023/01/dl-koopman/).
@@ -58,7 +58,7 @@ pip install .
 ```
 
 ### Running as a Docker container
-DLKoopman can also be run as a docker container by pulling the image from `galoisinc/dlkoopman:<version>`, e.g. `docker pull galoisinc/dlkoopman:v1.1.0`.
+DLKoopman can also be run as a docker container by pulling the image from `galoisinc/dlkoopman:<version>`, e.g. `docker pull galoisinc/dlkoopman:v1.1.1`.
 
 
 ## Tutorials and examples
