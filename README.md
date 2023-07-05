@@ -40,7 +40,7 @@ pip install .
 ```
 
 ### Running as a Docker container
-DLKoopman can also be run as a docker container by pulling the image from `galoisinc/dlkoopman:<version>`, e.g. `docker pull galoisinc/dlkoopman:v1.1.2`.
+DLKoopman can also be run as a docker container by pulling the image from `galoisinc/dlkoopman:<version>`, e.g. `docker pull galoisinc/dlkoopman:v1.1.3`.
 
 
 ## Tutorials and examples
@@ -90,14 +90,18 @@ Some common issues and ways to overcome them are described in the [known issues]
 
 
 ## How to cite
-Please cite the [accompanying paper](https://arxiv.org/abs/2211.08992):
+Please cite the [accompanying paper](https://proceedings.mlr.press/v211/dey23a.html):
 ```
-@article{Dey2022_dlkoopman,
+@inproceedings{Dey2023_L4DC,
     author = {Sourya Dey and Eric William Davis},
-    title = {DLKoopman: A deep learning software package for Koopman theory},
-    journal = {arXiv preprint arXiv:2211.08992},
-    year = {2022},
-    note = {Submitted to 5th Annual Learning for Dynamics & Control (L4DC) Conference}
+    title = {{DLKoopman: A deep learning software package for Koopman theory}},
+    booktitle = {Proceedings of The 5th Annual Learning for Dynamics and Control Conference},
+    pages = {1467--1479},
+    volume = {211},
+    series = {Proceedings of Machine Learning Research},
+    publisher = {PMLR},
+    year = {2023},
+    month = {Jun}
 }
 ```
 
