@@ -159,14 +159,16 @@ class TrajPred:
             batch_norm = batch_norm
         )
         self.ae.to(dtype=self.cfg.RTYPE, device=self.cfg.DEVICE)
-        self.ae = torch.compile(self.ae, backend=self.cfg.BACKEND) # Added this line for torch 2.x
+        if int(torch.__version__[0]) > 1:
+            self.ae = torch.compile(self.ae, backend=self.cfg.BACKEND)
 
         ## Define linear layer
         self.Knet = nets.Knet(
             size = encoded_size
         )
         self.Knet.to(dtype=self.cfg.RTYPE, device=self.cfg.DEVICE)
-        self.Knet = torch.compile(self.Knet, backend=self.cfg.BACKEND) # Added this line for torch 2.x
+        if int(torch.__version__[0]) > 1:
+            self.Knet = torch.compile(self.Knet, backend=self.cfg.BACKEND)
 
         ## Define params
         self.params = list(self.ae.parameters()) + list(self.Knet.parameters())
