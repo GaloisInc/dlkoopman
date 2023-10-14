@@ -36,7 +36,7 @@
 <dl>
 <dt id="dlkoopman.config.Config"><code class="flex name class">
 <span>class <span class="ident">Config</span></span>
-<span>(</span><span>precision='float', use_cuda=True, normalize_Xdata=True, use_exact_eigenvectors=True, sigma_threshold=1e-25)</span>
+<span>(</span><span>precision='float', use_cuda=True, torch_compile_backend='aot_eager', normalize_Xdata=True, use_exact_eigenvectors=True, sigma_threshold=1e-25)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Configuration options.</p>
@@ -50,6 +50,12 @@
 </li>
 <li>
 <p><strong>use_cuda</strong> (<em>bool, optional</em>) - If <code>True</code>, tensor computations will take place on CuDA GPUs if available.</p>
+</li>
+<li>
+<p><strong>torch_compile_backend</strong> (<em>str / None, optional</em>) - The backend to use for <code>torch.compile()</code>, which is a feature added in torch major version 2 to potentially speed up computation. For full lists of possible backends, run <code>torch._dynamo.list_backends()</code> and <code>torch._dynamo.list_backends(None)</code>. See the <a href="https://pytorch.org/docs/stable/generated/torch.compile.html"><code>torch.compile()</code> documentation</a> for more details.</p>
+<ul>
+<li>If you are using a major version of torch less than 2 or you set <code>torch_compile_backend = None</code>, the DLKoopman neural nets will not pass through <code>torch.compile()</code>.</li>
+</ul>
 </li>
 <li>
 <p><strong>normalize_Xdata</strong> (<em>bool, optional</em>) - If <code>True</code>, all input states (training, validation, test) are divided by the maximum absolute value in the training data.</p>

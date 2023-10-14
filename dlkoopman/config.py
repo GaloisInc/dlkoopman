@@ -21,7 +21,7 @@ class Config():
 
     - **use_cuda** (*bool, optional*) - If `True`, tensor computations will take place on CuDA GPUs if available.
 
-    - **torch_compile_backend** (*str / None, optional*) - The backend to use for `torch.compile()`, which is a feature added in torch major version 2 to potentially speed up computation. For full lists of possible backends, run `torch._dynamo.list_backends()` and `torch._dynamo.list_backends(None)`. See the []`torch.compile()` documentation](https://pytorch.org/docs/stable/generated/torch.compile.html) for more details.
+    - **torch_compile_backend** (*str / None, optional*) - The backend to use for `torch.compile()`, which is a feature added in torch major version 2 to potentially speed up computation. For full lists of possible backends, run `torch._dynamo.list_backends()` and `torch._dynamo.list_backends(None)`. See the [`torch.compile()` documentation](https://pytorch.org/docs/stable/generated/torch.compile.html) for more details.
         - If you are using a major version of torch less than 2 or you set `torch_compile_backend = None`, the DLKoopman neural nets will not pass through `torch.compile()`.
 
     - **normalize_Xdata** (*bool, optional*) - If `True`, all input states (training, validation, test) are divided by the maximum absolute value in the training data.
