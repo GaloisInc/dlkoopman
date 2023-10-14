@@ -220,7 +220,10 @@ class TrajPred:
         """
         Y0: (num_trajectories, encoded_size) - Initial state for all trajectories.
         """
-        Ypred = torch.zeros(Y0.shape[0], self.dh.Xtr.shape[1], Y0.shape[1]) # shape = (num_trajectories, num_indexes, encoded_size)
+        Ypred = torch.zeros(
+            Y0.shape[0], self.dh.Xtr.shape[1], Y0.shape[1],
+            dtype=self.cfg.RTYPE, device=self.cfg.DEVICE
+        ) # shape = (num_trajectories, num_indexes, encoded_size)
         Ypred[:, 0, :] = Y0
         for index in range(1, Ypred.shape[1]):
             Ypred[:, index] = self.Knet(Ypred[:, index-1].clone()) #NOTE: .clone() since we are in-place modifying a variable needed for gradient computation

@@ -6,6 +6,7 @@ import pytest
 import torch
 
 from dlkoopman import utils
+from dlkoopman.config import Config
 from dlkoopman.traj_pred import *
 
 
@@ -16,6 +17,7 @@ def get_data():
 
 
 def test_TrajPredDataHandler():
+    cfg = Config()
     data = get_data()
     dh = TrajPredDataHandler(
         Xtr=data['Xtr'],
@@ -29,8 +31,8 @@ def test_TrajPredDataHandler():
         Xtr=data['Xtr']
     )
     assert np.isclose(dh.Xscale, 100.)
-    assert torch.equal(dh.Xva, torch.tensor([]))
-    assert torch.equal(dh.Xte, torch.tensor([]))
+    assert torch.equal(dh.Xva, torch.tensor([], dtype=cfg.RTYPE, device=cfg.DEVICE))
+    assert torch.equal(dh.Xte, torch.tensor([], dtype=cfg.RTYPE, device=cfg.DEVICE))
 
 
 def test_TrajPred():

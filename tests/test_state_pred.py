@@ -6,6 +6,7 @@ import pytest
 import torch
 
 from dlkoopman import utils
+from dlkoopman.config import Config
 from dlkoopman.state_pred import *
 
 
@@ -16,6 +17,7 @@ def get_data():
 
 
 def test_StatePredDataHandler():
+    cfg = Config()
     data = get_data()
     dh = StatePredDataHandler(
         Xtr=data['Xtr'], ttr=data['ttr'],
@@ -33,10 +35,10 @@ def test_StatePredDataHandler():
     assert np.isclose(dh.Xscale, 100.)
     assert dh.tscale == 1.
     assert dh.tshift == 0.
-    assert torch.equal(dh.Xva, torch.tensor([]))
-    assert torch.equal(dh.tva, torch.tensor([]))
-    assert torch.equal(dh.Xte, torch.tensor([]))
-    assert torch.equal(dh.tte, torch.tensor([]))
+    assert torch.equal(dh.Xva, torch.tensor([], dtype=cfg.RTYPE, device=cfg.DEVICE))
+    assert torch.equal(dh.tva, torch.tensor([], dtype=cfg.RTYPE, device=cfg.DEVICE))
+    assert torch.equal(dh.Xte, torch.tensor([], dtype=cfg.RTYPE, device=cfg.DEVICE))
+    assert torch.equal(dh.tte, torch.tensor([], dtype=cfg.RTYPE, device=cfg.DEVICE))
 
 
 def test_StatePred():
