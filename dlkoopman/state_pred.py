@@ -185,8 +185,8 @@ class StatePred:
             batch_norm = batch_norm
         )
         self.ae.to(dtype=self.cfg.RTYPE, device=self.cfg.DEVICE)
-        if int(torch.__version__[0]) > 1:
-            self.ae = torch.compile(self.ae, backend=self.cfg.BACKEND)
+        if utils.is_torch_2() and self.cfg.torch_compile_backend is not None:
+            self.ae = torch.compile(self.ae, backend=self.cfg.torch_compile_backend)
 
         ## Get rank and ensure it's a valid value
         full_rank = min(self.encoded_size,len(self.dh.ttr)-1) #this is basically min(Y.shape), where Y is defined in _dmd_linearize()

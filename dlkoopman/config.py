@@ -21,6 +21,9 @@ class Config():
 
     - **use_cuda** (*bool, optional*) - If `True`, tensor computations will take place on CuDA GPUs if available.
 
+    - **torch_compile_backend** (*str / None, optional*) - The backend to use for `torch.compile()`, which is a feature added in torch major version 2 to potentially speed up computation. For full lists of possible backends, run `torch._dynamo.list_backends()` and `torch._dynamo.list_backends(None)`. See the []`torch.compile()` documentation](https://pytorch.org/docs/stable/generated/torch.compile.html) for more details.
+        - If you are using a major version of torch less than 2 or you set `torch_compile_backend = None`, the DLKoopman neural nets will not pass through `torch.compile()`.
+
     - **normalize_Xdata** (*bool, optional*) - If `True`, all input states (training, validation, test) are divided by the maximum absolute value in the training data.
         - Note that normalizing data is a generally good technique for deep learning, and is normally done for each feature \\(f\\) in the input data as
         $$X_f = \\frac{X_f-\\text{offset}_f}{\\text{scale}_f}$$
@@ -47,12 +50,14 @@ class Config():
     def __init__(self,
         precision = "float",
         use_cuda = True,
+        torch_compile_backend = "aot_eager",
         normalize_Xdata = True,
         use_exact_eigenvectors = True,
         sigma_threshold = 1e-25
     ):
         self.precision = precision
         self.use_cuda = use_cuda
+        self.torch_compile_backend = torch_compile_backend
         self.normalize_Xdata = normalize_Xdata
         self.use_exact_eigenvectors = use_exact_eigenvectors
         self.sigma_threshold = sigma_threshold
@@ -61,6 +66,8 @@ class Config():
             raise ConfigValidationError(f'`precision` must be either of "half" / "float" / "double", instead found {precision}')
         if use_cuda not in [True, False]:
             raise ConfigValidationError(f'`use_cuda` must be either True or False, instead found {use_cuda}')
+        if torch_compile_backend not in torch._dynamo.list_backends() + torch._dynamo.list_backends(None) + [None]:
+            raise ConfigValidationError(f'`torch_compile_backend` must be either None or one out the options obtained from running `torch._dynamo.list_backends()` or `torch._dynamo.list_backends(None)`, instead found {torch_compile_backend}')
         if normalize_Xdata not in [True, False]:
             raise ConfigValidationError(f'`normalize_Xdata` must be either True or False, instead found {normalize_Xdata}')
         if use_exact_eigenvectors not in [True, False]:
@@ -71,4 +78,3 @@ class Config():
         self.RTYPE = torch.half if self.precision=="half" else torch.float if self.precision=="float" else torch.double
         self.CTYPE = torch.chalf if self.precision=="half" else torch.cfloat if self.precision=="float" else torch.cdouble
         self.DEVICE = torch.device("cuda" if self.use_cuda and torch.cuda.is_available() else "cpu")
-        self.BACKEND = "aot_eager"

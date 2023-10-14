@@ -15,7 +15,8 @@ __pdoc__ = {
     'scale': False,
     'shift': False,
     'extract_item': False,
-    'moving_avg': False
+    'moving_avg': False,
+    'is_torch_2': False
 }
 
 
@@ -185,3 +186,14 @@ def moving_avg(inp, window_size = 3):
     if window_size > len(inp):
         raise ValueError(f"'window_size' must be <= length of 'inp', but {window_size} > {len(inp)}")
     return type(inp)(np.convolve(inp, np.ones(window_size), 'valid') / window_size)
+
+
+def is_torch_2() -> bool:
+    """
+    Check if the major version of torch being used is 2 or not.
+    Return False if major version cannot be determined.
+    """
+    try:
+        return int(torch.__version__[0]) == 2
+    except ValueError:
+        return False
