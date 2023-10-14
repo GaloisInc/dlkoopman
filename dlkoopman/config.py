@@ -43,8 +43,6 @@ class Config():
     - **CTYPE** (*torch.dtype*) - Data type of complex tensors. Is automatically set to `torch.c<precision>` (e.g. `torch.cfloat` if `precision="float"`).
 
     - **DEVICE** (*torch.device*) - Device where tensors reside. Is automatically set to `"cpu"` if `use_cuda=False` or CuDA is not available, otherwise `"cuda"`.
-
-    - **BACKEND** (*str*) - Backend used for `torch.compile()`. Is automatically set to `"aot_eager"` (this may change to `"inductor"` in a future release).
     """
     
     def __init__(self,
