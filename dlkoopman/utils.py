@@ -159,7 +159,7 @@ def extract_item(v) -> Any:
     """ Given input, return its `.item()` if it can be extracted, otherwise return input. """
     try:
         ret = v.item()
-    except (AttributeError, ValueError):
+    except (AttributeError, ValueError, RuntimeError):
         ret = v
     return ret
 

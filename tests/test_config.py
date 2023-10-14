@@ -39,9 +39,11 @@ def test_config_validation_error():
     class _Test(unittest.TestCase):
         def _test(self):
             with self.assertRaises(ConfigValidationError):
-                cfg = Config(precision="foat")
+                _ = Config(precision="foat")
             with self.assertRaises(ConfigValidationError):
-                cfg = Config(use_exact_eigenvectors="foat", sigma_threshold=False)
+                _ = Config(use_exact_eigenvectors="foat", sigma_threshold=False)
+            with self.assertRaises(ConfigValidationError):
+                _ = Config(torch_compile_backend="some garbage backend xxx")
     
     t = _Test()
     t._test()
