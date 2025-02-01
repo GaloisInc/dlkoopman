@@ -468,6 +468,8 @@ class TrajPred:
         X0 = utils.tensorize(X0, dtype=self.cfg.RTYPE, device=self.cfg.DEVICE)
         if self.cfg.normalize_Xdata:
             _X0 = utils.scale(X0, scale=self.dh.Xscale)
+        else:
+            _X0 = X0.clone()
 
         self.ae.eval()
         self.Knet.eval()
