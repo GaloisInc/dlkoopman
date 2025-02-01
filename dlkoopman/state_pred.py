@@ -206,7 +206,7 @@ class StatePred:
         self.y0 = None
 
         ## Write info to log file
-        with open(self.log_file, 'a') as lf:
+        with open(self.log_file, 'a', encoding='utf-8') as lf:
             lf.write("Index difference | Frequency\n")
             for dt,freq in self.dh.dts.items():
                 lf.write(f"{dt} | {freq}\n")
@@ -290,7 +290,7 @@ class StatePred:
         
         # Singular values
         if Sigma[-1] < self.cfg.sigma_threshold:
-            with open(self.log_file, 'a') as lf:
+            with open(self.log_file, 'a', encoding='utf-8') as lf:
                 lf.write(f"Smallest singular value prior to truncation = {Sigma[-1]} is smaller than threshold = {self.cfg.sigma_threshold}. This may lead to very large / nan values in backprop of SVD.\n")
         #NOTE: We can also do a check if any pair (or more) of consecutive singular values are so close that the difference of their squares is less than some threshold, since this will also lead to very large / nan values during backprop. But doing this check requires looping over the Sigma tensor (time complexity = O(len(Sigma))) and is not worth it.
         Sigma = torch.diag(Sigma[:self.rank]) #shape = (rank, rank)
@@ -323,7 +323,7 @@ class StatePred:
         Lambda, eigvecstilde = torch.linalg.eig(Ktilde) #shapes: Lambda = (rank,), eigvecstilde is (rank, rank)
         
         # Eigenvalues
-        with open(self.log_file, 'a') as lf:
+        with open(self.log_file, 'a', encoding='utf-8') as lf:
             lf.write(f"Largest magnitude among eigenvalues = {torch.max(torch.abs(Lambda))}\n")
         Omega = torch.diag(torch.log(Lambda)) #shape = (rank, rank) #NOTE: No need to divide by self.dh.tscale here because spacings are normalized to 1
         #NOTE: We can do a check if any pair (or more) of consecutive eigenvalues are so close that their difference is less than some threshold, since this will lead to very large / nan values during backprop. But doing this check requires looping over the Omega tensor (time complexity = O(len(Omega))) and is not worth it.
@@ -333,7 +333,7 @@ class StatePred:
         S,s = torch.linalg.norm(eigvecs,2), torch.linalg.norm(eigvecs,-2)
         cond = S/s
         if cond > self.cond_threshold:
-            with open(self.log_file, 'a') as lf:
+            with open(self.log_file, 'a', encoding='utf-8') as lf:
                 lf.write(f"Condition number = {cond} is greater than threshold = {self.cond_threshold}. This may lead to numerical instability in evaluating linearity loss. In an attempt to mitigate this, singular values smaller than 1/{self.cond_threshold} times the largest will be discarded from the pseudo-inverse computation.\n")
 
         return Omega, eigvecs
@@ -408,12 +408,12 @@ class StatePred:
         # Define optimizer
         opt = torch.optim.Adam(self.ae.parameters(), lr=lr, weight_decay=weight_decay)
 
-        with open(self.log_file, 'a') as lf:
+        with open(self.log_file, 'a', encoding='utf-8') as lf:
             lf.write("\nStarting training ...\n")
 
         # Start epochs
         for epoch in tqdm(range(numepochs)):
-            with open(self.log_file, 'a') as lf:
+            with open(self.log_file, 'a', encoding='utf-8') as lf:
                 lf.write(f"\nEpoch {epoch+1}\n")
 
             # NOTE: Do not do any kind of shuffling before/after epochs. The samples dimension is typically shuffled for standard classification problems, but here that corresponds to the index (such as time), which should be ordered.
@@ -451,7 +451,7 @@ class StatePred:
                 self.stats[f'{k}_anae_tr'].append(utils.extract_item(v))
             for k,v in losses_tr.items():
                 self.stats[f'{k}_loss_tr'].append(utils.extract_item(v))
-            with open(self.log_file, 'a') as lf:
+            with open(self.log_file, 'a', encoding='utf-8') as lf:
                 lf.write(', '.join([f'{k} = {v[-1]}' for k,v in self.stats.items() if k.endswith('_tr')]) + '\n')
 
             # Backprop
@@ -461,7 +461,7 @@ class StatePred:
             except RuntimeError as e:
                 self.error_flag = True
                 message = f"Encountered RuntimeError: {e}\nStopping training!\n"
-                with open(self.log_file, 'a') as lf:
+                with open(self.log_file, 'a', encoding='utf-8') as lf:
                     lf.write(message)
                 print(message)
                 break
@@ -474,7 +474,7 @@ class StatePred:
             except ValueError:
                 self.error_flag = True
                 message = "Encountered NaN in gradients\nStopping training!\n"
-                with open(self.log_file, 'a') as lf:
+                with open(self.log_file, 'a', encoding='utf-8') as lf:
                     lf.write(message)
                 print(message)
                 break
@@ -505,7 +505,7 @@ class StatePred:
                     self.stats[f'{k}_anae_va'].append(utils.extract_item(v))
                 for k,v in losses_va.items():
                     self.stats[f'{k}_loss_va'].append(utils.extract_item(v))
-                with open(self.log_file, 'a') as lf:
+                with open(self.log_file, 'a', encoding='utf-8') as lf:
                     lf.write(', '.join([f'{k} = {v[-1]}' for k,v in self.stats.items() if k.endswith('_va')]) + '\n')
 
                 # Early stopping
@@ -529,7 +529,7 @@ class StatePred:
                     else:
                         no_improvement_epochs_count += 1
                     if no_improvement_epochs_count == early_stopping:
-                        with open(self.log_file, 'a') as lf:
+                        with open(self.log_file, 'a', encoding='utf-8') as lf:
                             lf.write(f"\nEarly stopped due to no improvement in {early_stopping_metric} for {early_stopping} epochs.\n")
                         break
 
@@ -561,7 +561,7 @@ class StatePred:
                 self.stats[f'{k}_anae_te'].append(utils.extract_item(v))
             for k,v in losses_te.items():
                 self.stats[f'{k}_loss_te'].append(utils.extract_item(v))
-            with open(self.log_file, 'a') as lf:
+            with open(self.log_file, 'a', encoding='utf-8') as lf:
                 lf.write(', '.join([f'{k} = {v[-1]}' for k,v in self.stats.items() if k.endswith('_te')]) + '\n')
 
 
@@ -588,7 +588,7 @@ class StatePred:
             if self.cfg.normalize_Xdata:
                 Xpred = utils.scale(Xpred, scale=1/self.dh.Xscale) # unscale back to original domain
 
-        with open(self.log_file, 'a') as lf:
+        with open(self.log_file, 'a', encoding='utf-8') as lf:
             lf.write("\nNew predictions:\n")
             for i in range(len(t)):
                 lf.write(f'Independent variable = {t[i]}, Dependent variable =\n')

@@ -283,12 +283,12 @@ class TrajPred:
         else:
             numbatches = int(np.ceil(self.dh.Xtr.shape[0]/batch_size))
 
-        with open(self.log_file, 'a') as lf:
+        with open(self.log_file, 'a', encoding='utf-8') as lf:
             lf.write("\nStarting training ...\n")
 
         # Start epochs
         for epoch in tqdm(range(numepochs)):
-            with open(self.log_file, 'a') as lf:
+            with open(self.log_file, 'a', encoding='utf-8') as lf:
                 lf.write(f"\nEpoch {epoch+1}\n")
 
             anaes_tr = defaultdict(float)
@@ -297,7 +297,7 @@ class TrajPred:
             # Get current snapshot of Lambda and eigvecs (for record-keeping only, these are not used in any computations since linear layer directly does all computation)
             with torch.no_grad():
                 self.Lambda, self.eigvecs = torch.linalg.eig(self.Knet.net.weight)
-            with open(self.log_file, 'a') as lf:
+            with open(self.log_file, 'a', encoding='utf-8') as lf:
                 lf.write(f"Largest magnitude among eigenvalues = {torch.max(torch.abs(self.Lambda))}\n")
 
             # Shuffle
@@ -337,7 +337,7 @@ class TrajPred:
                 except RuntimeError as e:
                     self.error_flag = True
                     message = f"Encountered RuntimeError: {e}\nStopping training!\n"
-                    with open(self.log_file, 'a') as lf:
+                    with open(self.log_file, 'a', encoding='utf-8') as lf:
                         lf.write(message)
                     print(message)
                     break
@@ -350,7 +350,7 @@ class TrajPred:
                 except ValueError:
                     self.error_flag = True
                     message = "Encountered NaN in gradients\nStopping training!\n"
-                    with open(self.log_file, 'a') as lf:
+                    with open(self.log_file, 'a', encoding='utf-8') as lf:
                         lf.write(message)
                     print(message)
                     break
@@ -369,7 +369,7 @@ class TrajPred:
                 self.stats[f'{k}_anae_tr'].append(utils.extract_item(v/numbatches))
             for k,v in losses_tr.items():
                 self.stats[f'{k}_loss_tr'].append(utils.extract_item(v/numbatches))
-            with open(self.log_file, 'a') as lf:
+            with open(self.log_file, 'a', encoding='utf-8') as lf:
                 lf.write(', '.join([f'{k} = {v[-1]}' for k,v in self.stats.items() if k.endswith('_tr')]) + '\n')
 
 
@@ -392,7 +392,7 @@ class TrajPred:
                     self.stats[f'{k}_anae_va'].append(utils.extract_item(v))
                 for k,v in losses_va.items():
                     self.stats[f'{k}_loss_va'].append(utils.extract_item(v))
-                with open(self.log_file, 'a') as lf:
+                with open(self.log_file, 'a', encoding='utf-8') as lf:
                     lf.write(', '.join([f'{k} = {v[-1]}' for k,v in self.stats.items() if k.endswith('_va')]) + '\n')
 
                 # Early stopping
@@ -416,7 +416,7 @@ class TrajPred:
                     else:
                         no_improvement_epochs_count += 1
                     if no_improvement_epochs_count == early_stopping:
-                        with open(self.log_file, 'a') as lf:
+                        with open(self.log_file, 'a', encoding='utf-8') as lf:
                             lf.write(f"\nEarly stopped due to no improvement in {early_stopping_metric} for {early_stopping} epochs.\n")
                         break
 
@@ -450,7 +450,7 @@ class TrajPred:
                 self.stats[f'{k}_anae_te'].append(utils.extract_item(v))
             for k,v in losses_te.items():
                 self.stats[f'{k}_loss_te'].append(utils.extract_item(v))
-            with open(self.log_file, 'a') as lf:
+            with open(self.log_file, 'a', encoding='utf-8') as lf:
                 lf.write(', '.join([f'{k} = {v[-1]}' for k,v in self.stats.items() if k.endswith('_te')]) + '\n')
 
 
@@ -481,7 +481,7 @@ class TrajPred:
             if self.cfg.normalize_Xdata:
                 Xpred = utils.scale(Xpred, scale=1/self.dh.Xscale)
 
-        with open(self.log_file, 'a') as lf:
+        with open(self.log_file, 'a', encoding='utf-8') as lf:
             lf.write("\nNew predictions:\n\n")
             Xpred[:,0,:] = X0 # Start predicted trajectories from given starting points instead of reconstructed starting points. This helps in the user identifying each trajectory.
             for i in range(Xpred.shape[0]):

@@ -231,10 +231,10 @@ def run_hyp_search(
 
     ## Write outputs to log file from here on
     original_stdout = sys.stdout
-    sys.stdout = open(log_file, 'w')
+    sys.stdout = open(log_file, 'w', encoding='utf-8')
 
     ## Open CSV and write header row
-    with open(results_file, 'w') as csvfile:
+    with open(results_file, 'w', encoding='utf-8') as csvfile:
         csvwriter = csv.writer(csvfile)
         header_row = [
             'UUID',
