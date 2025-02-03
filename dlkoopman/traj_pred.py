@@ -125,7 +125,7 @@ class TrajPred:
 
     - **ae** (*nets.AutoEncoder*) - AutoEncoder neural network to encode input states into a linearizable domain where the Koopman matrix can be learnt, then decode them back into original domain.
     
-    - **Knet** (*nets.Knet*) - Linear layer to approximate the Koopman matrix. This is used to evolve states in the encoded domain so as to generate their trajectories.
+    - **Knet** (*nets.Matrixnet*) - Linear layer to approximate the Koopman matrix. This is used to evolve states in the encoded domain so as to generate their trajectories.
 
     - **Lambda** (*torch.Tensor*), **eigvecs** (*torch.Tensor*) - Eigenvalues, and eigenvectors of the trained Koopman matrix that characterizes the discrete index system \\(y_{i+1} = Ky_i\\). The system is discrete since specific trajectory indexes are not provided, so they are always assumed to be \\([0,1,2,\\cdots]\\). The eigendecomposition is not used in computations since the trained `Knet` layer performs all predictions, but is still calculated to characterize the system.
 
@@ -163,8 +163,9 @@ class TrajPred:
             self.ae = torch.compile(self.ae, backend=self.cfg.torch_compile_backend)
 
         ## Define linear layer
-        self.Knet = nets.Knet(
-            size = encoded_size
+        self.Knet = nets.Matrixnet(
+            input_size = encoded_size,
+            output_size = encoded_size
         )
         self.Knet.to(dtype=self.cfg.RTYPE, device=self.cfg.DEVICE)
         if utils.is_torch_2() and self.cfg.torch_compile_backend is not None:

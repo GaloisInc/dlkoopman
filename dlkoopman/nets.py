@@ -107,23 +107,24 @@ class AutoEncoder(torch.nn.Module):
         return Y, Xr
 
 
-class Knet(torch.nn.Module):
-    """Linear neural net to approximate the Koopman matrix.
+class Matrixnet(torch.nn.Module):
+    """Linear neural net to approximate any matrix.
     
-    Contains identically sized input and output layers, no hidden layers, no bias vector, and no activation function.
+    Contains no hidden layers, no bias vector, and no activation function.
 
     ## Parameters
-    - **size** (*int*) - Dimension of the input and output layer.
+    - **input_size** (*int*) - Dimension of the input layer.
+    - **output_size** (*int*) - Dimension of the output layer.
 
     ## Attributes
     - **net** (*torch.nn.ModuleList*) - The neural net.
     """
-    def __init__(self, size):
+    def __init__(self, input_size, output_size):
         """ """
         super().__init__()
         self.net = torch.nn.Linear(
-            in_features = size,
-            out_features = size,
+            in_features = input_size,
+            out_features = output_size,
             bias = False
         )
 
@@ -131,9 +132,9 @@ class Knet(torch.nn.Module):
         """Forward propagation of neural net.
 
         ## Parameters
-        - **X** (*torch.Tensor, shape=(\\*, size)*) - Input data to net.
+        - **X** (*torch.Tensor, shape=(\\*, input_size)*) - Input data to net.
 
         ## Returns 
-        - **X** (*torch.Tensor, shape=(\\*, size)*) - Output data from net.
+        - **X** (*torch.Tensor, shape=(\\*, output_size)*) - Output data from net.
         """
         return self.net(X)
