@@ -107,6 +107,43 @@ class AutoEncoder(torch.nn.Module):
         return Y, Xr
 
 
+class Encoder(torch.nn.Module):
+    """Encoder neural net. Contains a multi-layer perceptron.
+
+    ## Parameters
+    - **input_size** (*int*) - Number of dimensions in original data (encoder input).
+
+    - **encoded_size** (*int*) - Number of dimensions in encoded data (encoder output).
+
+    - **encoder_hidden_layers** (*list[int], optional*) - Encoder will have layers = `[input_size, *encoder_hidden_layers, encoded_size]`. If not set, defaults to `[]`.
+
+    - **batch_norm** (*bool, optional*): Whether to use batch normalization.
+
+    ## Attributes
+    - **net** - Encoder neural net.
+    """
+    def __init__(self, input_size, encoded_size, encoder_hidden_layers=[], batch_norm=False):
+        """ """
+        super().__init__()
+        self.net = MLP(
+            input_size = input_size,
+            output_size = encoded_size,
+            hidden_sizes = encoder_hidden_layers,
+            batch_norm = batch_norm
+        )
+
+    def forward(self, X) -> tuple[torch.Tensor, torch.Tensor]:
+        """Forward propagation of neural net.
+
+        ## Parameters
+        - **X** (*torch.Tensor, shape=(\\*,input_size)*) - Input data to encoder.
+
+        ## Returns 
+        - **Y** (*torch.Tensor, shape=(\\*,encoded_size)*) - Encoded data, i.e. output from encoder.
+        """
+        return self.net(X)
+
+
 class Matrixnet(torch.nn.Module):
     """Linear neural net to approximate any matrix.
     
