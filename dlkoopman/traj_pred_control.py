@@ -94,28 +94,26 @@ class TrajPredDataHandler:
         self.Uva = utils.tensorize(Uva, dtype=self.cfg.RTYPE, device=self.cfg.DEVICE)
         self.Ute = utils.tensorize(Ute, dtype=self.cfg.RTYPE, device=self.cfg.DEVICE)
 
-        ## Check data sizes
+        ## Check data and control sizes
+        assert self.Utr.shape[:-1] == self.Xtr.shape[:-1], f"Shape of 'Utr' and 'Xtr' must match except for last dimension, instead found 'Utr.shape' = {self.Utr.shape} and 'Xtr.shape' = {self.Xtr.shape}"
         if len(self.Xva):
             assert self.Xva.shape[1:] == self.Xtr.shape[1:], f"Shape of 'Xva' and 'Xtr' must match except for 0th dimension, instead found 'Xva.shape' = {self.Xva.shape} and 'Xtr.shape' = {self.Xtr.shape}"
+            assert len(self.Uva), "'Uva' must be provided when 'Xva' is provided"
+            assert self.Uva.shape[1:] == self.Utr.shape[1:], f"Shape of 'Uva' and 'Utr' must match except for 0th dimension, instead found 'Uva.shape' = {self.Uva.shape} and 'Utr.shape' = {self.Utr.shape}"
+            assert self.Uva.shape[:-1] == self.Xva.shape[:-1], f"Shape of 'Uva' and 'Xva' must match except for last dimension, instead found 'Uva.shape' = {self.Uva.shape} and 'Xva.shape' = {self.Xva.shape}"
         if len(self.Xte):
             assert self.Xte.shape[1:] == self.Xtr.shape[1:], f"Shape of 'Xte' and 'Xtr' must match except for 0th dimension, instead found 'Xte.shape' = {self.Xte.shape} and 'Xtr.shape' = {self.Xtr.shape}"
-
-        ## Check control sizes
-        if len(self.Uva):
-            assert self.Uva.shape[1:] == self.Utr.shape[1:], f"Shape of 'Uva' and 'Utr' must match except for 0th dimension, instead found 'Uva.shape' = {self.Uva.shape} and 'Utr.shape' = {self.Utr.shape}"
-        if len(self.Ute):
+            assert len(self.Ute), "'Ute' must be provided when 'Xte' is provided"
             assert self.Ute.shape[1:] == self.Utr.shape[1:], f"Shape of 'Ute' and 'Utr' must match except for 0th dimension, instead found 'Ute.shape' = {self.Ute.shape} and 'Utr.shape' = {self.Utr.shape}"
+            assert self.Ute.shape[:-1] == self.Xte.shape[:-1], f"Shape of 'Ute' and 'Xte' must match except for last dimension, instead found 'Ute.shape' = {self.Ute.shape} and 'Xte.shape' = {self.Xte.shape}"
 
-        ## Define Xscale, and normalize X data if applicable
+        ## Define scales, and normalize X and U data if applicable (use cfg.normalize_Xdata to determine applicability for U as well)
         self.Xscale = torch.max(torch.abs(self.Xtr)).item()
+        self.Uscale = torch.max(torch.abs(self.Utr)).item()
         if self.cfg.normalize_Xdata:
             self.Xtr = utils.scale(self.Xtr, scale=self.Xscale)
             self.Xva = utils.scale(self.Xva, scale=self.Xscale)
             self.Xte = utils.scale(self.Xte, scale=self.Xscale)
-
-        ## Define Uscale, and normalize U data if applicable (use cfg.normalize_Xdata to determine applicability)
-        self.Uscale = torch.max(torch.abs(self.Utr)).item()
-        if self.cfg.normalize_Xdata:
             self.Utr = utils.scale(self.Utr, scale=self.Uscale)
             self.Uva = utils.scale(self.Uva, scale=self.Uscale)
             self.Ute = utils.scale(self.Ute, scale=self.Uscale)
