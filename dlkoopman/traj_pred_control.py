@@ -81,17 +81,30 @@ class TrajPredDataHandler:
     ```
     """
 
-    def __init__(self, Xtr, Xva=None, Xte=None, cfg=None):
+    def __init__(self, Xtr, Utr, Xva=None, Uva=None, Xte=None, Ute=None, cfg=None):
         self.cfg = Config() if cfg is None else cfg
+
+        ## Data inputs
         self.Xtr = utils.tensorize(Xtr, dtype=self.cfg.RTYPE, device=self.cfg.DEVICE)
         self.Xva = utils.tensorize(Xva, dtype=self.cfg.RTYPE, device=self.cfg.DEVICE)
         self.Xte = utils.tensorize(Xte, dtype=self.cfg.RTYPE, device=self.cfg.DEVICE)
 
-        ## Check sizes
+        ## Control inputs
+        self.Utr = utils.tensorize(Utr, dtype=self.cfg.RTYPE, device=self.cfg.DEVICE)
+        self.Uva = utils.tensorize(Uva, dtype=self.cfg.RTYPE, device=self.cfg.DEVICE)
+        self.Ute = utils.tensorize(Ute, dtype=self.cfg.RTYPE, device=self.cfg.DEVICE)
+
+        ## Check data sizes
         if len(self.Xva):
             assert self.Xva.shape[1:] == self.Xtr.shape[1:], f"Shape of 'Xva' and 'Xtr' must match except for 0th dimension, instead found 'Xva.shape' = {self.Xva.shape} and 'Xtr.shape' = {self.Xtr.shape}"
         if len(self.Xte):
             assert self.Xte.shape[1:] == self.Xtr.shape[1:], f"Shape of 'Xte' and 'Xtr' must match except for 0th dimension, instead found 'Xte.shape' = {self.Xte.shape} and 'Xtr.shape' = {self.Xtr.shape}"
+
+        ## Check control sizes
+        if len(self.Uva):
+            assert self.Uva.shape[1:] == self.Utr.shape[1:], f"Shape of 'Uva' and 'Utr' must match except for 0th dimension, instead found 'Uva.shape' = {self.Uva.shape} and 'Utr.shape' = {self.Utr.shape}"
+        if len(self.Ute):
+            assert self.Ute.shape[1:] == self.Utr.shape[1:], f"Shape of 'Ute' and 'Utr' must match except for 0th dimension, instead found 'Ute.shape' = {self.Ute.shape} and 'Utr.shape' = {self.Utr.shape}"
 
         ## Define Xscale, and normalize X data if applicable
         self.Xscale = torch.max(torch.abs(self.Xtr)).item()
@@ -99,6 +112,13 @@ class TrajPredDataHandler:
             self.Xtr = utils.scale(self.Xtr, scale=self.Xscale)
             self.Xva = utils.scale(self.Xva, scale=self.Xscale)
             self.Xte = utils.scale(self.Xte, scale=self.Xscale)
+
+        ## Define Uscale, and normalize U data if applicable (use cfg.normalize_Xdata to determine applicability)
+        self.Uscale = torch.max(torch.abs(self.Utr)).item()
+        if self.cfg.normalize_Xdata:
+            self.Utr = utils.scale(self.Utr, scale=self.Uscale)
+            self.Uva = utils.scale(self.Uva, scale=self.Uscale)
+            self.Ute = utils.scale(self.Ute, scale=self.Uscale)
 
 
 class TrajPred:
