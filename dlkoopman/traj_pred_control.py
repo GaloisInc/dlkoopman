@@ -122,32 +122,46 @@ class TrajPredDataHandler:
 
 
 class TrajPred:
-    """Trajectory predictor. Used to train on given equal-length trajectories of a system, then predict unknown trajectories of the system starting from new initial states.
+    """Trajectory predictor. Used to train on given equal-length trajectories of a system with control input trajectories of the same length, then predict unknown trajectories of the system starting from new initial states and control inputs.
 
     ## Parameters
     - **dh** (*TrajPredDataHandler*) - Data handler that feeds data. **Configuration options of a `TrajPred` instance are identical to `dh.cfg`.**
 
-    - Parameters for [AutoEncoder](https://galoisinc.github.io/dlkoopman/nets.html#dlkoopman.nets.AutoEncoder):
-        - **encoded_size** (*int*).
+    - Parameters for data [AutoEncoder](https://galoisinc.github.io/dlkoopman/nets.html#dlkoopman.nets.AutoEncoder):
+        - **data_encoded_size** (*int*).
 
-        - **encoder_hidden_layers** (*list[int], optional*).
+        - **data_encoder_hidden_layers** (*list[int], optional*).
 
-        - **decoder_hidden_layers** (*list[int], optional*).
+        - **data_decoder_hidden_layers** (*list[int], optional*).
 
         - **batch_norm** (*bool, optional*).
+
+    - Parameters for control [Encoder](https://galoisinc.github.io/dlkoopman/nets.html#dlkoopman.nets.AutoEncoder):
+        - **control_encoded_size** (*int*).
+
+        - **control_encoder_hidden_layers** (*list[int], optional*).
+
+    - **use_data_in_control_enc** (*bool, optional*) - If `True`, concatenate the control and data inputs to feed to the control Encoder. If `False`, only feed the control input to the control Encoder.
 
     ## Attributes
     - **uuid** (*str*) - Unique ID assigned to this instance. Results will include `uuid` in their filename.
     - **log_file** (*Path*) - Path to log file = `./log_<uuid>.log`.
 
-    - **input_size** (*int*) - Dimensionality of input states. Inferred from `dh.Xtr`.
-    - **encoded_size** (*int*) - Dimensionality of encoded states. As given in input.
+    - **data_input_size** (*int*) - Dimensionality of data input states. Inferred from `dh.Xtr`.
+    - **data_encoded_size** (*int*) - Dimensionality of data encoded states. As given in input.
 
-    - **ae** (*nets.AutoEncoder*) - AutoEncoder neural network to encode input states into a linearizable domain where the Koopman matrix can be learnt, then decode them back into original domain.
+    - **control_input_size** (*int*) - Dimensionality of control input states. Inferred from `dh.Xtr`.
+    - **control_encoded_size** (*int*) - Dimensionality of control encoded states. As given in input.
+
+    - **data_ae** (*nets.AutoEncoder*) - AutoEncoder neural network to encode input states into a linearizable domain where the Koopman matrix can be learnt, then decode them back into original domain.
     
-    - **Kxnet** (*nets.Matrixnet*) - Linear layer to approximate the Koopman matrix. This is used to evolve states in the encoded domain so as to generate their trajectories.
+    - **data_Knet** (*nets.Matrixnet*) - Linear layer to approximate the Koopman matrix. This is used to evolve states in the encoded domain so as to generate their trajectories.
 
-    - **Lambda** (*torch.Tensor*), **eigvecs** (*torch.Tensor*) - Eigenvalues, and eigenvectors of the trained Koopman matrix that characterizes the discrete index system \\(y_{i+1} = Ky_i\\). The system is discrete since specific trajectory indexes are not provided, so they are always assumed to be \\([0,1,2,\\cdots]\\). The eigendecomposition is not used in computations since the trained `Kxnet` layer performs all predictions, but is still calculated to characterize the system.
+    - **control_enc** (*nets.Encoder*) - Encoder neural network to encode control (and data, if `use_data_in_control_enc` is set) input states into an intermediate domain from where they can be linearly transformed to get the next state.
+    
+    - **control_Knet** (*nets.Matrixnet*) - Linear transformation on the output of `control_enc`.
+
+    - **Lambda** (*torch.Tensor*), **eigvecs** (*torch.Tensor*) - Eigenvalues, and eigenvectors of the trained Koopman matrix that characterizes the discrete index system \\(y_{i+1} = Ky_i\\). The system is discrete since specific trajectory indexes are not provided, so they are always assumed to be \\([0,1,2,\\cdots]\\). The eigendecomposition is not used in computations since the trained `data_Knet` layer performs all predictions, but is still calculated to characterize the system.
 
     - **stats** (*dict[list]*) - Stores different metrics from training and testing. Useful for checking performance and [plotting](https://galoisinc.github.io/dlkoopman/utils.html#dlkoopman.utils.plot_stats).
 
@@ -155,8 +169,8 @@ class TrajPred:
     """
     
     def __init__(self,
-        dh, encoded_size,
-        encoder_hidden_layers=[100], decoder_hidden_layers=[], batch_norm=False
+        dh, data_encoded_size, control_encoded_size, use_data_in_control_enc=True,
+        data_encoder_hidden_layers=[100], data_decoder_hidden_layers=[], control_encoder_hidden_layers=[100], batch_norm=False
     ):
         self.cfg = dh.cfg
 
@@ -167,32 +181,54 @@ class TrajPred:
 
         ## Get data handler and sizes
         self.dh = dh
-        self.input_size = self.dh.Xtr.shape[2]
-        self.encoded_size = encoded_size
+        self.data_input_size = self.dh.Xtr.shape[2]
+        self.control_input_size = self.dh.Utr.shape[2]
+        self.data_encoded_size = data_encoded_size
+        self.control_encoded_size = control_encoded_size
 
-        ## Define AutoEncoder
-        self.ae = nets.AutoEncoder(
-            input_size = self.input_size,
-            encoded_size = self.encoded_size,
-            encoder_hidden_layers = encoder_hidden_layers,
-            decoder_hidden_layers = decoder_hidden_layers,
+        ## Define AutoEncoder for data
+        self.data_ae = nets.AutoEncoder(
+            input_size = self.data_input_size,
+            encoded_size = data_encoded_size,
+            encoder_hidden_layers = data_encoder_hidden_layers,
+            decoder_hidden_layers = data_decoder_hidden_layers,
             batch_norm = batch_norm
         )
-        self.ae.to(dtype=self.cfg.RTYPE, device=self.cfg.DEVICE)
+        self.data_ae.to(dtype=self.cfg.RTYPE, device=self.cfg.DEVICE)
         if utils.is_torch_2() and self.cfg.torch_compile_backend is not None:
-            self.ae = torch.compile(self.ae, backend=self.cfg.torch_compile_backend)
+            self.data_ae = torch.compile(self.data_ae, backend=self.cfg.torch_compile_backend)
 
         ## Define linear layer for data
-        self.Kxnet = nets.Matrixnet(
-            input_size = encoded_size,
-            output_size = encoded_size
+        self.data_Knet = nets.Matrixnet(
+            input_size = data_encoded_size,
+            output_size = data_encoded_size
         )
-        self.Kxnet.to(dtype=self.cfg.RTYPE, device=self.cfg.DEVICE)
+        self.data_Knet.to(dtype=self.cfg.RTYPE, device=self.cfg.DEVICE)
         if utils.is_torch_2() and self.cfg.torch_compile_backend is not None:
-            self.Kxnet = torch.compile(self.Kxnet, backend=self.cfg.torch_compile_backend)
+            self.data_Knet = torch.compile(self.data_Knet, backend=self.cfg.torch_compile_backend)
+
+        ## Define Encoder for control (and data)
+        self.control_enc = nets.Encoder(
+            input_size = (self.control_input_size + self.data_input_size) if use_data_in_control_enc else self.control_input_size,
+            encoded_size = control_encoded_size,
+            encoder_hidden_layers = control_encoder_hidden_layers,
+            batch_norm = batch_norm
+        )
+        self.control_enc.to(dtype=self.cfg.RTYPE, device=self.cfg.DEVICE)
+        if utils.is_torch_2() and self.cfg.torch_compile_backend is not None:
+            self.control_enc = torch.compile(self.control_enc, backend=self.cfg.torch_compile_backend)
+
+        ## Define linear layer for control (and data)
+        self.control_Knet = nets.Matrixnet(
+            input_size = control_encoded_size,
+            output_size = data_encoded_size
+        )
+        self.control_Knet.to(dtype=self.cfg.RTYPE, device=self.cfg.DEVICE)
+        if utils.is_torch_2() and self.cfg.torch_compile_backend is not None:
+            self.control_Knet = torch.compile(self.control_Knet, backend=self.cfg.torch_compile_backend)
 
         ## Define params
-        self.params = list(self.ae.parameters()) + list(self.Kxnet.parameters())
+        self.params = list(self.data_ae.parameters()) + list(self.data_Knet.parameters()) + list(self.control_enc.parameters()) + list(self.control_Knet.parameters())
 
         ## Define results
         self.stats = defaultdict(list)
@@ -247,7 +283,7 @@ class TrajPred:
         ) # shape = (num_trajectories, num_indexes, encoded_size)
         Ypred[:, 0, :] = Y0
         for index in range(1, Ypred.shape[1]):
-            Ypred[:, index] = self.Kxnet(Ypred[:, index-1].clone()) #NOTE: .clone() since we are in-place modifying a variable needed for gradient computation
+            Ypred[:, index] = self.data_Knet(Ypred[:, index-1].clone()) #NOTE: .clone() since we are in-place modifying a variable needed for gradient computation
         return Ypred
 
 
@@ -317,7 +353,7 @@ class TrajPred:
 
             # Get current snapshot of Lambda and eigvecs (for record-keeping only, these are not used in any computations since linear layer directly does all computation)
             with torch.no_grad():
-                self.Lambda, self.eigvecs = torch.linalg.eig(self.Kxnet.net.weight)
+                self.Lambda, self.eigvecs = torch.linalg.eig(self.data_Knet.net.weight)
             with open(self.log_file, 'a', encoding='utf-8') as lf:
                 lf.write(f"Largest magnitude among eigenvalues = {torch.max(torch.abs(self.Lambda))}\n")
 
@@ -325,18 +361,18 @@ class TrajPred:
             self.dh.Xtr = self.dh.Xtr[torch.randperm(self.dh.Xtr.shape[0])]
 
             ## Training ##
-            self.ae.train()
-            self.Kxnet.train()
+            self.data_ae.train()
+            self.data_Knet.train()
 
             # Start batches
             for batch in range(numbatches):
                 opt.zero_grad()
 
-                Ytr, Xrtr = self.ae(self.dh.Xtr[batch*batch_size : (batch+1)*batch_size]) # shapes: Ytr = (batch_size, num_indexes, encoded_size), Xrtr = (batch_size, num_indexes, input_size)
+                Ytr, Xrtr = self.data_ae(self.dh.Xtr[batch*batch_size : (batch+1)*batch_size]) # shapes: Ytr = (batch_size, num_indexes, encoded_size), Xrtr = (batch_size, num_indexes, input_size)
 
                 # Get predictions
                 Ypredtr = self._evolve(Ytr[:,0,:]) # shape = (batch_size, num_indexes, encoded_size)
-                Xpredtr = self.ae.decoder(Ypredtr) # shape = (batch_size, num_indexes, input_size)
+                Xpredtr = self.data_ae.decoder(Ypredtr) # shape = (batch_size, num_indexes, input_size)
 
                 # ANAEs
                 with torch.no_grad():
@@ -396,13 +432,13 @@ class TrajPred:
 
             ## Validation ##
             if do_val:
-                self.ae.eval()
-                self.Kxnet.eval()
+                self.data_ae.eval()
+                self.data_Knet.eval()
 
                 with torch.no_grad():
-                    Yva, Xrva = self.ae(self.dh.Xva) # shapes: Yva = (num_va_trajectories, num_indexes, encoded_size), Xrva = (num_va_trajectories, num_indexes, input_size)
+                    Yva, Xrva = self.data_ae(self.dh.Xva) # shapes: Yva = (num_va_trajectories, num_indexes, encoded_size), Xrva = (num_va_trajectories, num_indexes, input_size)
                     Ypredva = self._evolve(Yva[:,0,:]) # shape = (num_va_trajectories, num_indexes, encoded_size)
-                    Xpredva = self.ae.decoder(Ypredva) # shape = (num_va_trajectories, num_indexes, input_size)
+                    Xpredva = self.data_ae.decoder(Ypredva) # shape = (num_va_trajectories, num_indexes, input_size)
 
                     anaes_va = metrics.overall_anae(X=self.dh.Xva[:,1:], Y=Yva[:,1:], Xr=Xrva[:,1:], Ypred=Ypredva[:,1:], Xpred=Xpredva[:,1:])
 
@@ -454,13 +490,13 @@ class TrajPred:
             print("WARNING: You have called 'test_net()', but there is no test data. Please pass a 'DataHandler' object containing 'Xte' and 'Yte'.")
 
         else:
-            self.ae.eval()
-            self.Kxnet.eval()
+            self.data_ae.eval()
+            self.data_Knet.eval()
 
             with torch.no_grad():
-                Yte, Xrte = self.ae(self.dh.Xte) # shapes: Yte = (num_te_trajectories, num_indexes, encoded_size), Xrte = (num_te_trajectories, num_indexes, input_size)
+                Yte, Xrte = self.data_ae(self.dh.Xte) # shapes: Yte = (num_te_trajectories, num_indexes, encoded_size), Xrte = (num_te_trajectories, num_indexes, input_size)
                 Ypredte = self._evolve(Yte[:,0,:]) # shape = (num_te_trajectories, num_indexes, encoded_size)
-                Xpredte = self.ae.decoder(Ypredte) # shape = (num_te_trajectories, num_indexes, input_size)
+                Xpredte = self.data_ae.decoder(Ypredte) # shape = (num_te_trajectories, num_indexes, input_size)
 
                 anaes_te = metrics.overall_anae(X=self.dh.Xte[:,1:], Y=Yte[:,1:], Xr=Xrte[:,1:], Ypred=Ypredte[:,1:], Xpred=Xpredte[:,1:])
 
@@ -492,12 +528,12 @@ class TrajPred:
         else:
             _X0 = X0.clone()
 
-        self.ae.eval()
-        self.Knet.eval()
+        self.data_ae.eval()
+        self.data_Knet.eval()
         with torch.no_grad():
-            Y0 = self.ae.encoder(_X0)
+            Y0 = self.data_ae.encoder(_X0)
             Ypred = self._evolve(Y0)
-            Xpred = self.ae.decoder(Ypred)
+            Xpred = self.data_ae.decoder(Ypred)
 
             if self.cfg.normalize_Xdata:
                 Xpred = utils.scale(Xpred, scale=1/self.dh.Xscale)
