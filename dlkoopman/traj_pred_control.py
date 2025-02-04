@@ -139,8 +139,6 @@ class TrajPred:
 
         - **control_encoder_hidden_layers** (*list[int], optional*).
 
-    - **use_data_in_control_enc** (*bool, optional*) - If `True`, concatenate the control and data inputs to feed to the control Encoder. If `False`, only feed the control input to the control Encoder.
-
     ## Attributes
     - **uuid** (*str*) - Unique ID assigned to this instance. Results will include `uuid` in their filename.
     - **log_file** (*Path*) - Path to log file = `./log_<uuid>.log`.
@@ -155,7 +153,7 @@ class TrajPred:
     
     - **data_Knet** (*nets.Matrixnet*) - Linear layer to approximate the Koopman matrix. This is used to evolve states in the encoded domain so as to generate their trajectories.
 
-    - **control_enc** (*nets.Encoder*) - Encoder neural network to encode control (and data, if `use_data_in_control_enc` is set) input states into an intermediate domain from where they can be linearly transformed to get the next state.
+    - **control_enc** (*nets.Encoder*) - Encoder neural network to encode control input states into an intermediate domain from where they can be linearly transformed to get the next state.
     
     - **control_Knet** (*nets.Matrixnet*) - Linear transformation on the output of `control_enc`.
 
@@ -165,9 +163,9 @@ class TrajPred:
 
     - **error_flag** (*bool*) - Signals if any error has occurred in training.
     """
-    
+
     def __init__(self,
-        dh, data_encoded_size, control_encoded_size, use_data_in_control_enc=True,
+        dh, data_encoded_size, control_encoded_size,
         data_encoder_hidden_layers=[100], data_decoder_hidden_layers=[], control_encoder_hidden_layers=[100], batch_norm=False
     ):
         self.cfg = dh.cfg
