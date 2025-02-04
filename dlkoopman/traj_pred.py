@@ -431,7 +431,7 @@ class TrajPred:
         do_test = len(self.dh.Xte) > 0
 
         if not do_test:
-            print("WARNING: You have called 'test_net()', but there is no test data. Please pass a 'DataHandler' object containing 'Xte' and 'Yte'.")
+            print("WARNING: You have called 'test_net()', but there is no test data. Please pass a 'DataHandler' object containing 'Xte'.")
 
         else:
             self.ae.eval()

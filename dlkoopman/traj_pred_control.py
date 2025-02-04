@@ -501,7 +501,7 @@ class TrajPred:
 
 
     def test_net(self):
-        """Run the trained model on test data - `dh.Xte`.
+        """Run the trained model on test data - `dh.Xte` using `dh.Ute`.
         
         ## Effects
         - `self.stats` is populated further.
@@ -509,15 +509,16 @@ class TrajPred:
         do_test = len(self.dh.Xte) > 0
 
         if not do_test:
-            print("WARNING: You have called 'test_net()', but there is no test data. Please pass a 'DataHandler' object containing 'Xte' and 'Yte'.")
+            print("WARNING: You have called 'test_net()', but there is no test data. Please pass a 'DataHandler' object containing 'Xte' and 'Ute'.")
 
         else:
             self._set_eval()
 
             with torch.no_grad():
-                Yte, Xrte = self.data_ae(self.dh.Xte) # shapes: Yte = (num_te_trajectories, num_indexes, encoded_size), Xrte = (num_te_trajectories, num_indexes, input_size)
-                Ypredte = self._evolve(Yte[:,0,:]) # shape = (num_te_trajectories, num_indexes, encoded_size)
-                Xpredte = self.data_ae.decoder(Ypredte) # shape = (num_te_trajectories, num_indexes, input_size)
+                Yte, Xrte = self.data_ae(self.dh.Xte) # shapes: Yte = (num_te_trajectories, num_indexes, data_encoded_size), Xrte = (num_te_trajectories, num_indexes, data_input_size)
+                Vte = self.control_enc(self.dh.Ute) # shape = (num_te_trajectories, num_indexes, control_encoded_size)
+                Ypredte = self._evolve(Yte[:,0,:], Vte) # shape = (num_te_trajectories, num_indexes, data_encoded_size)
+                Xpredte = self.data_ae.decoder(Ypredte) # shape = (num_te_trajectories, num_indexes, data_input_size)
 
                 anaes_te = metrics.overall_anae(X=self.dh.Xte[:,1:], Y=Yte[:,1:], Xr=Xrte[:,1:], Ypred=Ypredte[:,1:], Xpred=Xpredte[:,1:])
 
