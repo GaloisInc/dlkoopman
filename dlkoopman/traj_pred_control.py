@@ -553,6 +553,7 @@ class TrajPred:
             U = utils.scale(U, scale=self.dh.Uscale)
 
         self._set_eval()
+
         with torch.no_grad():
             Y0 = self.data_ae.encoder(X0) # shape = (num_new_trajectories, data_encoded_size)
             V = self.control_enc(U) # shape = (num_new_trajectories, num_indexes, control_encoded_size)

@@ -231,6 +231,15 @@ class TrajPred:
         return Ypred
 
 
+    def _set_train(self):
+        self.ae.train()
+        self.Knet.train()
+
+    def _set_eval(self):
+        self.ae.eval()
+        self.Knet.eval()
+
+
     def train_net(self,
         numepochs=10, batch_size=250, early_stopping=0, early_stopping_metric='total_loss',
         lr=1e-3, weight_decay=0., decoder_loss_weight=1e-2,
@@ -305,8 +314,7 @@ class TrajPred:
             self.dh.Xtr = self.dh.Xtr[torch.randperm(self.dh.Xtr.shape[0])]
 
             ## Training ##
-            self.ae.train()
-            self.Knet.train()
+            self._set_train()
 
             # Start batches
             for batch in range(numbatches):
@@ -376,8 +384,7 @@ class TrajPred:
 
             ## Validation ##
             if do_val:
-                self.ae.eval()
-                self.Knet.eval()
+                self._set_eval()
 
                 with torch.no_grad():
                     Yva, Xrva = self.ae(self.dh.Xva) # shapes: Yva = (num_va_trajectories, num_indexes, encoded_size), Xrva = (num_va_trajectories, num_indexes, input_size)
@@ -434,8 +441,7 @@ class TrajPred:
             print("WARNING: You have called 'test_net()', but there is no test data. Please pass a 'DataHandler' object containing 'Xte'.")
 
         else:
-            self.ae.eval()
-            self.Knet.eval()
+            self._set_eval()
 
             with torch.no_grad():
                 Yte, Xrte = self.ae(self.dh.Xte) # shapes: Yte = (num_te_trajectories, num_indexes, encoded_size), Xrte = (num_te_trajectories, num_indexes, input_size)
@@ -471,8 +477,8 @@ class TrajPred:
         if self.cfg.normalize_Xdata:
             X0 = utils.scale(X0, scale=self.dh.Xscale)
 
-        self.ae.eval()
-        self.Knet.eval()
+        self._set_eval()
+
         with torch.no_grad():
             Y0 = self.ae.encoder(X0)
             Ypred = self._evolve(Y0)
