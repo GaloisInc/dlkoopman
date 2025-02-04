@@ -184,7 +184,9 @@ class TrajPred:
         self.data_encoded_size = data_encoded_size
         self.control_encoded_size = control_encoded_size
 
-        ## Define AutoEncoder for data
+        ## Define nets
+
+        ### AutoEncoder for data
         self.data_ae = nets.AutoEncoder(
             input_size = self.data_input_size,
             encoded_size = data_encoded_size,
@@ -192,37 +194,38 @@ class TrajPred:
             decoder_hidden_layers = data_decoder_hidden_layers,
             batch_norm = batch_norm
         )
-        self.data_ae.to(dtype=self.cfg.RTYPE, device=self.cfg.DEVICE)
-        if utils.is_torch_2() and self.cfg.torch_compile_backend is not None:
-            self.data_ae = torch.compile(self.data_ae, backend=self.cfg.torch_compile_backend)
 
-        ## Define linear layer for data
+        ### Linear layer for data
         self.data_Knet = nets.Matrixnet(
             input_size = data_encoded_size,
             output_size = data_encoded_size
         )
-        self.data_Knet.to(dtype=self.cfg.RTYPE, device=self.cfg.DEVICE)
-        if utils.is_torch_2() and self.cfg.torch_compile_backend is not None:
-            self.data_Knet = torch.compile(self.data_Knet, backend=self.cfg.torch_compile_backend)
 
-        ## Define Encoder for control (and data)
+        ### Encoder for control
         self.control_enc = nets.Encoder(
-            input_size = (self.control_input_size + self.data_input_size) if use_data_in_control_enc else self.control_input_size,
+            input_size = self.control_input_size,
             encoded_size = control_encoded_size,
             encoder_hidden_layers = control_encoder_hidden_layers,
             batch_norm = batch_norm
         )
-        self.control_enc.to(dtype=self.cfg.RTYPE, device=self.cfg.DEVICE)
-        if utils.is_torch_2() and self.cfg.torch_compile_backend is not None:
-            self.control_enc = torch.compile(self.control_enc, backend=self.cfg.torch_compile_backend)
 
-        ## Define linear layer for control (and data)
+        ### Linear layer for control
         self.control_Knet = nets.Matrixnet(
             input_size = control_encoded_size,
             output_size = data_encoded_size
         )
+
+        ## Convert nets to appropriate type and device
+        self.data_ae.to(dtype=self.cfg.RTYPE, device=self.cfg.DEVICE)
+        self.data_Knet.to(dtype=self.cfg.RTYPE, device=self.cfg.DEVICE)
+        self.control_enc.to(dtype=self.cfg.RTYPE, device=self.cfg.DEVICE)
         self.control_Knet.to(dtype=self.cfg.RTYPE, device=self.cfg.DEVICE)
+
+        ## Compile nets in torch 2
         if utils.is_torch_2() and self.cfg.torch_compile_backend is not None:
+            self.data_ae = torch.compile(self.data_ae, backend=self.cfg.torch_compile_backend)
+            self.data_Knet = torch.compile(self.data_Knet, backend=self.cfg.torch_compile_backend)
+            self.control_enc = torch.compile(self.control_enc, backend=self.cfg.torch_compile_backend)
             self.control_Knet = torch.compile(self.control_Knet, backend=self.cfg.torch_compile_backend)
 
         ## Define params
