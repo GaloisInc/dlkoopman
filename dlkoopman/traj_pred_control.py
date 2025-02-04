@@ -457,9 +457,10 @@ class TrajPred:
                 self._set_eval()
 
                 with torch.no_grad():
-                    Yva, Xrva = self.data_ae(self.dh.Xva) # shapes: Yva = (num_va_trajectories, num_indexes, encoded_size), Xrva = (num_va_trajectories, num_indexes, input_size)
-                    Ypredva = self._evolve(Yva[:,0,:]) # shape = (num_va_trajectories, num_indexes, encoded_size)
-                    Xpredva = self.data_ae.decoder(Ypredva) # shape = (num_va_trajectories, num_indexes, input_size)
+                    Yva, Xrva = self.data_ae(self.dh.Xva) # shapes: Yva = (num_va_trajectories, num_indexes, data_encoded_size), Xrva = (num_va_trajectories, num_indexes, data_input_size)
+                    Vva = self.control_enc(self.dh.Uva) # shape = (num_va_trajectories, num_indexes, control_encoded_size)
+                    Ypredva = self._evolve(Yva[:,0,:], Vva) # shape = (num_va_trajectories, num_indexes, data_encoded_size)
+                    Xpredva = self.data_ae.decoder(Ypredva) # shape = (num_va_trajectories, num_indexes, data_input_size)
 
                     anaes_va = metrics.overall_anae(X=self.dh.Xva[:,1:], Y=Yva[:,1:], Xr=Xrva[:,1:], Ypred=Ypredva[:,1:], Xpred=Xpredva[:,1:])
 
