@@ -533,35 +533,38 @@ class TrajPred:
                 lf.write(', '.join([f'{k} = {v[-1]}' for k,v in self.stats.items() if k.endswith('_te')]) + '\n')
 
 
-    def predict_new(self, X0) -> torch.Tensor:
-        """Use the trained model to predict complete trajectories for new starting states.
+    def predict_new(self, X0, U) -> torch.Tensor:
+        """Use the trained model to predict complete trajectories for new starting states and control inputs.
 
         This is different from testing because the ground truth values are not present, thus losses and errors are not computed.
 
         ## Parameters
-        - **'X0'** (*Array[float], shape=(num_new_trajectories, input_size)*) - The starting states for the new trajectories that are to be predicted. *Array* can be any data type such as *numpy.array*, *torch.Tensor*, *list*, *range*, etc.
+        - **'X0'** (*Array[float], shape=(num_new_trajectories, data_input_size)*) - The starting states for the new trajectories that are to be predicted. *Array* can be any data type such as *numpy.array*, *torch.Tensor*, *list*, *range*, etc.
+        - **'U'** (*Array[float], shape=(num_new_trajectories, num_indexes, control_input_size)*) - The entire control inputs (for all indexes) for the new trajectories that are to be predicted. *Array* can be any data type such as *numpy.array*, *torch.Tensor*, *list*, *range*, etc.
 
         ## Returns
-        **Xpred** (*torch.Tensor, shape=(num_new_trajectories, num_indexes, input_size)*) - Predicted trajectories for the new starting states.
+        **Xpred** (*torch.Tensor, shape=(num_new_trajectories, num_indexes, data_input_size)*) - Predicted trajectories for the new starting states.
         """
         X0 = utils.tensorize(X0, dtype=self.cfg.RTYPE, device=self.cfg.DEVICE)
+        X0_copy = X0.detach().clone() # create a copy for later
+        U = utils.tensorize(U, dtype=self.cfg.RTYPE, device=self.cfg.DEVICE)
         if self.cfg.normalize_Xdata:
-            _X0 = utils.scale(X0, scale=self.dh.Xscale)
-        else:
-            _X0 = X0.clone()
+            X0 = utils.scale(X0, scale=self.dh.Xscale)
+            U = utils.scale(U, scale=self.dh.Uscale)
 
         self._set_eval()
         with torch.no_grad():
-            Y0 = self.data_ae.encoder(_X0)
-            Ypred = self._evolve(Y0)
-            Xpred = self.data_ae.decoder(Ypred)
+            Y0 = self.data_ae.encoder(X0) # shape = (num_new_trajectories, data_encoded_size)
+            V = self.control_enc(U) # shape = (num_new_trajectories, num_indexes, control_encoded_size)
+            Ypred = self._evolve(Y0, V) # shape = (num_new_trajectories, num_indexes, data_encoded_size)
+            Xpred = self.data_ae.decoder(Ypred) # shape = (num_new_trajectories, num_indexes, data_input_size)
 
             if self.cfg.normalize_Xdata:
                 Xpred = utils.scale(Xpred, scale=1/self.dh.Xscale)
 
         with open(self.log_file, 'a', encoding='utf-8') as lf:
             lf.write("\nNew predictions:\n\n")
-            Xpred[:,0,:] = X0 # Start predicted trajectories from given starting points instead of reconstructed starting points. This helps in the user identifying each trajectory.
+            Xpred[:,0,:] = X0_copy # Start predicted trajectories from given starting points instead of reconstructed starting points. This helps in the user identifying each trajectory.
             for i in range(Xpred.shape[0]):
                 lf.write(f'{Xpred[i]}\n\n')
 

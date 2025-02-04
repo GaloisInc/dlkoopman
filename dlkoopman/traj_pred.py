@@ -467,15 +467,14 @@ class TrajPred:
         **Xpred** (*torch.Tensor, shape=(num_new_trajectories, num_indexes, input_size)*) - Predicted trajectories for the new starting states.
         """
         X0 = utils.tensorize(X0, dtype=self.cfg.RTYPE, device=self.cfg.DEVICE)
+        X0_copy = X0.detach().clone() # create a copy for later
         if self.cfg.normalize_Xdata:
-            _X0 = utils.scale(X0, scale=self.dh.Xscale)
-        else:
-            _X0 = X0.clone()
+            X0 = utils.scale(X0, scale=self.dh.Xscale)
 
         self.ae.eval()
         self.Knet.eval()
         with torch.no_grad():
-            Y0 = self.ae.encoder(_X0)
+            Y0 = self.ae.encoder(X0)
             Ypred = self._evolve(Y0)
             Xpred = self.ae.decoder(Ypred)
 
@@ -484,7 +483,7 @@ class TrajPred:
 
         with open(self.log_file, 'a', encoding='utf-8') as lf:
             lf.write("\nNew predictions:\n\n")
-            Xpred[:,0,:] = X0 # Start predicted trajectories from given starting points instead of reconstructed starting points. This helps in the user identifying each trajectory.
+            Xpred[:,0,:] = X0_copy # Start predicted trajectories from given starting points instead of reconstructed starting points. This helps in the user identifying each trajectory.
             for i in range(Xpred.shape[0]):
                 lf.write(f'{Xpred[i]}\n\n')
 
