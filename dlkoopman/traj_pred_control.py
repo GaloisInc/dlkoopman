@@ -309,7 +309,7 @@ class TrajPred:
         lr=1e-3, weight_decay=0., decoder_loss_weight=1e-2,
         clip_grad_norm=None, clip_grad_value=None
     ):
-        """Train the model using `dh.Xtr`, and validate it on `dh.Xva`.
+        """Train the model using `dh.Xtr` using `dh.Utr`, and validate it on `dh.Xva` using `dh.Uva`.
 
         ## Parameters
         - **numepochs** (*int, optional*) - Number of epochs for which to train. Each epoch uses the complete training data to learn the Koopman matrix.
@@ -375,7 +375,9 @@ class TrajPred:
                 lf.write(f"Largest magnitude among eigenvalues = {torch.max(torch.abs(self.Lambda))}\n")
 
             # Shuffle
-            self.dh.Xtr = self.dh.Xtr[torch.randperm(self.dh.Xtr.shape[0])]
+            shuff = torch.randperm(self.dh.Xtr.shape[0])
+            self.dh.Xtr = self.dh.Xtr[shuff]
+            self.dh.Utr = self.dh.Utr[shuff]
 
             ## Training ##
             self._set_train()
@@ -384,11 +386,15 @@ class TrajPred:
             for batch in range(numbatches):
                 opt.zero_grad()
 
-                Ytr, Xrtr = self.data_ae(self.dh.Xtr[batch*batch_size : (batch+1)*batch_size]) # shapes: Ytr = (batch_size, num_indexes, encoded_size), Xrtr = (batch_size, num_indexes, input_size)
+                # Data encoder
+                Ytr, Xrtr = self.data_ae(self.dh.Xtr[batch*batch_size : (batch+1)*batch_size]) # shapes: Ytr = (batch_size, num_indexes, data_encoded_size), Xrtr = (batch_size, num_indexes, data_input_size)
+
+                # Control encoder
+                Vtr = self.control_enc(self.dh.Utr[batch*batch_size : (batch+1)*batch_size]) # shape = (batch_size, num_indexes, control_encoded_size)
 
                 # Get predictions
-                Ypredtr = self._evolve(Ytr[:,0,:]) # shape = (batch_size, num_indexes, encoded_size)
-                Xpredtr = self.data_ae.decoder(Ypredtr) # shape = (batch_size, num_indexes, input_size)
+                Ypredtr = self._evolve(Ytr[:,0,:], Vtr) # shape = (batch_size, num_indexes, data_encoded_size)
+                Xpredtr = self.data_ae.decoder(Ypredtr) # shape = (batch_size, num_indexes, data_input_size)
 
                 # ANAEs
                 with torch.no_grad():
