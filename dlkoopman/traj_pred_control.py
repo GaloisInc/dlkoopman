@@ -272,17 +272,22 @@ class TrajPred:
         self._eigvecs = val
 
 
-    def _evolve(self, Y0) -> torch.Tensor:
+    def _evolve(self, Y0, V) -> torch.Tensor:
         """
-        Y0: (num_trajectories, encoded_size) - Initial state for all trajectories.
+        Y0: (num_trajectories, data_encoded_size) - Initial data encoded state for all trajectories.
+        V: (num_trajectories, num_indexes, control_encoded_size) - Control encoded states in all trajectories.
         """
         Ypred = torch.zeros(
-            Y0.shape[0], self.dh.Xtr.shape[1], Y0.shape[1],
+            Y0.shape[0], V.shape[1], Y0.shape[1],
             dtype=self.cfg.RTYPE, device=self.cfg.DEVICE
-        ) # shape = (num_trajectories, num_indexes, encoded_size)
+        ) # shape = (num_trajectories, num_indexes, data_encoded_size)
         Ypred[:, 0, :] = Y0
         for index in range(1, Ypred.shape[1]):
-            Ypred[:, index] = self.data_Knet(Ypred[:, index-1].clone()) #NOTE: .clone() since we are in-place modifying a variable needed for gradient computation
+            Ypred[:, index] = self.data_Knet(
+                Ypred[:, index-1].clone() #NOTE: .clone() since we are in-place modifying a variable needed for gradient computation
+            ) + self.control_Knet(
+                V[:, index-1]
+            )
         return Ypred
 
 
