@@ -153,7 +153,7 @@ class TrajPred:
         ## Define AutoEncoder
         self.ae = nets.AutoEncoder(
             input_size = self.input_size,
-            encoded_size = self.encoded_size,
+            encoded_size = encoded_size,
             encoder_hidden_layers = encoder_hidden_layers,
             decoder_hidden_layers = decoder_hidden_layers,
             batch_norm = batch_norm
