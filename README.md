@@ -107,9 +107,9 @@ Please cite the [accompanying paper](https://proceedings.mlr.press/v211/dey23a.h
 
 
 ## References
-- B. O. Koopman - Hamiltonian systems and transformation in Hilbert space
-- J. Nathan Kutz, Steven L. Brunton, Bingni Brunton, Joshua L. Proctor - Dynamic Mode Decomposition
-- Bethany Lusch, J. Nathan Kutz & Steven L. Brunton - Deep learning for universal linear embeddings of nonlinear dynamics
+- B. O. Koopman (1931) - Hamiltonian systems and transformation in Hilbert space
+- J. Nathan Kutz, Steven L. Brunton, Bingni Brunton, Joshua L. Proctor (2016) - Dynamic Mode Decomposition
+- Bethany Lusch, J. Nathan Kutz, Steven L. Brunton (2018) - Deep learning for universal linear embeddings of nonlinear dynamics
 
 
 ## Distribution Statement
