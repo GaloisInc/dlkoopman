@@ -1,6 +1,6 @@
-"""**Trajectory Predictor**.
+"""**Trajectory Predictor with control inputs**.
 
-`TrajPred` can be used to train on given equal-length trajectories of a system, then predict unknown trajectories of the system starting from new initial states. See a specific example and tutorial [here](https://github.com/GaloisInc/dlkoopman/blob/main/examples/traj_pred_polynomial_manifold/run.ipynb).
+`TrajPredControl` can be used to train on given equal-length trajectories of a system, then predict unknown trajectories of the system starting from new initial states. See a specific example and tutorial [here](https://github.com/GaloisInc/dlkoopman/blob/main/examples/traj_pred_polynomial_manifold/run.ipynb).
 """
 
 
@@ -19,53 +19,80 @@ from dlkoopman.config import Config
 warnings.filterwarnings("ignore", category=UserWarning)
 
 __pdoc__ = {
-    'TrajPred.decoder_loss_weight': False,
-    'TrajPred.Lambda': False,
-    'TrajPred.eigvecs': False
+    'TrajPredControl.decoder_loss_weight': False,
+    'TrajPredControl.Lambda': False,
+    'TrajPredControl.eigvecs': False
 }
 
 
-class TrajPredDataHandler:
-    """Trajectory predictor data handler. Used to provide data to train (and optionally validate and test) the `TrajPred` model.
+class TrajPredControlDataHandler:
+    """Data handler for trajectory predictor with control. Used to provide data to train (and optionally validate and test) the `TrajPredControl` model.
 
     ## Parameters
-    - **Xtr** (*Array[float], shape=(num_training_trajectories, num_indexes, input_size)*) - Input trajectories to be used as training data. *Array* can be any data type such as *numpy.array*, *torch.Tensor*, *list* etc.
+    - **Xtr** (*Array[float], shape=(num_training_trajectories, num_indexes, data_input_size)*) - Data input trajectories to be used as training data. *Array* can be any data type such as *numpy.array*, *torch.Tensor*, *list* etc.
 
-    - **Xva** (*Array[float], shape=(num_validation_trajectories, num_indexes, input_size), optional*) - Input trajectories to be used as validation data. Same data type requirements as `Xtr`.
+    - **Utr** (*Array[float], shape=(num_training_trajectories, num_indexes, control_input_size)*) - Control input trajectories to be used as training data. Same data type requirements as `Xtr`.
 
-    - **Xte** (*Array[float], shape=(num_test_trajectories, num_indexes, input_size), optional*) - Input trajectories to be used as test data. Same data type requirements as `Xtr`.
+    - **Xva** (*Array[float], shape=(num_validation_trajectories, num_indexes, data_input_size), optional*) - Data input trajectories to be used as validation data. Same data type requirements as `Xtr`.
+
+    - **Uva** (*Array[float], shape=(num_validation_trajectories, num_indexes, control_input_size), optional*) - Control input trajectories to be used as validation data. Same data type requirements as `Xtr`.
+
+    - **Xte** (*Array[float], shape=(num_test_trajectories, num_indexes, data_input_size), optional*) - Data input trajectories to be used as test data. Same data type requirements as `Xtr`.
+
+    - **Ute** (*Array[float], shape=(num_test_trajectories, num_indexes, control_input_size), optional*) - Control input trajectories to be used as test data. Same data type requirements as `Xtr`.
 
     - **cfg** (*dlkoopan.config.Config, optional*) - Leave this as `None` to use the default configuration options. If changing any configuration option(s) is desired, create a separate `Config` instance and pass that as an argument (see example below).
 
     ## Example
     ```python
-    # Provide data of a system with 2-dimensional states (i.e. input_size=3)
-    # containing trajectories of length 4 (i.e. num_indexes=3)
+    # Provide data of a system with 2-dimensional states (i.e. data_input_size=2)
+    # and 3-dimensional control inputs (i.e. control_input_size=3)
+    # containing trajectories of length 4 (i.e. num_indexes=4)
     # Provide 3 trajectories for training, 1 for validation, and none for testing
     # Use a custom configuration with double data types on CPU only
 
     from dlkoopman.config import Config
     cfg = Config(precision="double", use_cuda=False)
     
-    dh = TrajPredDataHandler(
+    dh = TrajPredControlDataHandler(
         Xtr = numpy.array([
             [ # 1st trajectory
-                [8.4, 6.7],
+                [8.4, -6.7],
                 [4.2, 4.2],
-                [3.4, 4.6],
+                [-3.4, -4.6],
                 [7.7, 1.8]
             ],
             [ # 2nd trajectory
-                [5.9, 1.5],
-                [8.3, 5.1],
+                [5.9, -1.5],
+                [-8.3, 5.1],
                 [9.9, 0.2],
-                [1.6, 7.2]
+                [-1.6, -7.2]
             ],
             [ # 3rd trajectory
-                [5.4, 9.8],
-                [2.4, 6.9],
-                [8.9, 0.5],
-                [9.3, 0.7]
+                [-5.4, -9.8],
+                [-2.4, -6.9],
+                [8.9, -0.5],
+                [-9.3, 0.7]
+            ]
+        ]),
+        Utr = numpy.array([
+            [ # 1st trajectory
+                [-0.8, 1.5, 5],
+                [-0.8, 1.5, 5],
+                [-0.8, 1.5, 5],
+                [0.8, -1.5, -5]
+            ],
+            [ # 2nd trajectory
+                [0, 1.5, 5],
+                [0.1, 1.5, 5],
+                [0.2, 1.5, 5],
+                [0, -1.5, -5]
+            ],
+            [ # 3rd trajectory
+                [3, 1.45, 5],
+                [6, 1.54, 0],
+                [-2.5, -1.45, 0.01],
+                [23.56, -1.55, -100]
             ]
         ]),
         Xva = numpy.array([
@@ -74,6 +101,14 @@ class TrajPredDataHandler:
                 [1.1, 6.2],
                 [7.8, 6.9],
                 [6.1, 8. ]
+            ]
+        ]),
+        Uva = numpy.array([
+            [ # 1st trajectory
+                [0, 0, 1],
+                [1, 0, 0],
+                [0, -1, 0],
+                [6.57, -89.05, 2]
             ]
         ]),
         cfg = cfg
@@ -119,11 +154,11 @@ class TrajPredDataHandler:
             self.Ute = utils.scale(self.Ute, scale=self.Uscale)
 
 
-class TrajPred:
-    """Trajectory predictor. Used to train on given equal-length trajectories of a system with control input trajectories of the same length, then predict unknown trajectories of the system starting from new initial states and control inputs.
+class TrajPredControl:
+    """Trajectory predictor with control. Used to train on given equal-length trajectories of a system with control input trajectories of the same length, then predict unknown trajectories of the system starting from new initial states and control inputs.
 
     ## Parameters
-    - **dh** (*TrajPredDataHandler*) - Data handler that feeds data. **Configuration options of a `TrajPred` instance are identical to `dh.cfg`.**
+    - **dh** (*TrajPredControlDataHandler*) - Data handler that feeds data. **Configuration options of a `TrajPredControl` instance are identical to `dh.cfg`.**
 
     - Parameters for data [AutoEncoder](https://galoisinc.github.io/dlkoopman/nets.html#dlkoopman.nets.AutoEncoder):
         - **data_encoded_size** (*int*).
