@@ -19,6 +19,7 @@ Koopman theory is a technique to encode sampled data (aka states) of a nonlinear
     - E.g: What is the pressure vector on this aircraft for $23.5^{\circ}$ angle of attack?
 - Trajectory prediction (`TrajPred`) - Train on generated trajectories of a system, then predict unknown trajectories for new initial states.
     - E.g: What is the behavior of this pendulum if I start from the point $[1,-1]$?
+- [WIP] Trajectory prediction with control inputs. (Work in progress in the `control` branch.)
 - General-purpose and reusable - supports data from any dynamical system.
 - Novel error function Average Normalized Absolute Error (ANAE) for visualizing performance.
 - Extensive options and a ready-to-use hyperparameter search module to improve performance.
@@ -85,6 +86,17 @@ Prediction happens after training.
 (b) Trajectory prediction - Generate predicted trajectories $j'$ for new starting states such as $x^{j'}_0$. This uses a linear neural net layer to evolve the initial state.
 
 
+### [WIP] dlkoopman with control inputs
+Work in progress in the `control` branch.
+
+The overall schematic diagram is:
+<figure>
+<img src="training_with_control_architecture.png" width=750/>
+</figure>
+
+Current status: Full implementation of this diagram achieved in `dlkoopman/traj_pred_control.py`. Not tested. Not ready for use yet.
+
+
 ## Known issues
 Some common issues and ways to overcome them are described in the [known issues](https://github.com/GaloisInc/dlkoopman/issues?q=is%3Aissue+is%3Aclosed+label%3Aknown-issue).
 
@@ -110,6 +122,8 @@ Please cite the [accompanying paper](https://proceedings.mlr.press/v211/dey23a.h
 - B. O. Koopman (1931) - Hamiltonian systems and transformation in Hilbert space
 - J. Nathan Kutz, Steven L. Brunton, Bingni Brunton, Joshua L. Proctor (2016) - Dynamic Mode Decomposition
 - Bethany Lusch, J. Nathan Kutz, Steven L. Brunton (2018) - Deep learning for universal linear embeddings of nonlinear dynamics
+- Joshua L. Proctor, Steven L. Brunton, J. Nathan Kutz (2018) - Generalizing Koopman Theory to Allow for Inputs and Control
+- Haojie Shi, Max Q.-H. Meng (2022) - Deep Koopman Operator With Control for Nonlinear Systems
 
 
 ## Distribution Statement
