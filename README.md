@@ -67,15 +67,25 @@ For a thorough mathematical treatment, see [this technical report](https://arxiv
 </figure>
 
 This is a small example with three *input states*:
+
 $$\left[x_0, x_1, x_2\right]$$
+
 These are passed through an encoder neural network to get *encoded states*:
+
 $$\left[y_0, y_1, y_2\right]$$
+
 These are used to learn $K$, and also passed through a decoder neural network to get *decoded states*:
+
 $$\left[\hat{x}_0, \hat{x}_1, \hat{x}_2\right]$$
+
 The Koopman matrix $K$ is used to derive *predicted encoded states*:
+
 $$\left[\mathsf{y}_1, \mathsf{y}_2\right]$$
+
 which are then passed through the same decoder to get *predicted decoded states*:
+
 $$\left[\hat{\mathsf{x}}_1, \hat{\mathsf{x}}_2\right]$$
+
 which approximate the original input states.
 
 Errors mimimized during training:
