@@ -40,7 +40,7 @@ pip install .
 ```
 
 ### Running as a Docker container
-DLKoopman can also be run as a docker container by pulling the image from `galoisinc/dlkoopman:<version>`, e.g. `docker pull galoisinc/dlkoopman:v1.2.0`.
+DLKoopman can also be run as a docker container by pulling the image from `galoisinc/dlkoopman:<version>`, e.g. `docker pull galoisinc/dlkoopman:v1.2.1`.
 
 
 ## Tutorials and examples
@@ -57,7 +57,7 @@ See [Releases](https://github.com/GaloisInc/dlkoopman/releases) and their notes.
 ## Description 
 
 ### Koopman theory
-Assume a dynamical system $x_{i+1} = F(x_i)$, where $x$ is the (genrally multi-dimensional) state of the system at index $i$, and $F$ is the (generally nonlinear) evolution rule describing the dynamics of the system. Koopman theory attempts to *encode* $x$ into a different space $y = g(x)$ where the dynamics are linear, i.e. $y_{i+1} = Ky_i$, where $K$ is the Koopman matrix. This is incredibly powerful since the state $y_i$ at any index $i$ can be predicted from the initial state $y_0$ as $y_i = K^iy_0$. This is then *decoded* back into the original space as $x = g^{-1}(y)$.
+Assume a dynamical system $x_{i+1} = F(x_i)$, where $x$ is the (generally multi-dimensional) state of the system at index $i$, and $F$ is the (generally nonlinear) evolution rule describing the dynamics of the system. Koopman theory attempts to *encode* $x$ into a different space $y = g(x)$ where the dynamics are linear, i.e. $y_{i+1} = Ky_i$, where $K$ is the Koopman matrix. This is incredibly powerful since the state $y_i$ at any index $i$ can be predicted from the initial state $y_0$ as $y_i = K^iy_0$. This is then *decoded* back into the original space as $x = g^{-1}(y)$.
 
 For a thorough mathematical treatment, see [this technical report](https://arxiv.org/abs/2211.07561).
 
@@ -66,12 +66,22 @@ For a thorough mathematical treatment, see [this technical report](https://arxiv
 <img src="https://raw.githubusercontent.com/GaloisInc/dlkoopman/ed11bef92b90112d9ca90722942a6789e6af7d5a/training_architecture.png" width=750/>
 </figure>
 
-This is a small example with three input states $\left[x_0, x_1, x_2\right]$. These are passed through an encoder neural network to get encoded states $\left[y_0, y_1, y_2\right]$. These are passed through a decoder neural network to get $\left[\hat{x}_0, \hat{x}_1, \hat{x}_2\right]$, and also used to learn $K$. This is used to derive predicted encoded states $\left[\mathsf{y}_1, \mathsf{y}_2\right]$, which are then passed through the same decoder to get predicted approximations $\left[\hat{\mathsf{x}}_1, \hat{\mathsf{x}}_2\right]$ to the original input states.
+This is a small example with three *input states*:
+$$\left[x_0, x_1, x_2\right]$$
+These are passed through an encoder neural network to get *encoded states*:
+$$\left[y_0, y_1, y_2\right]$$
+These are used to learn $K$, and also passed through a decoder neural network to get *decoded states*:
+$$\left[\hat{x}_0, \hat{x}_1, \hat{x}_2\right]$$
+The Koopman matrix $K$ is used to derive *predicted encoded states*:
+$$\left[\mathsf{y}_1, \mathsf{y}_2\right]$$
+which are then passed through the same decoder to get *predicted decoded states*:
+$$\left[\hat{\mathsf{x}}_1, \hat{\mathsf{x}}_2\right]$$
+which approximate the original input states.
 
 Errors mimimized during training:
-- Train the autoencoder - Reconstruction `recon` between $x$ and $\hat{x}$.
-- Train the Koopman matrix - Linearity `lin` between $y$ and $\mathsf{y}$.
-- Combine the above - Prediction `pred` between $x$ and $\hat{\mathsf{x}}$.
+- Train the autoencoder - Reconstruction `recon` between input states and decoded states.
+- Train the Koopman matrix - Linearity `lin` between encoded states and predicted encoded states.
+- Combine the above - Prediction `pred` between input states and predicted decoded states.
 
 ### dlkoopman prediction
 <figure>
