@@ -66,32 +66,12 @@ For a thorough mathematical treatment, see [this technical report](https://arxiv
 <img src="https://raw.githubusercontent.com/GaloisInc/dlkoopman/ed11bef92b90112d9ca90722942a6789e6af7d5a/training_architecture.png" width=750/>
 </figure>
 
-This is a small example with three *input states*:
-```math
-\left[x_0, x_1, x_2\right]
-```
-These are passed through an encoder neural network to get *encoded states*:
-```math
-\left[y_0, y_1, y_2\right]
-```
-These are used to learn $K$, and also passed through a decoder neural network to get *decoded states*:
-```math
-\left[\hat{x}_0, \hat{x}_1, \hat{x}_2\right]
-```
-The Koopman matrix $K$ is used to derive *predicted encoded states*:
-```math
-\left[\mathsf{y}_1, \mathsf{y}_2\right]
-```
-which are then passed through the same decoder to get *predicted decoded states*:
-```math
-\left[\hat{\mathsf{x}}_1, \hat{\mathsf{x}}_2\right]
-```
-which approximate the original input states.
+This is a small example with three input states $\left[x_0, x_1, x_2\right]$. These are passed through an encoder neural network to get encoded states $\left[y_0, y_1, y_2\right]$. These are passed through a decoder neural network to get $\left[\hat{x}_0, \hat{x}_1, \hat{x}_2\right]$, and also used to learn $K$. This is used to derive predicted encoded states $\left[\textsf{y}_1, \textsf{y}_2\right]$, which are then passed through the same decoder to get predicted approximations $\left[\hat{\textsf{x}}_1, \hat{\textsf{x}}_2\right]$ to the original input states.
 
 Errors mimimized during training:
-- Train the autoencoder - Reconstruction `recon` between input states and decoded states.
-- Train the Koopman matrix - Linearity `lin` between encoded states and predicted encoded states.
-- Combine the above - Prediction `pred` between input states and predicted decoded states.
+- Train the autoencoder - Reconstruction `recon` between $x$ and $\hat{x}$.
+- Train the Koopman matrix - Linearity `lin` between $y$ and $\textsf{y}$.
+- Combine the above - Prediction `pred` between $x$ and $\hat{\textsf{x}}$.
 
 ### dlkoopman prediction
 <figure>
